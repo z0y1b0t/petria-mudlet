@@ -2547,11 +2547,28 @@ tempTimer(0.5, function() send("lista") end)</script>
 -- respuesta HTTP del lado del cliente ademas del CDN -- purgar
 -- jsdelivr no alcanzaba, updatepkg seguia trayendo la version vieja.
 -- Cambia en cada build de este script, asi la url es "nueva" siempre.
+-- Confirmado en juego: installPackage() desde una URL puede fallar en
+-- silencio (sin "[INFO] Downloading"/"[OK] installed", ej. por un
+-- hiccup de red o el mirror de jsdelivr todavia sin sincronizar el
+-- ultimo commit) -- y como antes cecho-eabamos "Reinstalado." sin
+-- chequear nada, quedaba el paquete DESINSTALADO (uninstallPackage ya
+-- habia corrido) pero el usuario creia que habia funcionado. Ahora se
+-- verifica de verdad con getPackages() antes de avisar exito.
 cecho("&lt;yellow&gt;[Petria-Rhuna] Reinstalando...\n")
 uninstallPackage("Petria-Rhuna")
 tempTimer(0.5, function()
-  installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml?v=1789425013")
-  cecho("&lt;green&gt;[Petria-Rhuna] Reinstalado.\n")
+  installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml?v=1789425533")
+  tempTimer(3, function()
+    local instalado = false
+    for _, nombre in ipairs(getPackages()) do
+      if nombre == "Petria-Rhuna" then instalado = true end
+    end
+    if instalado then
+      cecho("&lt;green&gt;[Petria-Rhuna] Reinstalado.\n")
+    else
+      cecho("&lt;red&gt;[Petria-Rhuna] FALLO el reinstall (no aparece en getPackages()). Reintenta updatepkg en unos segundos, o instalalo manual con installPackage.\n")
+    end
+  end)
 end)</script>
 					<command />
 					<packageName />
