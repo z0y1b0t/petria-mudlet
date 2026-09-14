@@ -3285,7 +3285,50 @@ PeleaActualizarEnemigoGMCP()
 			</ScriptGroup>
 		</ScriptGroup>
 	</ScriptPackage>
-	<KeyPackage />
+	<KeyPackage>
+		<KeyGroup isActive="yes" isFolder="yes">
+			<name>Petria-Rhuna</name>
+			<packageName>Petria-Rhuna</packageName>
+			<script />
+			<command />
+			<keyCode>0</keyCode>
+			<keyModifier>0</keyModifier>
+			<KeyGroup isActive="yes" isFolder="yes">
+				<name>Teclas</name>
+				<packageName>Teclas</packageName>
+				<script />
+				<command />
+				<keyCode>0</keyCode>
+				<keyModifier>0</keyModifier>
+				<Key isActive="yes" isFolder="no">
+					<name>sanar</name>
+					<packageName />
+					<script>send("traga sana")</script>
+					<command />
+					<keyCode>16777222</keyCode>
+					<keyModifier>536870912</keyModifier>
+				</Key>
+				<Key isActive="yes" isFolder="no">
+					<name>recall</name>
+					<packageName />
+					<script>send("recall")
+send("n")
+send("curar")</script>
+					<command />
+					<keyCode>16777232</keyCode>
+					<keyModifier>0</keyModifier>
+				</Key>
+				<Key isActive="yes" isFolder="no">
+					<name>Savia verde</name>
+					<packageName />
+					<script>send("traga savia")</script>
+					<command />
+					<keyCode>16777223</keyCode>
+					<keyModifier>536870912</keyModifier>
+				</Key>
+			</KeyGroup>
+		</KeyGroup>
+	</KeyPackage>
 	<VariablePackage>
 		<HiddenVariables />
 	</VariablePackage>
