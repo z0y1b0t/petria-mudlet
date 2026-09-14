@@ -1926,6 +1926,17 @@ pcall(disableTriggerGroup, "WoF")
 pcall(enableTriggerGroup, "Pelea")
 
 send("c 'curar deslumbrar'")
+
+-- Tip de PK: "vision" (gatovision + vision verdadera) primero, porque
+-- es lo que permite que la cancelacion despues realmente quite
+-- santuario/acelerar del rival. Solteados si ya estan activos.
+if not Clases.tieneActivo("gatovision") then
+  send("c gatovision")
+end
+if not Clases.tieneActivo("vision verdadera") then
+  send("conjurar 'vision verdadera'")
+end
+
 -- Si el atacante esta identificado (no "Someone", que es lo que manda
 -- el server cuando no lo podes ver/detectar -- ver alerta de PK en
 -- Pelea), cancelamos lo que este canalizando via el alias "can" ya
