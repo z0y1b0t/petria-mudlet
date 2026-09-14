@@ -1913,16 +1913,22 @@ if obj ~= "" and clase and Clases.clasesConEmpalar[clase] and not en_combate the
   Clases.intentarEmpalar(obj)
 end
 
-if clase and Clases[clase] and Clases[clase].ataque then
-  Clases[clase].ataque(obj)
-else
-  cecho(string.format("&lt;red&gt;?? Clase desconocida: %s\n", tostring(clase)))
-  send("mata " .. obj)
-  send("espi")
-end</script>
+Clases.despacharAtaque(obj)</script>
 					<command />
 					<packageName />
 					<regex>^k(?: (.+))?$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>kk</name>
+					<script>local obj = matches[2] or ""
+rasOBJ = obj
+pcall(disableTriggerGroup, "WoF")
+pcall(enableTriggerGroup, "Pelea")
+
+Clases.despacharAtaque(obj)</script>
+					<command />
+					<packageName />
+					<regex>^kk(?: (.+))?$</regex>
 				</Alias>
 				<Alias isActive="yes" isFolder="no">
 					<name>engancha</name>
@@ -2913,6 +2919,19 @@ function Clases.intentarEmpalar(obj)
   send("empalar " .. obj)
   send("gua lanza")
   send("bla " .. (armaPrincipal or ""))
+end
+
+-- Despacha al ataque de la clase conectada (Clases[clase].ataque). Comun a
+-- "k" y "kk" -- la unica diferencia entre esos dos alias es si intentan
+-- empalar antes o no.
+function Clases.despacharAtaque(obj)
+  if clase and Clases[clase] and Clases[clase].ataque then
+    Clases[clase].ataque(obj)
+  else
+    cecho(string.format("&lt;red&gt;?? Clase desconocida: %s\n", tostring(clase)))
+    send("mata " .. obj)
+    send("espi")
+  end
 end
 </script>
 					<eventHandlerList />

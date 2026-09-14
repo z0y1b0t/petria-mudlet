@@ -595,13 +595,19 @@ make_alias(
     'if obj ~= "" and clase and Clases.clasesConEmpalar[clase] and not en_combate then\n'
     '  Clases.intentarEmpalar(obj)\n'
     'end\n\n'
-    'if clase and Clases[clase] and Clases[clase].ataque then\n'
-    '  Clases[clase].ataque(obj)\n'
-    'else\n'
-    '  cecho(string.format("<red>?? Clase desconocida: %s\\n", tostring(clase)))\n'
-    '  send("mata " .. obj)\n'
-    '  send("espi")\n'
-    'end'
+    'Clases.despacharAtaque(obj)'
+)
+
+# "kk": igual que "k" pero SIN el intento de empalar -- para cuando ya
+# estas en combate (ej. te atacaron primero) y solo queres que dispare los
+# ataques de la ficha de la clase, sin perder turnos cambiando a lanza.
+make_alias(
+    clases_alias_group, "kk", r"^kk(?: (.+))?$",
+    'local obj = matches[2] or ""\n'
+    'rasOBJ = obj\n'
+    'pcall(disableTriggerGroup, "WoF")\n'
+    'pcall(enableTriggerGroup, "Pelea")\n\n'
+    'Clases.despacharAtaque(obj)'
 )
 
 make_alias(
@@ -1235,6 +1241,19 @@ function Clases.intentarEmpalar(obj)
   send("empalar " .. obj)
   send("gua lanza")
   send("bla " .. (armaPrincipal or ""))
+end
+
+-- Despacha al ataque de la clase conectada (Clases[clase].ataque). Comun a
+-- "k" y "kk" -- la unica diferencia entre esos dos alias es si intentan
+-- empalar antes o no.
+function Clases.despacharAtaque(obj)
+  if clase and Clases[clase] and Clases[clase].ataque then
+    Clases[clase].ataque(obj)
+  else
+    cecho(string.format("<red>?? Clase desconocida: %s\\n", tostring(clase)))
+    send("mata " .. obj)
+    send("espi")
+  end
 end
 '''
 make_script(clases_group, "Clases_Core", core_script)
