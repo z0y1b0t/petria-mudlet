@@ -1587,7 +1587,9 @@ QT_KEY_END = 16777232
 # con las de la HP Pavilion arriba - no adivinados).
 QT_KEY_BRACELEFT = 123   # "["/"{" fisico
 QT_KEY_BRACERIGHT = 125  # "]"/"}" fisico
-QT_KEY_BACKSPACE = 16777219  # tecla "delete" fisica del teclado Mac
+QT_KEY_QUESTIONDOWN = 191  # "¿" fisico del teclado Mac (Backspace no sirve:
+# Mudlet lo usa para editar el texto de la linea de comando, nunca llega
+# al sistema de Key Bindings - confirmado probando en juego)
 
 petria_key_group = make_key_group(key_pkg, "Petria-Rhuna")
 teclas_key_group = make_key_group(petria_key_group, "Teclas")
@@ -1596,7 +1598,7 @@ make_key(teclas_key_group, "recall", QT_KEY_END, 0, 'send("recall")\nsend("n")\n
 make_key(teclas_key_group, "Savia verde", QT_KEY_DELETE, QT_KEYPAD_MODIFIER, 'send("traga savia")')
 make_key(teclas_key_group, "MAC-Sanar", QT_KEY_BRACELEFT, 0, 'send("traga sana")')
 make_key(teclas_key_group, "MAC-SaviaVerde", QT_KEY_BRACERIGHT, 0, 'send("traga savia")')
-make_key(teclas_key_group, "MAC-Recall", QT_KEY_BACKSPACE, 0, 'send("recall")\nsend("n")\nsend("curar")')
+make_key(teclas_key_group, "MAC-Recall", QT_KEY_QUESTIONDOWN, 0, 'send("recall")\nsend("n")\nsend("curar")')
 
 # ---------- VariablePackage ----------
 var_pkg = ET.SubElement(root, "VariablePackage")

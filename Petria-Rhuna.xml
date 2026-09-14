@@ -3354,7 +3354,7 @@ send("curar")</script>
 send("n")
 send("curar")</script>
 					<command />
-					<keyCode>16777219</keyCode>
+					<keyCode>191</keyCode>
 					<keyModifier>0</keyModifier>
 				</Key>
 			</KeyGroup>
