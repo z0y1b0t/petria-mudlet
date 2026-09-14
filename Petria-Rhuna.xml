@@ -2547,28 +2547,40 @@ tempTimer(0.5, function() send("lista") end)</script>
 -- respuesta HTTP del lado del cliente ademas del CDN -- purgar
 -- jsdelivr no alcanzaba, updatepkg seguia trayendo la version vieja.
 -- Cambia en cada build de este script, asi la url es "nueva" siempre.
--- Confirmado en juego: installPackage() desde una URL puede fallar en
--- silencio (sin "[INFO] Downloading"/"[OK] installed", ej. por un
--- hiccup de red o el mirror de jsdelivr todavia sin sincronizar el
--- ultimo commit) -- y como antes cecho-eabamos "Reinstalado." sin
--- chequear nada, quedaba el paquete DESINSTALADO (uninstallPackage ya
--- habia corrido) pero el usuario creia que habia funcionado. Ahora se
--- verifica de verdad con getPackages() antes de avisar exito.
+-- Confirmado en juego, dos veces seguidas: installPackage() desde una
+-- URL puede fallar en silencio (sin "[INFO] Downloading"/"[OK]
+-- installed") si se llama muy pronto despues de uninstallPackage --
+-- 0.5s de por medio (el delay original) no alcanzaba siempre. Subido
+-- a 2s antes del primer intento, mas UN reintento automatico con otros
+-- 3s de por medio si getPackages() confirma que sigue sin quedar
+-- instalado (antes cecho-eabamos "Reinstalado." sin chequear nada, y
+-- el usuario se quedaba con el paquete DESINSTALADO creyendo que
+-- habia andado bien, rompiendo todos los alias).
 cecho("&lt;yellow&gt;[Petria-Rhuna] Reinstalando...\n")
 uninstallPackage("Petria-Rhuna")
-tempTimer(0.5, function()
-  installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml?v=1789425533")
-  tempTimer(3, function()
-    local instalado = false
-    for _, nombre in ipairs(getPackages()) do
-      if nombre == "Petria-Rhuna" then instalado = true end
-    end
-    if instalado then
-      cecho("&lt;green&gt;[Petria-Rhuna] Reinstalado.\n")
-    else
-      cecho("&lt;red&gt;[Petria-Rhuna] FALLO el reinstall (no aparece en getPackages()). Reintenta updatepkg en unos segundos, o instalalo manual con installPackage.\n")
-    end
-  end)
+
+local function PetriaRhunaEstaInstalado()
+  for _, nombre in ipairs(getPackages()) do
+    if nombre == "Petria-Rhuna" then return true end
+  end
+  return false
+end
+
+local function PetriaRhunaVerificar(intento)
+  if PetriaRhunaEstaInstalado() then
+    cecho("&lt;green&gt;[Petria-Rhuna] Reinstalado.\n")
+  elseif intento &lt; 2 then
+    cecho(string.format("&lt;yellow&gt;[Petria-Rhuna] Intento %d fallo, reintentando...\n", intento))
+    installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml?v=1789425659")
+    tempTimer(3, function() PetriaRhunaVerificar(intento + 1) end)
+  else
+    cecho("&lt;red&gt;[Petria-Rhuna] FALLO el reinstall tras 2 intentos. Instalalo manual: lua installPackage(\"https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml?v=1789425659\")\n")
+  end
+end
+
+tempTimer(2, function()
+  installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml?v=1789425659")
+  tempTimer(3, function() PetriaRhunaVerificar(1) end)
 end)</script>
 					<command />
 					<packageName />
