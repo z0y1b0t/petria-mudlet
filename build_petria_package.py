@@ -1,18 +1,32 @@
 import os
+import subprocess
 import time
 import xml.etree.ElementTree as ET
 
-# Cache-buster para la URL de jsdelivr: confirmado en juego que Mudlet
-# (Qt) cachea la respuesta HTTP del lado del CLIENTE ademas de la cache
-# del CDN de jsdelivr -- purgar jsdelivr (purge.jsdelivr.net) no alcanza,
-# "updatepkg" seguia trayendo la version vieja porque Mudlet reusaba su
-# copia local para la MISMA url exacta. Agregando "?v=<timestamp de
-# build>" la url cambia en cada regeneracion del paquete, asi Mudlet la
-# trata como un recurso nuevo y descarga de verdad. Se recalcula cada vez
-# que se corre este script, asi que un rebuild sin otros cambios igual
-# genera un diff (esperado).
-JSDELIVR_CACHE_BUSTER = int(time.time())
-JSDELIVR_URL = f"https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml?v={JSDELIVR_CACHE_BUSTER}"
+# URL de jsdelivr para "updatepkg": confirmado en juego, varias veces, que
+# "@main/Petria-Rhuna.xml" (rama mutable) es poco confiable -- ya sea por
+# cache (CDN o del cliente Qt de Mudlet) o por algo en como Mudlet maneja
+# la descarga, quedaba trayendo versiones viejas o fallando en silencio.
+# Un "?v=<timestamp>" para forzar cache-busting tambien fallo (Mudlet no
+# bajaba el paquete con esa url en mas de un intento). LO UNICO que
+# funciono siempre, sin excepcion, fue instalar desde un COMMIT EXACTO
+# (@<sha>/Petria-Rhuna.xml, sin query string) -- un commit ya empujado a
+# GitHub es contenido inmutable, jsdelivr lo sirve sin ambiguedad de cache
+# apenas existe. Por eso "updatepkg" apunta al commit HEAD *previo* a este
+# build (obtenido con "git rev-parse HEAD" antes de generar el archivo):
+# ese commit ya esta pusheado y ya tiene todo el contenido funcional de
+# este build salvo, como mucho, el numero de commit al que apunta esta
+# misma linea -- nunca al codigo real (triggers/alias/scripts). El
+# workflow de publicacion hace un segundo commit chico despues de este
+# para "clavar" la url al commit recien creado (ver mensajes de build).
+try:
+    JSDELIVR_PIN_COMMIT = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=os.path.dirname(os.path.abspath(__file__))
+    ).decode().strip()
+except Exception:
+    JSDELIVR_PIN_COMMIT = "main"
+JSDELIVR_URL = f"https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@{JSDELIVR_PIN_COMMIT}/Petria-Rhuna.xml"
+JSDELIVR_CACHE_BUSTER = int(time.time())  # usado solo para Petria.version ("updatepkg -v")
 
 def indent(elem, level=0):
     i = "\n" + level * "\t"
