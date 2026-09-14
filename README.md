@@ -46,6 +46,24 @@ guardado (`clase`, `Clases.dopes`, `petria_dopes.lua`, `armaPrincipal`
 del GUI oficial, etc.) se pierde con el rename — son variables Lua y
 archivos aparte, no dependen del nombre del paquete Mudlet.
 
+## Disponible en las dos PCs: GitHub
+
+Repo: **https://github.com/z0y1b0t/petria-mudlet** (público). Cada vez que
+te mando una versión nueva, la subo ahí también. `updatepkg` ya instala
+desde la URL raw de GitHub, no desde un archivo local — funciona igual sea
+cual sea la PC donde lo corras, siempre que tengas internet.
+
+Push con una **deploy key** dedicada a este repo (no tus credenciales
+personales de GitHub, y solo con acceso a este repo puntual, no a toda tu
+cuenta) — así que si en algún momento querés cortar el acceso, la borrás
+desde `Settings → Deploy keys` del repo sin tocar nada más tuyo.
+
+Para instalarlo por primera vez en la otra PC (con Mudlet + GMCP activado):
+```
+lua installPackage("https://raw.githubusercontent.com/z0y1b0t/petria-mudlet/main/Petria-Rhuna.xml")
+```
+Después, `updatepkg` funciona igual que en esta.
+
 Fuente original: `/media/rcaceres/3B46BF9F7F346D5E/petria.xml` (export CMUD).
 
 ## GMCP disponible en este server

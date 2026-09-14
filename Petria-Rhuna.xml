@@ -2467,10 +2467,12 @@ tempTimer(0.5, function() send("lista") end)</script>
 -- Mudlet que tenga EL MISMO NOMBRE -- si el nuestro se llamara igual
 -- que el oficial (o algo generico como "Petria"), correr
 -- "instalarmudlet" en el juego podria borrar todo esto.
+-- Instala desde GitHub (raw), no un archivo local: asi funciona igual
+-- en cualquier PC, no solo en la que genero el archivo.
 cecho("&lt;yellow&gt;[Petria-Rhuna] Reinstalando...\n")
 uninstallPackage("Petria-Rhuna")
 tempTimer(0.5, function()
-  installPackage("/home/rcaceres/Documentos/Claude/Projects/Petria-Mudlet/Petria-Rhuna.xml")
+  installPackage("https://raw.githubusercontent.com/z0y1b0t/petria-mudlet/main/Petria-Rhuna.xml")
   cecho("&lt;green&gt;[Petria-Rhuna] Reinstalado.\n")
 end)</script>
 					<command />
