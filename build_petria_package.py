@@ -1,5 +1,18 @@
 import os
+import time
 import xml.etree.ElementTree as ET
+
+# Cache-buster para la URL de jsdelivr: confirmado en juego que Mudlet
+# (Qt) cachea la respuesta HTTP del lado del CLIENTE ademas de la cache
+# del CDN de jsdelivr -- purgar jsdelivr (purge.jsdelivr.net) no alcanza,
+# "updatepkg" seguia trayendo la version vieja porque Mudlet reusaba su
+# copia local para la MISMA url exacta. Agregando "?v=<timestamp de
+# build>" la url cambia en cada regeneracion del paquete, asi Mudlet la
+# trata como un recurso nuevo y descarga de verdad. Se recalcula cada vez
+# que se corre este script, asi que un rebuild sin otros cambios igual
+# genera un diff (esperado).
+JSDELIVR_CACHE_BUSTER = int(time.time())
+JSDELIVR_URL = f"https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml?v={JSDELIVR_CACHE_BUSTER}"
 
 def indent(elem, level=0):
     i = "\n" + level * "\t"
@@ -989,10 +1002,14 @@ make_alias(
     '-- con curl: "Connection reset by peer" tanto directo como via el\n'
     '-- redirect de github.com/.../raw/...). jsdelivr es un CDN publico\n'
     '-- que espeja repos de GitHub y no tuvo ese bloqueo.\n'
+    '-- "?v=<timestamp>" al final: confirmado en juego que Mudlet cachea la\n'
+    '-- respuesta HTTP del lado del cliente ademas del CDN -- purgar\n'
+    '-- jsdelivr no alcanzaba, updatepkg seguia trayendo la version vieja.\n'
+    '-- Cambia en cada build de este script, asi la url es "nueva" siempre.\n'
     'cecho("<yellow>[Petria-Rhuna] Reinstalando...\\n")\n'
     'uninstallPackage("Petria-Rhuna")\n'
     'tempTimer(0.5, function()\n'
-    '  installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml")\n'
+    f'  installPackage("{JSDELIVR_URL}")\n'
     '  cecho("<green>[Petria-Rhuna] Reinstalado.\\n")\n'
     'end)'
 )
