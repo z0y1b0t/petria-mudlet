@@ -592,7 +592,7 @@ make_alias(
     'rasOBJ = obj\n'
     'pcall(disableTriggerGroup, "WoF")\n'
     'pcall(enableTriggerGroup, "Pelea")\n\n'
-    'if obj ~= "" and clase and Clases.clasesConEmpalar[clase] and not en_combate then\n'
+    'if obj ~= "" and clase and Clases.clasesConEmpalar[clase] and not (en_combate and en_combate ~= 0) then\n'
     '  Clases.intentarEmpalar(obj)\n'
     'end\n\n'
     'Clases.despacharAtaque(obj)'
@@ -1236,8 +1236,11 @@ ClasesActualizarClaseGMCP()
 -- el helpfile en juego -- paladin no es una clase migrada aca, se ignora.
 -- El helpfile aclara que es similar a apunalar: solo funciona con el
 -- objetivo al maximo de vida o dormido, salvo que se combine con emboscar.
--- Por eso "k" solo la dispara como apertura (not en_combate, actualizado
--- por GMCP en Pelea_Core), nunca en rondas siguientes.
+-- Por eso "k" solo la dispara como apertura (en_combate en 0/nil,
+-- actualizado por GMCP en Pelea_Core), nunca en rondas siguientes.
+-- OJO: en_combate arranca en 0, no nil/false -- y en Lua "0" es verdadero.
+-- El chequeo tiene que ser "en_combate and en_combate ~= 0", nunca
+-- "not en_combate" solo (ver resto de Pelea, que ya usa ese patron).
 Clases.clasesConEmpalar = { guerrero = true, asesino = true, seguidores = true }
 
 -- Cambia a una lanza para empalar y vuelve al arma principal configurada
