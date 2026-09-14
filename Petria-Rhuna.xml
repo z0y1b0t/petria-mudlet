@@ -3285,7 +3285,24 @@ PeleaActualizarEnemigoGMCP()
 			</ScriptGroup>
 		</ScriptGroup>
 	</ScriptPackage>
-	<KeyPackage />
+	<KeyPackage>
+		<KeyGroup isActive="yes" isFolder="yes">
+			<name>Petria-Rhuna</name>
+			<packageName>Petria-Rhuna</packageName>
+			<script />
+			<command />
+			<keyCode>0</keyCode>
+			<keyModifier>0</keyModifier>
+			<Key isActive="yes" isFolder="no">
+				<name>Numpad Punto: traga sabia</name>
+				<packageName />
+				<script />
+				<command>traga sabia</command>
+				<keyCode>46</keyCode>
+				<keyModifier>536870912</keyModifier>
+			</Key>
+		</KeyGroup>
+	</KeyPackage>
 	<VariablePackage>
 		<HiddenVariables />
 	</VariablePackage>
