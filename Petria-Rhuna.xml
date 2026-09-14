@@ -2526,7 +2526,17 @@ tempTimer(0.5, function() send("lista") end)</script>
 				</Alias>
 				<Alias isActive="yes" isFolder="no">
 					<name>updatepkg</name>
-					<script>-- uninstallPackage + installPackage encadenados en una sola linea daban
+					<script>-- "updatepkg -v" (o "updatepkg version"): solo muestra el build
+-- instalado (Petria.version, timestamp unix de build_petria_package.py)
+-- sin reinstalar nada -- para confirmar de un vistazo si esta
+-- sincronizado con el ultimo push, en vez de tener que comparar el
+-- comportamiento de los alias a mano.
+if matches[2] and matches[2] ~= "" then
+  cecho(string.format("&lt;cyan&gt;[Petria-Rhuna] Build instalado: %s\n", tostring(Petria.version)))
+  return
+end
+
+-- uninstallPackage + installPackage encadenados en una sola linea daban
 -- "package X is already installed" por timing (confirmado antes, por
 -- eso veniamos pidiendo hacerlo en dos comandos separados). El
 -- tempTimer da tiempo a que el uninstall termine antes de reinstalar.
@@ -2571,20 +2581,20 @@ local function PetriaRhunaVerificar(intento)
     cecho("&lt;green&gt;[Petria-Rhuna] Reinstalado.\n")
   elseif intento &lt; 2 then
     cecho(string.format("&lt;yellow&gt;[Petria-Rhuna] Intento %d fallo, reintentando...\n", intento))
-    installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml?v=1789425659")
+    installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml?v=1789425852")
     tempTimer(3, function() PetriaRhunaVerificar(intento + 1) end)
   else
-    cecho("&lt;red&gt;[Petria-Rhuna] FALLO el reinstall tras 2 intentos. Instalalo manual: lua installPackage(\"https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml?v=1789425659\")\n")
+    cecho("&lt;red&gt;[Petria-Rhuna] FALLO el reinstall tras 2 intentos. Instalalo manual: lua installPackage(\"https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml?v=1789425852\")\n")
   end
 end
 
 tempTimer(2, function()
-  installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml?v=1789425659")
+  installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml?v=1789425852")
   tempTimer(3, function() PetriaRhunaVerificar(1) end)
 end)</script>
 					<command />
 					<packageName />
-					<regex>^updatepkg$</regex>
+					<regex>^updatepkg(?:\s+(-v|version))?$</regex>
 				</Alias>
 				<Alias isActive="yes" isFolder="no">
 					<name>q</name>
@@ -2805,6 +2815,12 @@ send("ir 11866")</script>
 -- ================================================================
 
 Petria = Petria or {}
+
+-- Timestamp unix de cuando se corrio build_petria_package.py para este
+-- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
+-- instalado esta sincronizado con el ultimo push, sin tener que comparar
+-- el contenido de los alias a mano cada vez que algo no anda.
+Petria.version = 1789425852
 
 function Petria.esperarTexto(patron, callback, timeoutSeg)
   local id

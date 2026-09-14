@@ -982,7 +982,16 @@ make_alias(
 make_alias(alias_group, "cq", r"^cq$", 'send("quien concilio")')
 
 make_alias(
-    alias_group, "updatepkg", r"^updatepkg$",
+    alias_group, "updatepkg", r"^updatepkg(?:\s+(-v|version))?$",
+    '-- "updatepkg -v" (o "updatepkg version"): solo muestra el build\n'
+    '-- instalado (Petria.version, timestamp unix de build_petria_package.py)\n'
+    '-- sin reinstalar nada -- para confirmar de un vistazo si esta\n'
+    '-- sincronizado con el ultimo push, en vez de tener que comparar el\n'
+    '-- comportamiento de los alias a mano.\n'
+    'if matches[2] and matches[2] ~= "" then\n'
+    '  cecho(string.format("<cyan>[Petria-Rhuna] Build instalado: %s\\n", tostring(Petria.version)))\n'
+    '  return\n'
+    'end\n\n'
     '-- uninstallPackage + installPackage encadenados en una sola linea daban\n'
     '-- "package X is already installed" por timing (confirmado antes, por\n'
     '-- eso veniamos pidiendo hacerlo en dos comandos separados). El\n'
@@ -1125,7 +1134,7 @@ def make_script(parent, name, script):
 
 petria_script_group = make_script_group(script_pkg, "Petria-Rhuna")
 
-petria_core_script = '''-- ================================================================
+petria_core_script = f'''-- ================================================================
 -- PETRIA CORE - utilidades compartidas
 -- ================================================================
 -- Equivalente a #WAITFOR y #WAIT de CMUD, que no existen tal cual en
@@ -1133,7 +1142,13 @@ petria_core_script = '''-- =====================================================
 -- despues de disparar una vez (o al vencer el timeout).
 -- ================================================================
 
-Petria = Petria or {}
+Petria = Petria or {{}}
+
+-- Timestamp unix de cuando se corrio build_petria_package.py para este
+-- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
+-- instalado esta sincronizado con el ultimo push, sin tener que comparar
+-- el contenido de los alias a mano cada vez que algo no anda.
+Petria.version = {JSDELIVR_CACHE_BUSTER}
 
 function Petria.esperarTexto(patron, callback, timeoutSeg)
   local id
