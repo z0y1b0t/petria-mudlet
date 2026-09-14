@@ -607,6 +607,14 @@ make_alias(
     'rasOBJ = obj\n'
     'pcall(disableTriggerGroup, "WoF")\n'
     'pcall(enableTriggerGroup, "Pelea")\n\n'
+    'send("c \'curar deslumbrar\'")\n'
+    '-- Si el atacante esta identificado (no "Someone", que es lo que manda\n'
+    '-- el server cuando no lo podes ver/detectar -- ver alerta de PK en\n'
+    '-- Pelea), cancelamos lo que este canalizando via el alias "can" ya\n'
+    '-- existente (reintento incluido).\n'
+    'if obj ~= "" and obj:lower() ~= "someone" then\n'
+    '  expandAlias("can " .. obj)\n'
+    'end\n\n'
     'Clases.despacharAtaque(obj)'
 )
 

@@ -1925,6 +1925,15 @@ rasOBJ = obj
 pcall(disableTriggerGroup, "WoF")
 pcall(enableTriggerGroup, "Pelea")
 
+send("c 'curar deslumbrar'")
+-- Si el atacante esta identificado (no "Someone", que es lo que manda
+-- el server cuando no lo podes ver/detectar -- ver alerta de PK en
+-- Pelea), cancelamos lo que este canalizando via el alias "can" ya
+-- existente (reintento incluido).
+if obj ~= "" and obj:lower() ~= "someone" then
+  expandAlias("can " .. obj)
+end
+
 Clases.despacharAtaque(obj)</script>
 					<command />
 					<packageName />
