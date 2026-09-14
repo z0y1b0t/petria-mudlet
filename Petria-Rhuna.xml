@@ -3092,9 +3092,10 @@ Clases.ranger = {
 -- seguidores_de_Oteren), quedandonos con los autobuffs persistentes y
 -- dejando afuera curas puntuales, deteccion y utilidad situacional.
 Clases.dopes.seguidores = Clases.dopes.seguidores or {
-  "acelerar", "antifuego", "bendecir", "escudo luz", "fuerza colosal",
-  "gatovision", "inspiracion divina", "luz protectora",
-  "proteccion infernal", "proteccion sagrada", "santuario", "volar",
+  "acelerar", "antifuego", "bendecir", "detectar invisibilidad",
+  "escudo luz", "fuerza colosal", "gatovision", "inspiracion divina",
+  "luz protectora", "proteccion infernal", "proteccion sagrada",
+  "santuario", "volar",
 }
 
 Clases.seguidores = {
