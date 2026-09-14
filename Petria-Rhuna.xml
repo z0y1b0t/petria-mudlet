@@ -889,6 +889,30 @@ end</script>
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Enemigo huye: perseguir y reatacar</name>
+					<script>local nombreCompleto, direccion = matches[2], matches[3]
+if rasOBJ and rasOBJ ~= "" and nombreCompleto:lower():find(rasOBJ:lower(), 1, true) then
+  send(direccion)
+  send("k " .. rasOBJ)
+end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^(.+) se va por el (\w+)\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Defensa expuesta: rodear o corte artero</name>
 					<script>local pct = tonumber(matches[2]) or 0
 if pct &gt;= 80 then expandAlias("skill rodear") else expandAlias("skill corte_artero") end</script>

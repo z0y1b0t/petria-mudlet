@@ -377,6 +377,21 @@ make_trigger(
 make_trigger(pelea_trig_group, "Recuperado de golpetazo", 'expandAlias("skill golpeta")', [r"se recupera de los efectos del golpetazo\.$"])
 make_trigger(pelea_trig_group, "Transeunte resiste raices", 'send("c rai")', [r"pero un transeunte casual se resiste a ellas\.$"])
 make_trigger(pelea_trig_group, "Cegados por suciedad: zancadilla", 'expandAlias("skill zancadilla")', [r"han sido cegados por la suciedad!"])
+# Enemigo (PvE normal, no WoF/PK) huye de la pelea: lo perseguimos y
+# reatacamos, en vez de dejarlo escapar. Igual patron que "Amigo WoF se va
+# por una salida" (linea de abajo, esa es solo para WoFriends) pero
+# generico -- se dispara si el nombre completo de quien huye (matches[2])
+# contiene el keyword que le pasamos a "k"/"kk" (rasOBJ), asi no persigue
+# a cualquiera que huya en la sala, solo al objetivo actual.
+make_trigger(
+    pelea_trig_group, "Enemigo huye: perseguir y reatacar",
+    'local nombreCompleto, direccion = matches[2], matches[3]\n'
+    'if rasOBJ and rasOBJ ~= "" and nombreCompleto:lower():find(rasOBJ:lower(), 1, true) then\n'
+    '  send(direccion)\n'
+    '  send("k " .. rasOBJ)\n'
+    'end',
+    [r"^(.+) se va por el (\w+)\.$"],
+)
 make_trigger(
     pelea_trig_group, "Defensa expuesta: rodear o corte artero",
     'local pct = tonumber(matches[2]) or 0\n'
