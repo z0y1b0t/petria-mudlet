@@ -1909,6 +1909,10 @@ rasOBJ = obj
 pcall(disableTriggerGroup, "WoF")
 pcall(enableTriggerGroup, "Pelea")
 
+if obj ~= "" and clase and Clases.clasesConEmpalar[clase] and not en_combate then
+  Clases.intentarEmpalar(obj)
+end
+
 if clase and Clases[clase] and Clases[clase].ataque then
   Clases[clase].ataque(obj)
 else
@@ -2891,6 +2895,25 @@ registerAnonymousEventHandler("gmcp.Char.Base", "ClasesActualizarClaseGMCP")
 
 -- Por si GMCP ya trajo los datos antes de instalar este paquete
 ClasesActualizarClaseGMCP()
+
+-- "empalar" (SK063): "asesino guerrero paladin seguidores_de_oteren" segun
+-- el helpfile en juego -- paladin no es una clase migrada aca, se ignora.
+-- El helpfile aclara que es similar a apunalar: solo funciona con el
+-- objetivo al maximo de vida o dormido, salvo que se combine con emboscar.
+-- Por eso "k" solo la dispara como apertura (not en_combate, actualizado
+-- por GMCP en Pelea_Core), nunca en rondas siguientes.
+Clases.clasesConEmpalar = { guerrero = true, asesino = true, seguidores = true }
+
+-- Cambia a una lanza para empalar y vuelve al arma principal configurada
+-- con "setarma" en el GUI oficial (variable global "armaPrincipal",
+-- persistida en estado_gui.lua -- no se duplica esa logica aca).
+function Clases.intentarEmpalar(obj)
+  send("get lanza moch")
+  send("bla lanza")
+  send("empalar " .. obj)
+  send("gua lanza")
+  send("bla " .. (armaPrincipal or ""))
+end
 </script>
 					<eventHandlerList />
 				</Script>
@@ -3105,7 +3128,9 @@ Clases.dopes.seguidores = Clases.dopes.seguidores or {
 
 Clases.seguidores = {
   ataque = function(obj)
-    send("empalar " .. obj)
+    -- "empalar" ya no va suelto aca: lo dispara "k" antes de llamar a
+    -- ataque() (ver Clases.intentarEmpalar en Clases_Core), con el cambio
+    -- de arma a lanza que esto nunca hacia.
     send("cocear " .. obj)
     send("mata " .. obj)
     send("espi")
