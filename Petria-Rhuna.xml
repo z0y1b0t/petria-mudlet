@@ -462,7 +462,7 @@ if rasOBJ and rasOBJ ~= "" then send("ras " .. rasOBJ) end</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>¡?¡?SANGRAS A LO BESTIA!!$</string>
+						<string>(?i)¡?¡?SANGR[aáA]S A LO BESTIA!!</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -482,7 +482,7 @@ if rasOBJ and rasOBJ ~= "" then send("ras " .. rasOBJ) end</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>¡?¡?ESTaS PERDIENDO DEMASIADA SANGRE!!$</string>
+						<string>(?i)¡?¡?EST[aáA]S PERDIENDO DEMASIADA SANGRE!!</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
