@@ -1,0 +1,3289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE MudletPackage>
+<MudletPackage version="1.001">
+	<TriggerPackage>
+		<TriggerGroup isActive="yes" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+			<name>Petria-Rhuna</name>
+			<script />
+			<triggerType>0</triggerType>
+			<conditonLineDelta>0</conditonLineDelta>
+			<mStayOpen>0</mStayOpen>
+			<mCommand />
+			<packageName />
+			<mFgColor>#ff0000</mFgColor>
+			<mBgColor>#ffff00</mBgColor>
+			<mSoundFile />
+			<colorTriggerFgColor>#000000</colorTriggerFgColor>
+			<colorTriggerBgColor>#000000</colorTriggerBgColor>
+			<regexCodeList />
+			<regexCodePropertyList />
+			<TriggerGroup isActive="yes" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>Pelea</name>
+				<script />
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand />
+				<packageName />
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile />
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList />
+				<regexCodePropertyList />
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Fin de combate: enemigo muerto</name>
+					<script>en_combate = 0
+pcall(function() Pelea.cancelarTimersPendientes() end)</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>ESTA MUERTO !!$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Fin de combate: huida</name>
+					<script>en_combate = 0
+pcall(function() Pelea.cancelarTimersPendientes() end)</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>Logras HUIR!</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Hechizo fallado: reintentar</name>
+					<script>if en_combate and en_combate ~= 0 and ultima_skill and ultima_skill ~= "" then
+  expandAlias(ultima_skill)
+end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Hechizo fallado\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Cooldown tormenta prismatica</name>
+					<script>if en_combate and en_combate ~= 0 then send("c torme") end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^El cooldown de tormenta prismatica ha terminado\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Cooldown diluvio acido</name>
+					<script>if en_combate and en_combate ~= 0 then send("c dilu") end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^El cooldown de diluvio acido ha terminado\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Post-kill: loot y reset de aliento</name>
+					<script>send("GET ALEA")
+send("exam cu")
+send("lo")
+ResetAliento()
+pcall(enableTriggerGroup, "GA01")
+ultima_skill = ""</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>ESTA MUERTO !!$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Objeto legendario en cadaver</name>
+					<script>local linea = matches[1]
+local nombre = linea:gsub("%b()", "")
+nombre = nombre:gsub("^%s+", ""):gsub("%s+$", "")
+
+local palabrasChicas = {
+  un = true, una = true, unos = true, unas = true,
+  el = true, la = true, los = true, las = true,
+  de = true, del = true, y = true,
+}
+
+local palabraClave = nil
+for palabra in nombre:gmatch("%a+") do
+  if not palabrasChicas[palabra:lower()] then
+    palabraClave = palabra:lower()
+    break
+  end
+end
+
+if palabraClave then
+  send("coger " .. palabraClave)
+end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^\s*\(LEGENDARIO\)</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Presencia enemiga en la sombra</name>
+					<script>send("k " .. matches[2])</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>Sientes la presencia de un (\w+) en la sombra\.</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Cooldown chupar energia</name>
+					<script>if en_combate and en_combate ~= 0 then send("c chupar") end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>El cooldown de chupar energia ha terminado\.</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Reintentar skill tras fallo</name>
+					<script>if en_combate and en_combate ~= 0 and ultima_skill and ultima_skill ~= "" then
+  expandAlias(ultima_skill)
+end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Has fallado\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Sin mana: recall</name>
+					<script>-- No insistir con recall si ya sabemos que esta bloqueado en esta zona
+-- (ver trigger "Recall fallido: los dioses te han olvidado").
+if recallBloqueado then return end
+send("recall")
+tempTimer(1, function() send("n") end)</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>No tienes suficiente mana\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Recall fallido: los dioses te han olvidado</name>
+					<script>-- Confirmado en juego: esto pasa en zonas (NO RECALL) y el recall NUNCA
+-- va a funcionar ahi por mas que se reintente. Antes se quedaba
+-- reintentando "recall" a ciegas cientos de veces sin exito.
+recallBloqueado = true
+tempTimer(15, function() recallBloqueado = false end)
+pcall(function() Pelea.cancelarTimersPendientes() end)
+Pelea.alerta("RECALL BLOQUEADO en esta zona - movete a mano")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Los Dioses te han olvidado\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Alerta: ataque de jugador (PK)</name>
+					<script>-- "Someone" aparece cuando NO podes ver/detectar a quien te ataca (no
+-- es exclusivo de PK, es "no identificado") -- pero reaccionar igual
+-- tiene sentido ante algo no identificado. Confirmado en juego que
+-- "Someone" sirve como objetivo real para comandos de ataque (tus
+-- propios golpes tambien se describen como "a Someone").
+-- NO se manda "can Someone" (cancelacion): si "Someone" no es target
+-- valido para ese hechizo especifico, puede no encontrar objetivo y
+-- terminar cancelando tus propios buffs -- riesgo peor que no cancelar
+-- nada. Confirmar la sintaxis correcta antes de automatizarlo.
+-- Consejo de Santana: "si ya inicio la pelea recupera santuario y
+-- volar" -- los recasta si Char.Affects.BuffYDebuff dice que no los
+-- tenes activos (confirmado en juego que ambos se pueden despejar en
+-- medio de un PK real).
+Pelea.alerta("TE ATACA UN JUGADOR (Someone) -- contraatacando")
+if not Clases.tieneActivo("santuario") then send("c santuario") end
+if not Clases.tieneActivo("volar") then send("c volar") end
+expandAlias("k Someone")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Someone empieza a atacarte\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Alerta de Vigia: enemigo va a mi area</name>
+					<script>-- Los vigias del clan avisan cuando un enemigo entra a un area, ej.:
+-- "[Alerta](Vigia Explorador) Arikel --&gt; detecta presencia enemiga:
+-- Alien en El Olimpo". Si el area coincide con la actual
+-- (gmcp.Room.Info.area, confirmado que existe con "lua display(gmcp)"),
+-- alerta fuerte + corre "rango" para ver quien anda cerca de verdad.
+local vigia, enemigo, area = matches[2], matches[3], matches[4]
+local areaActual = gmcp and gmcp.Room and gmcp.Room.Info and gmcp.Room.Info.area
+if areaActual and area:lower() == areaActual:lower() then
+  Pelea.alerta(string.format("%s DETECTADO EN TU AREA (%s) -- avisa %s", enemigo, area, vigia))
+  send("rango")
+end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>\[Alerta\]\(Vigia [^)]+\) (\w+) --&gt; detecta presencia enemiga: (.+) en (.+)$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Garganta degollada: pausar pociones</name>
+					<script>-- Confirmado en juego: con la garganta degollada, tomar una pocion
+-- EMPEORA la herida ("tu garganta degollada se abre causando X heridas
+-- mas"). El auto-heal (PeleaActualizarVitalsGMCP) chequea este flag
+-- antes de mandar "traga sa" para no seguir lastimandote solo.
+gargantaCortada = true
+tempTimer(20, function() gargantaCortada = false end)
+Pelea.alerta("GARGANTA DEGOLLADA -- las pociones empeoran, curar de otra forma")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>tu garganta degollada se abre</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Poder magico revitalizado: continuar</name>
+					<script>if ir_Obj and ir_Obj ~= "" then send("ir " .. ir_Obj) end
+if rasOBJ and rasOBJ ~= "" then send("ras " .. rasOBJ) end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>Sientes totalmente revitalizado tu poder mágico\.</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Muy cansado para rastrear</name>
+					<script>send("get melon moch")
+send("comer melon")
+if rasOBJ and rasOBJ ~= "" then send("ras " .. rasOBJ) end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>¡?Estás demasiado cansado para rastrear!$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Sangrado fuerte: huir</name>
+					<script>send("huir")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>¡?¡?SANGRAS A LO BESTIA!!$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Perdiendo mucha sangre: curar</name>
+					<script>send("traga sana")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>¡?¡?ESTaS PERDIENDO DEMASIADA SANGRE!!$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Demasiado cansado: refrescar</name>
+					<script>send("c refrescar")
+send("c refrescar")
+send("c refrescar")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Estas demasiado cansado\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Escudo de hielo se disuelve</name>
+					<script>send("c 'escudo de hielo'")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^El escudo de hielo se disuelve en el ambiente\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Debilidad Luz termina</name>
+					<script>ResetAliento()</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^La Debilidad Luz deja de afectar</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Debilidad Rayo termina</name>
+					<script>ResetAliento()
+send("c 'debilidad rayo'")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^La Debilidad Rayo deja de afectar</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Debilidad Acida termina</name>
+					<script>send("c 'debilidad acida'")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^La Debilidad Acida deja de afectar a</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Cooldown golpe acido</name>
+					<script>Pelea.programarSiEnCombate(4, function()
+  if not qcomm or qcomm &lt;= 2 then send("c golpe") end
+end)</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Tu golpe acido hace</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Fuente arcana seca</name>
+					<script>send("fuen")
+send("bebe")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Una fuente arcana se seca\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Cooldown rayo (aliento)</name>
+					<script>Pelea.programarSiEnCombate(2, function() send("rp") end)</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Tu poderoso rayo</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Inmune a golpe acido</name>
+					<script>pcall(disableTriggerGroup, "GA01")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>es inmune a tu golpe acido!</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Cooldown aliento tormentoso</name>
+					<script>Pelea.programarSiEnCombate(5, function() send("c 'aliento tormentoso'") end)</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Escupes un tremendo rayo</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Deslumbrado: curar ceguera</name>
+					<script>-- "curar deslumbrar" es hechizo (no depende de pociones limitadas,
+-- que ya vimos que se pueden acabar en medio de una pelea). Se manda
+-- junto con la pocion, lo que responda primero cura.
+send("c 'curar deslumbrar'")
+send("traga ceguera")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^\.\.Has sido deslumbrado!!$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Tracker de qcomm (linea de estado)</name>
+					<script>qcomm = tonumber(matches[3])</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^\|(.*)\[(\d+)\]\s*(.*)G</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Enemigo deslumbrado: curar</name>
+					<script>send("c 'curar deslumbrar'")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>ha sido deslumbrado!!$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Raices resistidas: reintentar</name>
+					<script>send("c raices")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>Haces brotar ra.ces del suelo, pero (.*) se resiste a ellas\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Guardia del puente</name>
+					<script>if not cd_guardia or cd_guardia == 0 then
+  send("vis")
+  send("decir puedo entrar?")
+  cd_guardia = 1
+  tempTimer(10, function() cd_guardia = 0 end)
+end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^\(Malo\) El guardia del puente vigila el acceso\.</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Envenenado: curar</name>
+					<script>if not cd_veneno or cd_veneno == 0 then
+  send('c "curar veneno"')
+  send("curar veneno"); send("curar veneno"); send("curar veneno")
+  cd_veneno = 1
+  tempTimer(6, function() cd_veneno = 0 end)
+end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>Tienes retortijones y vomitas\.</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Recuperado de golpetazo</name>
+					<script>expandAlias("skill golpeta")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>se recupera de los efectos del golpetazo\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Transeunte resiste raices</name>
+					<script>send("c rai")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>pero un transeunte casual se resiste a ellas\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Cegados por suciedad: zancadilla</name>
+					<script>expandAlias("skill zancadilla")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>han sido cegados por la suciedad!</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Defensa expuesta: rodear o corte artero</name>
+					<script>local pct = tonumber(matches[2]) or 0
+if pct &gt;= 80 then expandAlias("skill rodear") else expandAlias("skill corte_artero") end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>La defensa .* queda EXPUESTO \(\+(\d+) AC acumulado\)</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Cooldown rodear</name>
+					<script>if en_combate and en_combate ~= 0 then expandAlias("skill rodear") end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^El cooldown de rodear ha terminado\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Falta movimiento para corte artero</name>
+					<script>send("get melon moch")
+send("comer melon")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>Te falta movimiento para arriesgar un corte artero ahora mismo</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Raices y zarzas: totem oso</name>
+					<script>send("c 'totem animal oso'")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>Haces brotar raices y zarzas que envuelven a (\w+)</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Corte artero (auto)</name>
+					<script>expandAlias("skill corte_artero")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Tu corte artero</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Coces con herraduras elficas</name>
+					<script>send("coce")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>recibe unas potentes Coces con herraduras Elficas\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Furia Salvaje: recuperado / sin totem</name>
+					<script>expandAlias("skill furia")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>se recupera de los efectos de Furia Salvaje\.</string>
+						<string>No tienes ningun Totem Animal activo para usar Furia Salvaje\.</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Bosque bloqueado: abrir arbol</name>
+					<script>send("desblo arbol")
+send("abrir arbol")
+send("get todo arbol")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>escamoso te impide ver el bosque\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Despejado de suciedad: espiar</name>
+					<script>send("espi")
+tempTimer(3, function() send("espi") end)</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>se despeja de la suciedad de sus ojos\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Tu coz</name>
+					<script>send("coce")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Tu coz</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Astucia gnoma se disipa (racial, no de clase)</name>
+					<script>expandAlias("skill astucia")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>Tu astucia gnoma se va disipan</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<TriggerGroup isActive="yes" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>ATAQUES</name>
+					<script />
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList />
+					<regexCodePropertyList />
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>Vulnerable al Rayo</name>
+						<script>rayo_ok = 1
+send("c 'aliento tormentoso'")</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>vulnerable al Rayo\.</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>Vulnerable al Fuego</name>
+						<script>fuego_ok = 1</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>vulnerable al Fuego\.</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>Vulnerable al Acido</name>
+						<script>acido_ok = 1
+send("c \"golpe acido\"")</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>vulnerable al acido\.</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+				</TriggerGroup>
+				<TriggerGroup isActive="yes" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>PK</name>
+					<script />
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList />
+					<regexCodePropertyList />
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>Furia Salvaje falla: reintentar</name>
+						<script>if not pkActivo then return end
+tempTimer(4, function()
+  if en_combate and en_combate ~= 0 and (not qcomm or qcomm &lt;= 3) then send("skill furia") end
+end)</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>Tu Furia Salvaje falla</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>Furia Salvaje activa: reintentar</name>
+						<script>if not pkActivo then return end
+tempTimer(4, function()
+  if en_combate and en_combate ~= 0 and (not qcomm or qcomm &lt;= 3) then send("skill furia") end
+end)</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>!Furia Salvaje!</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>Garrotazo de oso conecta</name>
+						<script>if not pkActivo then return end
+send("c 'totem animal buho'")</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>Tu garrotazo de oso conecta la boca de tu rival! Lo golpetea\.</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>PK: objetivo esta aqui</name>
+						<script>if not pkActivo then return end
+if rasOBJ and rasOBJ ~= "" then expandAlias("engancha " .. rasOBJ) end</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>^(.*) esta aqui!$</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>PK: objetivo huyo</name>
+						<script>if not pkActivo then return end
+if rasOBJ and rasOBJ ~= "" then send("ras " .. rasOBJ) end</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>ha huido!$</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>Poder del oso ancestral (PK)</name>
+						<script>if not pkActivo then return end
+send("espinillazo")
+send("skill furia")</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>^Ahora, caminas con el poder y la ferocidad del oso ancestral\.$</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+				</TriggerGroup>
+				<TriggerGroup isActive="yes" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>WoF</name>
+					<script />
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList />
+					<regexCodePropertyList />
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>Amigo WoF se va por una salida</name>
+						<script>if not wofActivo then return end
+local nombre, direccion = matches[2], matches[3]
+if WoFriends[nombre] then
+  send(direccion)
+  send("k " .. nombre)
+end</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>(\w+) se va por el (\w+)\.$</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>Huida cobarde: curar y recall</name>
+						<script>if not wofActivo then return end
+pcall(disableTriggerGroup, "PK")
+send("ocu")
+send("traga sanar")
+send("c sanar")
+send("c sanar")
+send("za")
+send("traga santu")
+if rasOBJ and rasOBJ ~= "" then send("ras " .. rasOBJ) end</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>^¡?Logras HUIR!  \.\.\.Cobardemente\.\.\.</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>Poder del oso ancestral (WoF)</name>
+						<script>if not wofActivo then return end
+send("espinillazo")
+send("huir")
+send("huir")</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>^Ahora, caminas con el poder y la ferocidad del oso ancestral\.$</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>Cegados por suciedad: huir</name>
+						<script>if not wofActivo then return end
+send("huir")
+send("huir")
+send("huir")</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>han sido cegados por la suciedad!$</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>Amigo WoF justo aqui</name>
+						<script>if not wofActivo then return end
+local nombre = matches[2]
+if WoFriends[nombre] then expandAlias("k " .. nombre) end</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>^(\w+), justo aqui\.$</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>Amigo WoF ha huido</name>
+						<script>if not wofActivo then return end
+local nombre = matches[2]
+if WoFriends[nombre] then send("ras " .. nombre) end</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>^(\w+) ha huido!$</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>WoF: objetivo esta aqui</name>
+						<script>if not wofActivo then return end
+if rasOBJ and rasOBJ ~= "" then expandAlias("engancha " .. rasOBJ) end</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>^(.*) esta aqui!$</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>Esquina norte del campo de batalla</name>
+						<script>if not wofActivo then return end
+send("e")
+send("e")
+send("scan")
+if rasOBJ and rasOBJ ~= "" then send("k " .. rasOBJ); send("k " .. rasOBJ); send("k " .. rasOBJ) end</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>ESQUINA NORTE DEL CAMPO DE BATALLA .*\(No Rastrear\)</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>Esquina sur del campo de batalla</name>
+						<script>if not wofActivo then return end
+send("w")
+send("w")
+send("scan")
+if rasOBJ and rasOBJ ~= "" then send("k " .. rasOBJ); send("k " .. rasOBJ); send("k " .. rasOBJ) end</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>ESQUINA SUR DEL CAMPO DE BATALLA .*\(No Rastrear\)</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+				</TriggerGroup>
+				<TriggerGroup isActive="yes" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>acoso</name>
+					<script />
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList />
+					<regexCodePropertyList />
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>Acoso: despachador</name>
+						<script>if not acosado or acosado == "" then return end
+local line = matches[1]
+
+-- Estas 3 no mencionan el nombre del acosado, se revisan antes del filtro:
+if line:find("Cogelo!", 1, true)
+    or line:find("Logras HUIR!", 1, true)
+    or line:find("Uy Uy, que te pillan", 1, true) then
+  pcall(disableTriggerGroup, "acoso")
+  cecho(string.format("&lt;yellow&gt;Mejor ya no acosar a %s\n", acosado))
+  return
+end
+
+if not line:find(acosado, 1, true) then return end
+
+local direccion = line:match(acosado .. ".* se va por el (%a+)")
+local direccionCercano = line:match(acosado .. ",? cercano,? al%s+(%a+)%.")
+
+if line:find(acosado .. " aparece en la habitacion", 1, true) then
+  send("ki " .. acosado)
+elseif line:find(acosado .. " ha llegado.", 1, true) then
+  send("k " .. acosado)
+elseif direccion then
+  send(direccion)
+  send("k " .. acosado)
+elseif line:find(acosado .. ", justo aqui.", 1, true) then
+  send("k " .. acosado)
+elseif direccionCercano then
+  send(direccionCercano)
+  send("k " .. acosado)
+elseif line:find(acosado .. " abre el/la puerta.", 1, true) then
+  send("k " .. acosado)
+elseif line:find("Haces zap a " .. acosado .. " con una rama de Ent.", 1, true) then
+  send("c deslu " .. acosado)
+elseif line:find(acosado .. " es descubierto!!", 1, true) then
+  send("k " .. acosado)
+elseif line:find("solicita un quest a el Dios Probador", 1, true) then
+  send("ki " .. acosado)
+end</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>(.*)</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+				</TriggerGroup>
+			</TriggerGroup>
+			<TriggerGroup isActive="yes" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>Autodope</name>
+				<script />
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand />
+				<packageName />
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile />
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList />
+				<regexCodePropertyList />
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Santuario se despeja</name>
+					<script>send("c santuario")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Los efectos de Santuario se van despejando\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Inspiracion divina se va</name>
+					<script>send("c inspiracion")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Sientes como tu inspiracion divina te abandona\.\.\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Fuerza colosal se va (mas debil)</name>
+					<script>send("c 'fuerza colosal'")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Te sientes mas debil\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Proteccion infernal mengua</name>
+					<script>send("c 'proteccion infernal'")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Tu proteccion contra el mal mengua\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Escudo de luz desaparece</name>
+					<script>send("c 'escudo luz'")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^El escudo de luz que te rodeaba desaparece\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Luz protectora desaparece</name>
+					<script>send("c 'luz protectora'")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Los rayos de luz que te rodeaban desaparecen\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Proteccion sagrada se desvanece</name>
+					<script>send("c 'proteccion sagrada'")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Tu proteccion sagrada se desvanece</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Acelerar termina (ritmo normal)</name>
+					<script>send("c acelerar")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Ya vuelves a recuperar tu ritmo normal\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Volar termina</name>
+					<script>send("c volar")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Despacito dejas de levitar como un Lama tibetano\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Bendecir termina</name>
+					<script>send("c bendecir")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^La bendicion ya no tiene efecto\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Menos cansado: seguir curando hasta llenar move</name>
+					<script>-- Intencional: "curar refre" tirado a mano dispara al curandero, y
+-- cada cura da un poco de move (ej. "[+180 move]"). Repetir hasta
+-- llenar el move (gmcp.Char.Vitals) en vez de solo una vez, para no
+-- quedar pidiendo cura para siempre despues de estar lleno.
+local move = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.move)
+local maxmove = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.maxmove)
+if not move or not maxmove or move &lt; maxmove then
+  send("curar refre")
+end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>Te sientes menos cansado\.</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+			</TriggerGroup>
+		</TriggerGroup>
+	</TriggerPackage>
+	<TimerPackage />
+	<AliasPackage>
+		<AliasGroup isActive="yes" isFolder="yes">
+			<name>Petria-Rhuna</name>
+			<script />
+			<command />
+			<packageName />
+			<regex />
+			<AliasGroup isActive="yes" isFolder="yes">
+				<name>Clases</name>
+				<script />
+				<command />
+				<packageName />
+				<regex />
+				<Alias isActive="yes" isFolder="no">
+					<name>k</name>
+					<script>local obj = matches[2] or ""
+rasOBJ = obj
+pcall(disableTriggerGroup, "WoF")
+pcall(enableTriggerGroup, "Pelea")
+
+if clase and Clases[clase] and Clases[clase].ataque then
+  Clases[clase].ataque(obj)
+else
+  cecho(string.format("&lt;red&gt;?? Clase desconocida: %s\n", tostring(clase)))
+  send("mata " .. obj)
+  send("espi")
+end</script>
+					<command />
+					<packageName />
+					<regex>^k(?: (.+))?$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>engancha</name>
+					<script>local obj = matches[2]
+if clase and Clases[clase] and Clases[clase].engancha then
+  Clases[clase].engancha(obj)
+else
+  cecho(string.format("&lt;red&gt;?? Clase desconocida: %s\n", tostring(clase)))
+  send("mata " .. obj)
+end</script>
+					<command />
+					<packageName />
+					<regex>^engancha (.+)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>panico</name>
+					<script>pcall(disableTriggerGroup, "PK")
+pcall(disableTriggerGroup, "WoF")
+pcall(disableTriggerGroup, "acoso")
+pcall(disableTriggerGroup, "Pelea")
+wofActivo = false
+pkActivo = false
+en_combate = 0
+send("huir")
+send("huir")
+send("recall")</script>
+					<command />
+					<packageName />
+					<regex>^panico$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>cguerrero</name>
+					<script>send("recall")
+if Clases.guerrero and Clases.guerrero.recall then
+  Clases.guerrero.recall()
+end</script>
+					<command />
+					<packageName />
+					<regex>^cguerrero$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>cmagos</name>
+					<script>send("recall")
+if Clases.mago and Clases.mago.recall then
+  Clases.mago.recall()
+end</script>
+					<command />
+					<packageName />
+					<regex>^cmagos$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>cladron</name>
+					<script>send("recall")
+if Clases.ladron and Clases.ladron.recall then
+  Clases.ladron.recall()
+end</script>
+					<command />
+					<packageName />
+					<regex>^cladron$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>cranger</name>
+					<script>send("recall")
+if Clases.ranger and Clases.ranger.recall then
+  Clases.ranger.recall()
+end</script>
+					<command />
+					<packageName />
+					<regex>^cranger$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>cdruida</name>
+					<script>send("recall")
+if Clases.druida and Clases.druida.recall then
+  Clases.druida.recall()
+end</script>
+					<command />
+					<packageName />
+					<regex>^cdruida$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>casesino</name>
+					<script>send("recall")
+if Clases.asesino and Clases.asesino.recall then
+  Clases.asesino.recall()
+end</script>
+					<command />
+					<packageName />
+					<regex>^casesino$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>coteren</name>
+					<script>send("recall")
+if Clases.seguidores and Clases.seguidores.recall then
+  Clases.seguidores.recall()
+end</script>
+					<command />
+					<packageName />
+					<regex>^coteren$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>dope</name>
+					<script>-- Antes en CMUD "dope" (generico) llamaba a una funcion inexistente
+-- (dope_continuar) y quedaba a medias. Ahora despacha directo a los
+-- hechizos de la clase conectada (gmcp.Char.Base.class).
+local obj = matches[2] or ""
+if clase and Clases[clase] and Clases[clase].dope then
+  Clases[clase].dope(obj)
+else
+  cecho(string.format("&lt;red&gt;No hay hechizos de dope definidos para la clase '%s'.\n", tostring(clase)))
+end</script>
+					<command />
+					<packageName />
+					<regex>^dope(?: (.+))?$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>addspell</name>
+					<script>local hechizo = matches[2]:lower()
+if not clase or clase == "" then
+  cecho("&lt;red&gt;Todavia no se detecto tu clase (esperando GMCP).\n")
+  return
+end
+Clases.dopes[clase] = Clases.dopes[clase] or {}
+for _, h in ipairs(Clases.dopes[clase]) do
+  if h:lower() == hechizo then
+    cecho(string.format("&lt;yellow&gt;'%s' ya estaba en la lista de dope de %s.\n", hechizo, clase))
+    return
+  end
+end
+table.insert(Clases.dopes[clase], hechizo)
+Clases.guardarDopes()
+cecho(string.format("&lt;green&gt;Agregado '%s' al dope de %s (guardado).\n", hechizo, clase))</script>
+					<command />
+					<packageName />
+					<regex>^addspell (.+)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>removespell</name>
+					<script>local hechizo = matches[2]:lower()
+if not clase or clase == "" then
+  cecho("&lt;red&gt;Todavia no se detecto tu clase (esperando GMCP).\n")
+  return
+end
+local lista = Clases.dopes[clase]
+if not lista then
+  cecho(string.format("&lt;yellow&gt;No hay lista de dope para %s.\n", clase))
+  return
+end
+for i, h in ipairs(lista) do
+  if h:lower() == hechizo then
+    table.remove(lista, i)
+    Clases.guardarDopes()
+    cecho(string.format("&lt;green&gt;Sacado '%s' del dope de %s (guardado).\n", hechizo, clase))
+    return
+  end
+end
+cecho(string.format("&lt;yellow&gt;'%s' no estaba en la lista de dope de %s.\n", hechizo, clase))</script>
+					<command />
+					<packageName />
+					<regex>^removespell (.+)$</regex>
+				</Alias>
+			</AliasGroup>
+			<AliasGroup isActive="yes" isFolder="yes">
+				<name>Pelea</name>
+				<script />
+				<command />
+				<packageName />
+				<regex />
+				<Alias isActive="yes" isFolder="no">
+					<name>skill</name>
+					<script>-- Guarda el comando completo para poder reintentarlo (ver triggers
+-- "Hechizo fallado" / "Reintentar skill tras fallo") y lo ejecuta.
+ultima_skill = "skill " .. matches[2]
+send(matches[2])</script>
+					<command />
+					<packageName />
+					<regex>^skill (.+)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>wof</name>
+					<script>wofActivo = (matches[2] == "on")
+cecho(string.format("&lt;cyan&gt;[Pelea] WoF %s.\n", wofActivo and "activado" or "desactivado"))</script>
+					<command />
+					<packageName />
+					<regex>^wof (on|off)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>pk</name>
+					<script>pkActivo = (matches[2] == "on")
+cecho(string.format("&lt;cyan&gt;[Pelea] PK %s.\n", pkActivo and "activado" or "desactivado"))</script>
+					<command />
+					<packageName />
+					<regex>^pk (on|off)$</regex>
+				</Alias>
+				<AliasGroup isActive="yes" isFolder="yes">
+					<name>ATAQUES</name>
+					<script />
+					<command />
+					<packageName />
+					<regex />
+					<Alias isActive="yes" isFolder="no">
+						<name>cast00</name>
+						<script>if acido_ok and acido_ok ~= 0 then
+  send("c '" .. (ataque00 or "") .. "'")
+else
+  send("c 'debilidad acida'")
+  send("c '" .. (ataque00 or "") .. "'")
+end</script>
+						<command />
+						<packageName />
+						<regex>^cast00$</regex>
+					</Alias>
+					<Alias isActive="yes" isFolder="no">
+						<name>cast01</name>
+						<script>if rayo_ok and rayo_ok ~= 0 then
+  send("c '" .. (ataque01 or "") .. "'")
+else
+  send("c 'debilidad rayo'")
+  send("c '" .. (ataque01 or "") .. "'")
+end</script>
+						<command />
+						<packageName />
+						<regex>^cast01$</regex>
+					</Alias>
+					<Alias isActive="yes" isFolder="no">
+						<name>cast02</name>
+						<script>if fuego_ok and fuego_ok ~= 0 then
+  send("c '" .. (ataque02 or "") .. "'")
+else
+  send("c 'debilidad fuego'")
+  send("c '" .. (ataque02 or "") .. "'")
+end</script>
+						<command />
+						<packageName />
+						<regex>^cast02$</regex>
+					</Alias>
+				</AliasGroup>
+			</AliasGroup>
+			<AliasGroup isActive="yes" isFolder="yes">
+				<name>Alias</name>
+				<script />
+				<command />
+				<packageName />
+				<regex />
+				<Alias isActive="yes" isFolder="no">
+					<name>donas</name>
+					<script>send("recall")
+Clases.sendSeq("s", "w", "s", "w", "s", "w", "s", "w")</script>
+					<command />
+					<packageName />
+					<regex>^donas$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>mm</name>
+					<script>send("c 'misil magico' " .. matches[2])</script>
+					<command />
+					<packageName />
+					<regex>^mm (.+)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>pan</name>
+					<script>Clases.sendSeq("s", "s", "w", "n")</script>
+					<command />
+					<packageName />
+					<regex>^pan$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>bc</name>
+					<script>Clases.sendSeq("s", "e", "s", "e", "s", "e", "s", "e", "s", "e")</script>
+					<command />
+					<packageName />
+					<regex>^bc$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>pocionesfull</name>
+					<script>-- Las lineas "comprar 2/2" y "comprar 3/3" del original estaban
+-- comentadas ("//") en CMUD -- tambien quedan sin ejecutar aca.
+send("banco")
+Petria.esperarTexto("Para comprobar a cuanto ascienden tus ahorros: SALDO", function()
+  send("ingre todo")
+  send("rei 1000")
+  Petria.esperarTexto("El Banquero de Midgaard dice 'despues de retirar: 1000 monedas\\.'", function()
+    send("recall")
+    send("n")
+    Clases.sendSeq("s", "s", "s", "s", "e", "e", "e", "n")
+    tempTimer(0.5, function()
+      send("comprar 30*4")
+      tempTimer(0.5, function()
+        send("abrir moch")
+        tempTimer(0.5, function()
+          send("pon todo moch")
+        end)
+      end)
+    end)
+  end, 15)
+end, 15)</script>
+					<command />
+					<packageName />
+					<regex>^pocionesfull$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>saciar</name>
+					<script>Clases.sendSeq("n", "n", "n", "n", "n")
+send("beber")</script>
+					<command />
+					<packageName />
+					<regex>^saciar$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>limo</name>
+					<script>send("recall")
+Clases.sendSeq("n", "n", "n", "n", "n")
+for i = 1, 6 do send("bebe") end</script>
+					<command />
+					<packageName />
+					<regex>^limo$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>arena</name>
+					<script>send("recall")
+Clases.sendSeq("n", "n", "n", "n", "n", "w", "w", "n")
+send("dar 10 oro cobrador")</script>
+					<command />
+					<packageName />
+					<regex>^arena$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>banco</name>
+					<script>send("recall")
+Clases.sendSeq("s", "e", "s", "e", "s", "e", "s", "e")
+send("ayuda Banco")
+send("ingre todo")
+send("rei 1000")
+send("SALDO")</script>
+					<command />
+					<packageName />
+					<regex>^banco$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>pocsantu</name>
+					<script>send("recall")
+send("n")
+Petria.esperarTexto("El Altar del Templo", function()
+  send("ir ofcol")
+  Clases.sendSeq("n", "e", "n", "e")
+  tempTimer(0.5, function()
+    for i = 1, 5 do send("comprar 1") end
+  end)
+end, 15)</script>
+					<command />
+					<packageName />
+					<regex>^pocsantu$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>reca</name>
+					<script>send("recall")
+send("norte")
+send("lista")</script>
+					<command />
+					<packageName />
+					<regex>^reca$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>ata</name>
+					<script>send("c sp " .. (rasOBJ or ""))</script>
+					<command />
+					<packageName />
+					<regex>^ata$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>lobj</name>
+					<script>send("c 'localizar objeto' " .. matches[2])</script>
+					<command />
+					<packageName />
+					<regex>^lobj (.+)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>toma</name>
+					<script>eqdonas = matches[2]
+retryEQ = 0
+pcall(enableTriggerGroup, "11-EQ")
+send("get " .. eqdonas)
+send("tradi " .. matches[2])</script>
+					<command />
+					<packageName />
+					<regex>^toma (.+)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>fdope</name>
+					<script>send("traga trans")
+send("traga gris")
+send("traga azul")
+send("traga santuario")
+expandAlias("dope")
+expandAlias("dope")
+expandAlias("dope")</script>
+					<command />
+					<packageName />
+					<regex>^fdope$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>ihs</name>
+					<script>send("traga gris")
+send("traga trans")
+send("traga santu")</script>
+					<command />
+					<packageName />
+					<regex>^ihs$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>portal</name>
+					<script>send("c compuerta " .. matches[2])</script>
+					<command />
+					<packageName />
+					<regex>^portal (.+)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>can</name>
+					<script>-- Replica el #LOOP 1,2 del original: hasta 2 intentos, corta si detecta
+-- exito ("se desvanece." u "Ok.") en la respuesta del server.
+local tarjet = matches[2]
+local intentos = 0
+local exito = false
+
+local function intentar()
+  intentos = intentos + 1
+  send("c 'cancelacion' " .. tarjet)
+  local id
+  id = tempRegexTrigger("se desvanece\\.|Ok\\.", function()
+    killTrigger(id)
+    exito = true
+    cecho(string.format("&lt;green&gt;Cancelacion exitosa en %d intento(s).\n", intentos))
+  end)
+  tempTimer(0.7, function()
+    if not exito then
+      if exists(id, "trigger") == 1 then killTrigger(id) end
+      if intentos &lt; 2 then
+        intentar()
+      else
+        cecho("&lt;red&gt;Cancelacion fallida tras 2 intentos.\n")
+      end
+    end
+  end)
+end
+
+intentar()</script>
+					<command />
+					<packageName />
+					<regex>^can (.+)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>pb</name>
+					<script>send("c 'proteccion divina'")</script>
+					<command />
+					<packageName />
+					<regex>^pb$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>pm</name>
+					<script>send("c 'proteccion infernal'")</script>
+					<command />
+					<packageName />
+					<regex>^pm$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>rp</name>
+					<script>send("conjurar 'rayo poderoso' " .. matches[2])</script>
+					<command />
+					<packageName />
+					<regex>^rp (.+)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>fuen</name>
+					<script>send("c fuente")</script>
+					<command />
+					<packageName />
+					<regex>^fuen$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>alqui</name>
+					<script>send("c 'mejora alquimica' " .. matches[2])</script>
+					<command />
+					<packageName />
+					<regex>^alqui (.+)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>eds</name>
+					<script>send("c tras")
+send("disimular")
+send("c invis")
+send("esconder")
+send("ocultar")
+send("c volar")
+send("c tras")</script>
+					<command />
+					<packageName />
+					<regex>^eds$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>rol</name>
+					<script>send("emote [ROL] " .. matches[2])</script>
+					<command />
+					<packageName />
+					<regex>^rol (.+)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>cambio</name>
+					<script>-- "//ras otho" estaba comentado en el original, queda sin ejecutar
+send("recall")
+Clases.sendSeq("n", "n", "n", "n", "n", "w", "w", "s")
+send("sc")
+tempTimer(3, function() send("dar " .. tostring(plata) .. " plata otho") end)</script>
+					<command />
+					<packageName />
+					<regex>^cambio$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>pociones</name>
+					<script>send("banco")
+send("ingre todo")
+send("rei 1000")
+send("recall")
+send("n")
+Clases.sendSeq("s", "s", "s", "s", "e", "e", "e", "n")
+tempTimer(0.5, function() send("lista") end)</script>
+					<command />
+					<packageName />
+					<regex>^pociones$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>cq</name>
+					<script>send("quien concilio")</script>
+					<command />
+					<packageName />
+					<regex>^cq$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>updatepkg</name>
+					<script>-- uninstallPackage + installPackage encadenados en una sola linea daban
+-- "package X is already installed" por timing (confirmado antes, por
+-- eso veniamos pidiendo hacerlo en dos comandos separados). El
+-- tempTimer da tiempo a que el uninstall termine antes de reinstalar.
+-- Nombre "Petria-Rhuna" (no "Petria" a secas) a proposito: el server
+-- tiene un comando "instalarmudlet" que instala/actualiza su propio
+-- paquete GUI oficial, y ese instalador sobreescribe cualquier package
+-- Mudlet que tenga EL MISMO NOMBRE -- si el nuestro se llamara igual
+-- que el oficial (o algo generico como "Petria"), correr
+-- "instalarmudlet" en el juego podria borrar todo esto.
+cecho("&lt;yellow&gt;[Petria-Rhuna] Reinstalando...\n")
+uninstallPackage("Petria-Rhuna")
+tempTimer(0.5, function()
+  installPackage("/home/rcaceres/Documentos/Claude/Projects/Petria-Mudlet/Petria-Rhuna.xml")
+  cecho("&lt;green&gt;[Petria-Rhuna] Reinstalado.\n")
+end)</script>
+					<command />
+					<packageName />
+					<regex>^updatepkg$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>q</name>
+					<script>send("get " .. matches[2] .. " moch")
+send("tra " .. matches[2])</script>
+					<command />
+					<packageName />
+					<regex>^q (.+)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>gp</name>
+					<script>send("golpetazo")</script>
+					<command />
+					<packageName />
+					<regex>^gp$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>toso</name>
+					<script>send("c 'totem animal oso'")</script>
+					<command />
+					<packageName />
+					<regex>^toso$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>ttortu</name>
+					<script>send("c 'totem animal tortuga'")</script>
+					<command />
+					<packageName />
+					<regex>^ttortu$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>canimal</name>
+					<script>send("c 'control animal' " .. matches[2])</script>
+					<command />
+					<packageName />
+					<regex>^canimal (.+)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>des</name>
+					<script>send("c deslu " .. (rasOBJ or ""))</script>
+					<command />
+					<packageName />
+					<regex>^des$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>mal</name>
+					<script>send("c maldecir " .. (rasOBJ or ""))</script>
+					<command />
+					<packageName />
+					<regex>^mal$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>rai</name>
+					<script>send("c raices " .. (rasOBJ or ""))</script>
+					<command />
+					<packageName />
+					<regex>^rai$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>tbuho</name>
+					<script>send("c 'totem animal buho'")</script>
+					<command />
+					<packageName />
+					<regex>^tbuho$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>bazar</name>
+					<script>send('c clari "nomada"')</script>
+					<command />
+					<packageName />
+					<regex>^bazar$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>cs</name>
+					<script>send("decir curata spells")</script>
+					<command />
+					<packageName />
+					<regex>^cs$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>co</name>
+					<script>local t = matches[2]
+send("contragolpe " .. t)
+send("espini " .. t)
+send("zanca " .. t)</script>
+					<command />
+					<packageName />
+					<regex>^co (.+)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>cc</name>
+					<script>local t = matches[2]
+send("c 'curar deslumbrar' " .. t)
+send("c 'curar critico' " .. t)</script>
+					<command />
+					<packageName />
+					<regex>^cc (.+)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>asa</name>
+					<script>local t = matches[2]
+expandAlias("can " .. t)
+send("c rai " .. t)
+send("hui n")</script>
+					<command />
+					<packageName />
+					<regex>^asa (.+)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>fabada</name>
+					<script>send("creg")
+send("ras Idhrall")</script>
+					<command />
+					<packageName />
+					<regex>^fabada$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>za</name>
+					<script>send("get puntero moch")
+send("sos puntero")
+send("zap self")</script>
+					<command />
+					<packageName />
+					<regex>^za$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>ene</name>
+					<script>local accion, nombre = matches[2], matches[3]
+if accion == "add" then
+  if not WoFriends[nombre] then
+    WoFriends[nombre] = true
+    cecho(string.format("&lt;green&gt;---&gt; %s agregado a lista de ENEMIGOS.\n", nombre))
+  else
+    cecho("&lt;yellow&gt;---&gt; ya estaba en la lista.\n")
+  end
+else
+  if WoFriends[nombre] then
+    WoFriends[nombre] = nil
+    cecho(string.format("&lt;green&gt;---&gt; %s eliminado de ENEMIGOS.\n", nombre))
+  else
+    cecho("&lt;yellow&gt;---&gt; no estaba en la lista.\n")
+  end
+end</script>
+					<command />
+					<packageName />
+					<regex>^ene (add|del) (.+)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>aa</name>
+					<script>send("desbloquear " .. matches[2])
+send("abrir " .. matches[2])</script>
+					<command />
+					<packageName />
+					<regex>^aa (.+)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>pescaron</name>
+					<script>send("get caña moch")
+send("vest caña")
+send("get red moch")
+send("bla red")
+send("pon libro moch")
+send("gua escudo")
+send("pon escudo moch")
+send("usar caña")</script>
+					<command />
+					<packageName />
+					<regex>^pescaron$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>rayo</name>
+					<script>local t = matches[2]
+send("c summon cochero")
+Petria.esperarTexto("El cochero aparece de repente\\.", function()
+  send("c rayo " .. t)
+end, 15)</script>
+					<command />
+					<packageName />
+					<regex>^rayo (.+)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>encantar</name>
+					<script>send("c 'encantar gente' " .. matches[2])</script>
+					<command />
+					<packageName />
+					<regex>^encantar (.+)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>defender</name>
+					<script>send("ir 11864")
+send("can " .. (enemigo or ""))
+send("c debilitar " .. (enemigo or ""))
+send("huir e"); send("huir e"); send("huir e")
+send("ir 11866")</script>
+					<command />
+					<packageName />
+					<regex>^defender$</regex>
+				</Alias>
+			</AliasGroup>
+		</AliasGroup>
+	</AliasPackage>
+	<ActionPackage />
+	<ScriptPackage>
+		<ScriptGroup isActive="yes" isFolder="yes">
+			<name>Petria-Rhuna</name>
+			<packageName />
+			<script />
+			<eventHandlerList />
+			<Script isActive="yes" isFolder="no">
+				<name>Petria_Core</name>
+				<packageName />
+				<script>-- ================================================================
+-- PETRIA CORE - utilidades compartidas
+-- ================================================================
+-- Equivalente a #WAITFOR y #WAIT de CMUD, que no existen tal cual en
+-- Mudlet. Petria.esperarTexto crea un trigger temporal que se autoelimina
+-- despues de disparar una vez (o al vencer el timeout).
+-- ================================================================
+
+Petria = Petria or {}
+
+function Petria.esperarTexto(patron, callback, timeoutSeg)
+  local id
+  id = tempRegexTrigger(patron, function()
+    killTrigger(id)
+    callback()
+  end)
+  if timeoutSeg then
+    tempTimer(timeoutSeg, function()
+      if exists(id, "trigger") == 1 then
+        killTrigger(id)
+      end
+    end)
+  end
+  return id
+end
+
+-- Variables sueltas usadas por varios alias de 18-Alias (CMUD)
+eqdonas = eqdonas or ""
+retryEQ = retryEQ or 0
+plata = plata or 0
+enemigo = enemigo or ""
+</script>
+				<eventHandlerList />
+			</Script>
+			<ScriptGroup isActive="yes" isFolder="yes">
+				<name>Clases</name>
+				<packageName />
+				<script />
+				<eventHandlerList />
+				<Script isActive="yes" isFolder="no">
+					<name>Clases_Core</name>
+					<packageName />
+					<script>-- ================================================================
+-- CLASES DE PERSONAJE - PetriaMUD
+-- ================================================================
+-- Cada subcarpeta de "Clases" define Clases.&lt;Nombre&gt; con sus
+-- funciones especiales (ataque, engancha, recall). El alias "k"
+-- y "engancha" solo despachan a la clase activa (variable global
+-- "clase").
+--
+-- La clase se lee de GMCP (gmcp.Char.Base.class), igual que ya usa
+-- el panel "Informacion del Personaje" del paquete PetriaMUD_12.22.17
+-- (funcion obtenerDatosPersonaje / datos.clase) -- no se vuelve a
+-- parsear texto de "sc" ni de ningun otro comando.
+--
+-- Migrado desde CMUD (alias k / engancha / panico / c&lt;clase&gt;).
+-- ================================================================
+
+-- Nota: sin guard de "cargado una sola vez" a proposito. Este paquete se
+-- reinstala seguido durante el desarrollo (uninstallPackage + installPackage)
+-- y un guard global habria bloqueado el re-registro del handler GMCP y el
+-- seteo inicial de "clase" en cada reinstalacion.
+
+Clases = Clases or {}
+clase = clase or nil
+
+function Clases.sendSeq(...)
+  for _, cmd in ipairs({...}) do
+    send(cmd)
+  end
+end
+
+-- "astu" (astucia gnoma) es una habilidad racial, solo para gnomos. El
+-- dopem/dopeo original de CMUD la mandaba sin condicion para cualquier
+-- raza (confirmado en juego: "Te esfuerzas, pero no logras activar
+-- astucia gnoma ... solo para gnomos..." con un personaje centauro).
+function Clases.intentarAstucia()
+  if gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.race
+     and gmcp.Char.Base.race:lower() == "gnomo" then
+    send("astu")
+  end
+end
+
+-- true si el nombre del hechizo aparece en gmcp.Char.Affects.BuffYDebuff
+-- (los hechizos que el personaje tiene activos ahora mismo). Compara por
+-- substring (no exacto): confirmado en juego que una entrada en una lista
+-- de dope con un nombre truncado/parcial (ej. "inspiracion" en vez de
+-- "inspiracion divina") con comparacion exacta nunca matcheaba, asi que
+-- siempre se recasteaba de nuevo aunque ya estuviera activo.
+function Clases.tieneActivo(nombreHechizo)
+  if not (gmcp and gmcp.Char and gmcp.Char.Affects and gmcp.Char.Affects.BuffYDebuff) then
+    return false
+  end
+  local buscado = nombreHechizo:lower()
+  for _, afecta in ipairs(gmcp.Char.Affects.BuffYDebuff) do
+    local activo = tostring(afecta.name or ""):lower()
+    if activo:find(buscado, 1, true) or buscado:find(activo, 1, true) then
+      return true
+    end
+  end
+  return false
+end
+
+-- OJO: esto es la vulnerabilidad del PERSONAJE CONECTADO (gmcp.Char.Affects
+-- cuelga de gmcp.Char, no de gmcp.Char.Enemies -- GMCP no expone afectos del
+-- enemigo). No sirve para lo que hacia "vulnerable al Rayo/Fuego/acido." en
+-- CMUD (eso rastreaba al ENEMIGO, ver rayo_ok/fuego_ok/acido_ok en Pelea).
+-- Queda disponible por si sirve para automatizar algo defensivo propio.
+-- true si "palabra" (ej. "fire", "lightning", "acid") aparece en
+-- gmcp.Char.Affects.vulnerable. Usa find porque el server manda codigos de
+-- color tipo "{Wlight{x" mezclados con el texto.
+function Clases.esVulnerableA(palabra)
+  if not (gmcp and gmcp.Char and gmcp.Char.Affects and gmcp.Char.Affects.vulnerable) then
+    return false
+  end
+  for _, v in ipairs(gmcp.Char.Affects.vulnerable) do
+    if tostring(v):find(palabra, 1, true) then
+      return true
+    end
+  end
+  return false
+end
+
+-- Lanza cada hechizo de "lista" (tabla de nombres) sobre "obj" (o sobre uno
+-- mismo si obj es vacio). Equivalente al #FORALL @dopesXXX { cast '%i' } de
+-- CMUD, usado por dopem/doper/dopeo -- MEJORADO respecto al original: si es
+-- sobre uno mismo, salta los hechizos que gmcp.Char.Affects.BuffYDebuff dice
+-- que ya estan activos (esto era lo que el "dope" generico de CMUD queria
+-- hacer llamando a "dope_continuar", una funcion que nunca se definio).
+function Clases.dopar(lista, obj)
+  if not lista or #lista == 0 then
+    cecho(string.format("&lt;red&gt;No hay hechizos definidos para dopar la clase '%s' todavia.\n", tostring(clase)))
+    return
+  end
+  if obj == "" or obj == nil then
+    cecho("&lt;cyan&gt;Dopando a self\n")
+    for _, hechizo in ipairs(lista) do
+      if Clases.tieneActivo(hechizo) then
+        cecho("&lt;gray&gt;Ya activo, salteado: " .. hechizo .. "\n")
+      else
+        cecho("&lt;cyan&gt;Dopando: " .. hechizo .. "\n")
+        send("cast '" .. hechizo .. "'")
+      end
+    end
+  else
+    -- No podemos ver los afectos de otro personaje por GMCP, asi que a un
+    -- objetivo se le castea la lista completa (igual que el dopem/doper/dopeo
+    -- original de CMUD).
+    cecho(string.format("&lt;cyan&gt;Dopando a %s\n", obj))
+    for _, hechizo in ipairs(lista) do
+      cecho(string.format("&lt;cyan&gt;Dopando: %s a %s\n", hechizo, obj))
+      send("cast '" .. hechizo .. "' " .. obj)
+    end
+  end
+end
+
+-- ================================================================
+-- Listas de dope por clase (Clases.dopes[clase]) + persistencia, para poder
+-- agregar/sacar hechizos con "addspell"/"removespell" sin tener que
+-- reinstalar el paquete cada vez que subis de nivel y aprendes uno nuevo.
+-- ================================================================
+Clases.dopes = Clases.dopes or {}
+Clases.dopesArchivo = getMudletHomeDir() .. "/petria_dopes.lua"
+
+function Clases.guardarDopes()
+  table.save(Clases.dopesArchivo, Clases.dopes)
+end
+
+function Clases.cargarDopesGuardados()
+  local ok, cargado = pcall(table.load, Clases.dopesArchivo)
+  if ok and type(cargado) == "table" then
+    for claseGuardada, lista in pairs(cargado) do
+      Clases.dopes[claseGuardada] = lista
+    end
+  end
+end
+
+-- Se carga ahora; los scripts de cada clase (Mago, Ranger, Seguidores...)
+-- usan "Clases.dopes.X = Clases.dopes.X or {lista por defecto}" mas abajo,
+-- asi que si ya habia algo guardado en disco para esa clase, se respeta, y
+-- si no, cae a la lista de fabrica.
+Clases.cargarDopesGuardados()
+
+function ClasesActualizarClaseGMCP()
+  if gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class then
+    -- gmcp.Char.Base.class trae el nombre completo (ej. "seguidores_de_Oteren"),
+    -- pero Clases usa la clave corta ("seguidores"). CMUD hacia este mismo
+    -- corte automaticamente porque su wildcard %w paraba en el "_". Se
+    -- replica cortando en el primer "_".
+    clase = gmcp.Char.Base.class:lower():match("^[^_]+")
+  end
+end
+
+registerAnonymousEventHandler("gmcp.Char.Base", "ClasesActualizarClaseGMCP")
+
+-- Por si GMCP ya trajo los datos antes de instalar este paquete
+ClasesActualizarClaseGMCP()
+</script>
+					<eventHandlerList />
+				</Script>
+				<ScriptGroup isActive="yes" isFolder="yes">
+					<name>Guerrero</name>
+					<packageName />
+					<script />
+					<eventHandlerList />
+					<Script isActive="yes" isFolder="no">
+						<name>Guerrero</name>
+						<packageName />
+						<script>Clases.guerrero = {
+  ataque = function(obj)
+    send("mata " .. obj)
+    send("espi")
+  end,
+  recall = function()
+    Clases.sendSeq("s", "s", "e", "e", "s", "e", "s")
+  end,
+  -- Sin lista de fabrica (CMUD no tenia dope para esta clase). Queda vacia
+  -- hasta que uses "addspell" -- asi el comando "dope" funciona apenas
+  -- agregues el primer hechizo, sin tener que tocar el paquete.
+  dope = function(obj)
+    Clases.dopar(Clases.dopes.guerrero, obj)
+  end,
+}</script>
+						<eventHandlerList />
+					</Script>
+				</ScriptGroup>
+				<ScriptGroup isActive="yes" isFolder="yes">
+					<name>Mago</name>
+					<packageName />
+					<script />
+					<eventHandlerList />
+					<Script isActive="yes" isFolder="no">
+						<name>Mago</name>
+						<packageName />
+						<script>-- Lista de fabrica (original de CMUD, var StringList "dopesmago").
+-- "dopesmago1" (variante corta) existia en CMUD pero no la usaba ningun
+-- alias migrado -- no se trajo. Con "or": si "addspell"/"removespell" ya
+-- guardaron algo para esta clase en petria_dopes.lua, Clases_Core lo carga
+-- en Clases.dopes.mago ANTES de que este script corra, y se respeta esa
+-- version en vez de pisarla con la de fabrica.
+Clases.dopes.mago = Clases.dopes.mago or {
+  "acelerar", "antifuego", "bendita niebla", "buen aura", "clon sombras",
+  "deflexion", "detectar invisibilidad", "detectar magia", "detectar oculto",
+  "escudo", "escudo de hielo", "fase magica", "fuerza colosal", "gatovision",
+  "invisibilidad", "piel de dragon", "piel de piedra", "proteccion",
+  "proteccion divina", "santuario", "traspasar", "vision verdadera", "volar",
+  "contra",
+}
+
+Clases.mago = {
+  ataque = function(obj)
+    send("c fuente")
+    send("c 'debilidad rayo' " .. obj)
+    send("c 'debilidad acida' " .. obj)
+    send("c 'aliento tormentoso' " .. obj)
+    send("c golpe " .. obj)
+    send("c torme")
+    send("c dilu")
+  end,
+  engancha = function(obj)
+    send("c fuente")
+    send("can " .. obj)
+    send("mata " .. obj)
+  end,
+  recall = function()
+    Clases.sendSeq("s", "s", "w", "w", "s", "e", "s", "e")
+  end,
+  dope = function(obj)
+    Clases.intentarAstucia()
+    send("c anti bolsillo")
+    Clases.dopar(Clases.dopes.mago, obj)
+  end,
+}</script>
+						<eventHandlerList />
+					</Script>
+				</ScriptGroup>
+				<ScriptGroup isActive="yes" isFolder="yes">
+					<name>Ladron</name>
+					<packageName />
+					<script />
+					<eventHandlerList />
+					<Script isActive="yes" isFolder="no">
+						<name>Ladron</name>
+						<packageName />
+						<script>Clases.ladron = {
+  ataque = function(obj)
+    send("robar oro " .. obj)
+    send("esconder")
+    send("ocultar")
+  end,
+  engancha = function(obj)
+    send("co " .. obj)
+  end,
+  recall = function()
+    Clases.sendSeq("s", "s", "s", "e", "s", "e", "s")
+  end,
+  dope = function(obj)
+    Clases.dopar(Clases.dopes.ladron, obj)
+  end,
+}</script>
+						<eventHandlerList />
+					</Script>
+				</ScriptGroup>
+				<ScriptGroup isActive="yes" isFolder="yes">
+					<name>Ranger</name>
+					<packageName />
+					<script />
+					<eventHandlerList />
+					<Script isActive="yes" isFolder="no">
+						<name>Ranger</name>
+						<packageName />
+						<script>-- Lista de fabrica (original de CMUD, var StringList "dopesranger").
+Clases.dopes.ranger = Clases.dopes.ranger or {
+  "volar", "niebla", "piel", "espiritu", "bendecir",
+  "detectar invisibilidad", "totem animal buho",
+}
+
+Clases.ranger = {
+  ataque = function(obj)
+    send("c raices " .. obj)
+  end,
+  engancha = function(obj)
+    send("c raices " .. obj)
+  end,
+  recall = function()
+    Clases.sendSeq("s", "nore", "n", "w")
+  end,
+  dope = function(obj)
+    send("traga santu")
+    send("c anti bolsillo")
+    send("fuego")
+    send("c 'totem animal buho'")
+    Clases.dopar(Clases.dopes.ranger, obj)
+  end,
+}</script>
+						<eventHandlerList />
+					</Script>
+				</ScriptGroup>
+				<ScriptGroup isActive="yes" isFolder="yes">
+					<name>Asesino</name>
+					<packageName />
+					<script />
+					<eventHandlerList />
+					<Script isActive="yes" isFolder="no">
+						<name>Asesino</name>
+						<packageName />
+						<script>Clases.asesino = {
+  ataque = function(obj)
+    send("corte_artero " .. obj)
+    send("mata " .. obj)
+    send("espi")
+    send("zancadilla")
+  end,
+  recall = function()
+    -- Ruta original de CMUD: ".3sw2swse" = 3xsuroeste + 2xsuroeste + 1xsureste.
+    -- Expandida a pasos cardinales n/s/e/w (confirmados validos) en vez de
+    -- mandar la notacion con "." de CMUD, que en este juego dispara un grito.
+    Clases.sendSeq("s", "w", "s", "w", "s", "w", "s", "w", "s", "w", "s", "e")
+  end,
+  dope = function(obj)
+    Clases.dopar(Clases.dopes.asesino, obj)
+  end,
+}</script>
+						<eventHandlerList />
+					</Script>
+				</ScriptGroup>
+				<ScriptGroup isActive="yes" isFolder="yes">
+					<name>Druida</name>
+					<packageName />
+					<script />
+					<eventHandlerList />
+					<Script isActive="yes" isFolder="no">
+						<name>Druida</name>
+						<packageName />
+						<script>Clases.druida = {
+  ataque = function(obj)
+    send("mata " .. obj)
+    send("c rayo")
+  end,
+  recall = function()
+    Clases.sendSeq("s", "suro")
+  end,
+  dope = function(obj)
+    Clases.dopar(Clases.dopes.druida, obj)
+  end,
+}</script>
+						<eventHandlerList />
+					</Script>
+				</ScriptGroup>
+				<ScriptGroup isActive="yes" isFolder="yes">
+					<name>Seguidores</name>
+					<packageName />
+					<script />
+					<eventHandlerList />
+					<Script isActive="yes" isFolder="no">
+						<name>Seguidores</name>
+						<packageName />
+						<script>-- "dopesoteren" no existia como variable en el CMUD original (el alias
+-- "dopeo" la usaba pero nunca se definio en ningun lado -- ya estaba roto
+-- alla). Lista armada a partir del comando "spells" en juego (personaje
+-- seguidores_de_Oteren), quedandonos con los autobuffs persistentes y
+-- dejando afuera curas puntuales, deteccion y utilidad situacional.
+Clases.dopes.seguidores = Clases.dopes.seguidores or {
+  "acelerar", "antifuego", "bendecir", "escudo luz", "fuerza colosal",
+  "gatovision", "inspiracion divina", "luz protectora",
+  "proteccion infernal", "proteccion sagrada", "santuario", "volar",
+}
+
+Clases.seguidores = {
+  ataque = function(obj)
+    send("empalar " .. obj)
+    send("cocear " .. obj)
+    send("mata " .. obj)
+    send("espi")
+  end,
+  recall = function()
+    -- alias original en CMUD se llamaba "coteren", no "cseguidores".
+    -- Ruta original ".3s4ese" = 3xs + 4xe + 1xsureste, expandida a pasos
+    -- cardinales (ver nota sobre "." = gritar en este juego).
+    Clases.sendSeq("s", "s", "s", "e", "e", "e", "e", "s", "e")
+  end,
+  dope = function(obj)
+    Clases.intentarAstucia()
+    send("c anti bolsillo")
+    Clases.dopar(Clases.dopes.seguidores, obj)
+  end,
+}</script>
+						<eventHandlerList />
+					</Script>
+				</ScriptGroup>
+			</ScriptGroup>
+			<ScriptGroup isActive="yes" isFolder="yes">
+				<name>Pelea</name>
+				<packageName />
+				<script />
+				<eventHandlerList />
+				<Script isActive="yes" isFolder="no">
+					<name>Pelea_Core</name>
+					<packageName />
+					<script>-- ================================================================
+-- PELEA - PetriaMUD (migrado literal desde CMUD 03-Pelea)
+-- ================================================================
+-- Variables globales que usan los triggers/alias de Pelea. Todo sin
+-- reclasificar todavia por clase (a proposito, ver conversacion) --
+-- cuando se asocie cada trigger a su clase, esto se puede repartir
+-- dentro de Clases/&lt;clase&gt;.
+-- ================================================================
+
+en_combate = en_combate or 0
+curando = curando or 0
+cd_veneno = cd_veneno or 0
+cd_guardia = cd_guardia or 0
+enemigo_pct = enemigo_pct or 0
+enemigoNombre = enemigoNombre or ""
+enemigoNivel = enemigoNivel or 0
+qcomm = qcomm or 0
+ultima_skill = ultima_skill or ""
+rasOBJ = rasOBJ or ""
+ir_Obj = ir_Obj or ""
+acosado = acosado or ""
+
+-- WoF (Guerra de Facciones) y PK: apagados por defecto. Sus triggers
+-- comparten patrones de texto con el combate PvE normal (confirmado en
+-- juego: "cegados por la suciedad" disparaba huir x3 de WoF ademas de la
+-- zancadilla normal). Activar solo cuando realmente estes en ese modo.
+if wofActivo == nil then wofActivo = false end
+if pkActivo == nil then pkActivo = false end
+
+-- Defensa/alertas (ver analisis de un ataque de jugador real: "Someone")
+if recallBloqueado == nil then recallBloqueado = false end
+if gargantaCortada == nil then gargantaCortada = false end
+
+-- Banner visual fuerte para que algo importante no pase desapercibido.
+-- Sin sonido: Mudlet soporta playSoundFile(ruta) si en algun momento se
+-- quiere sumar un audio, pero no hay ningun archivo de sonido en este
+-- paquete todavia.
+function Pelea.alerta(mensaje)
+  local raya = "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  cecho(string.format(
+    "\n&lt;red:yellow&gt;&lt;bold&gt;%s\n  %s\n%s\n\n",
+    raya, mensaje, raya
+  ))
+end
+
+-- flags de ATAQUES (mago)
+rayo_ok = rayo_ok or 0
+fuego_ok = fuego_ok or 0
+acido_ok = acido_ok or 0
+
+-- Nombres de hechizo que usan cast00/cast01/cast02. Del CMUD original solo
+-- estaban definidos ataque00 y ataque01; ataque02 no existia (posible resto
+-- sin usar) -- queda vacio hasta que confirmes cual va ahi.
+ataque00 = ataque00 or "golpe"
+ataque01 = ataque01 or "aliento tormentoso"
+ataque02 = ataque02 or ""
+
+-- Lista de amigos para WoF (equivalente a la StringList @WoFriends de CMUD).
+-- Set en lugar de lista: WoFriends["Nombre"] = true / WoFriends["Nombre"] = nil
+WoFriends = WoFriends or { KittySoul = true }
+
+-- ================================================================
+-- Timers de recast (aliento tormentoso, golpe acido, rayo poderoso) que se
+-- auto-cancelan al terminar el combate -- antes quedaban corriendo y podian
+-- disparar un recast sin objetivo despues de matar/huir (confirmado en un
+-- combate real: 3 prompts "Invocar el hechizo sobre quien?" justo despues
+-- de "ESTA MUERTO"). El chequeo de en_combate adentro del timer no alcanza
+-- porque puede alcanzar a dispararse en la ventana de carrera justo cuando
+-- el combate termina; cancelar el timer directamente es mas robusto.
+-- ================================================================
+Pelea = Pelea or {}
+Pelea.timersPendientes = Pelea.timersPendientes or {}
+
+function Pelea.programarSiEnCombate(segundos, fn)
+  local id
+  id = tempTimer(segundos, function()
+    Pelea.timersPendientes[id] = nil
+    if en_combate and en_combate ~= 0 then
+      fn()
+    end
+  end)
+  Pelea.timersPendientes[id] = true
+  return id
+end
+
+function Pelea.cancelarTimersPendientes()
+  for id, _ in pairs(Pelea.timersPendientes) do
+    killTimer(id)
+  end
+  Pelea.timersPendientes = {}
+end
+
+function ResetAliento()
+  rayo_ok = 0
+  fuego_ok = 0
+  acido_ok = 0
+  cecho("&lt;cyan&gt;Flags de debilidad reiniciados.\n")
+end
+
+-- ================================================================
+-- Auto-heal y tracking de enemigo via GMCP (en vez de parsear texto)
+-- ================================================================
+
+function PeleaActualizarVitalsGMCP()
+  if not (gmcp and gmcp.Char and gmcp.Char.Vitals) then return end
+  local v = gmcp.Char.Vitals
+  HPcur = tonumber(v.hp)
+  HPmax = tonumber(v.maxhp)
+  if not HPcur or not HPmax or HPmax &lt;= 0 then return end
+  HPpct = math.floor((HPcur * 100) / HPmax)
+
+  if not curando or curando == 0 then
+    if HPpct &lt; 35 then
+      send("traga sa"); send("traga sa"); send("traga sa")
+      curando = 1
+      tempTimer(3, function() curando = 0 end)
+    elseif HPpct &lt; 55 then
+      send("traga sa"); send("traga sa")
+      curando = 1
+      tempTimer(3, function() curando = 0 end)
+    elseif HPpct &lt; 75 then
+      send("traga sa")
+      curando = 1
+      tempTimer(3, function() curando = 0 end)
+    end
+  end
+end
+registerAnonymousEventHandler("gmcp.Char.Vitals", "PeleaActualizarVitalsGMCP")
+
+function PeleaActualizarEnemigoGMCP()
+  if not (gmcp and gmcp.Char and gmcp.Char.Enemies and gmcp.Char.Enemies[1] and gmcp.Char.Enemies[1][1]) then
+    en_combate = 0
+    enemigo_pct = 0
+    pcall(function() Pelea.cancelarTimersPendientes() end)
+    return
+  end
+  local e = gmcp.Char.Enemies[1][1]
+  en_combate = 1
+  enemigoNombre = e.name
+  enemigoNivel = tonumber(e.level)
+  local ehp, emax = tonumber(e.hp), tonumber(e.maxhp)
+  if ehp and emax and emax &gt; 0 then
+    enemigo_pct = math.floor((ehp * 100) / emax)
+  end
+end
+registerAnonymousEventHandler("gmcp.Char.Enemies", "PeleaActualizarEnemigoGMCP")
+
+-- Actualiza si ya hay datos GMCP cacheados desde antes de instalar el paquete
+PeleaActualizarVitalsGMCP()
+PeleaActualizarEnemigoGMCP()
+</script>
+					<eventHandlerList />
+				</Script>
+			</ScriptGroup>
+		</ScriptGroup>
+	</ScriptPackage>
+	<KeyPackage />
+	<VariablePackage>
+		<HiddenVariables />
+	</VariablePackage>
+</MudletPackage>
