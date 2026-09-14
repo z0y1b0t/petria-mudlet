@@ -64,6 +64,52 @@ lua installPackage("https://raw.githubusercontent.com/z0y1b0t/petria-mudlet/main
 ```
 Después, `updatepkg` funciona igual que en esta.
 
+## Seguir editando el código desde otra máquina (ej. la Mac)
+
+Todo lo necesario para que una sesión de Claude nueva, en otra máquina,
+pueda seguir trabajando en este mismo proyecto:
+
+**1. Cloná el repo:**
+```
+git clone https://github.com/z0y1b0t/petria-mudlet.git
+```
+Con HTTPS alcanza para **leer**. Para que Claude pueda **pushear** cambios
+desde esa máquina, hace falta acceso de escritura — más abajo cómo.
+
+**2. Qué hay en el repo:**
+- `build_petria_package.py` — el generador. Nunca se edita `Petria-Rhuna.xml`
+  a mano; se edita este script y se corre `python3 build_petria_package.py`
+  (usa ruta relativa a sí mismo, no hace falta tocar nada para que funcione
+  en otra máquina).
+- `Petria-Rhuna.xml` — el paquete generado, lo que se instala en Mudlet.
+- `README.md` — este archivo. Tiene todo el historial de decisiones, bugs
+  encontrados y por qué, y qué falta migrar — es el contexto que una sesión
+  nueva de Claude necesita leer para no repetir trabajo ni errores ya
+  corregidos (ej. no volver a intentar `q` en vez de `traga`, no reinventar
+  `can Someone`, etc.).
+
+**3. Acceso de escritura al repo (para que Claude pueda pushear):**
+Se usó una **deploy key** dedicada a este repo en vez de credenciales
+personales — lo mismo conviene en la Mac: generar una clave SSH nueva ahí
+(no copiar la de esta PC), y agregarla como deploy key **con "Allow write
+access"** en `github.com/z0y1b0t/petria-mudlet → Settings → Deploy keys`.
+Cualquier sesión de Claude con acceso a terminal en la Mac puede generar
+esa clave y guiarte para agregarla — es el mismo proceso que se hizo acá.
+
+**4. Qué NO viaja con el repo:**
+- La fuente original de CMUD (`petria.xml` del export viejo) vive en un
+  disco montado en esta PC Linux (`/media/rcaceres/...`), no en git. Si en
+  algún momento querés seguir migrando categorías nuevas de CMUD
+  (`01-Oficios`, `04-Quest`, etc. — ver "Siguiente" más abajo) desde la Mac,
+  vas a necesitar copiar ese archivo ahí también, o seguir esa parte
+  puntual desde esta PC.
+- Tu `petria_dopes.lua` (hechizos agregados con `addspell`) y tu
+  `estado_gui.lua` (armas con `setarma`/`setsegun`) son locales a cada
+  instalación de Mudlet — no están en git, no se sincronizan solos entre
+  PCs. Si querés lo mismo en las dos, hay que configurarlo en cada una por
+  separado (`addspell`/`setarma` de nuevo), o pedirme que lo suba al código
+  base como hice con `detectar invisibilidad`.
+
 Fuente original: `/media/rcaceres/3B46BF9F7F346D5E/petria.xml` (export CMUD).
 
 ## GMCP disponible en este server
