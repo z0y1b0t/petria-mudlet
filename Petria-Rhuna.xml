@@ -2250,27 +2250,23 @@ Clases.sendSeq("s", "w", "s", "w", "s", "w", "s", "w")</script>
 					<name>pocionesfull</name>
 					<script>-- Las lineas "comprar 2/2" y "comprar 3/3" del original estaban
 -- comentadas ("//") en CMUD -- tambien quedan sin ejecutar aca.
--- "banco" ahora es solo viaje (recall/n/ir Banco), ya no manda
--- "ayuda Banco"/ingre/rei el solo -- esta alias lo hace directo.
+-- "banco" ya deposita/retira por su cuenta (ingresar todo/rei 4000) --
+-- no se duplica esa logica aca, solo se espera la confirmacion del
+-- retiro antes de seguir con la compra.
 send("banco")
-send("ayuda Banco")
-Petria.esperarTexto("Para comprobar a cuanto ascienden tus ahorros: SALDO", function()
-  send("ingre todo")
-  send("rei 1000")
-  Petria.esperarTexto("El Banquero de Midgaard dice 'despues de retirar: 1000 monedas\\.'", function()
-    send("recall")
-    send("n")
-    Clases.sendSeq("s", "s", "s", "s", "e", "e", "e", "n")
+Petria.esperarTexto("El Banquero de Midgaard dice 'despues de retirar: 4000 monedas\\.'", function()
+  send("recall")
+  send("n")
+  Clases.sendSeq("s", "s", "s", "s", "e", "e", "e", "n")
+  tempTimer(0.5, function()
+    send("comprar 30*4")
     tempTimer(0.5, function()
-      send("comprar 30*4")
+      send("abrir moch")
       tempTimer(0.5, function()
-        send("abrir moch")
-        tempTimer(0.5, function()
-          send("pon todo moch")
-        end)
+        send("pon todo moch")
       end)
     end)
-  end, 15)
+  end)
 end, 15)</script>
 					<command />
 					<packageName />
@@ -2306,7 +2302,9 @@ send("dar 10 oro cobrador")</script>
 					<name>banco</name>
 					<script>send("recall")
 send("n")
-send("ir Banco")</script>
+send("ir Banco")
+send("ingresar todo")
+send("rei 4000")</script>
 					<command />
 					<packageName />
 					<regex>^banco$</regex>
@@ -2508,9 +2506,9 @@ tempTimer(3, function() send("dar " .. tostring(plata) .. " plata otho") end)</s
 				</Alias>
 				<Alias isActive="yes" isFolder="no">
 					<name>pociones</name>
-					<script>send("banco")
-send("ingre todo")
-send("rei 1000")
+					<script>-- "banco" ya deposita/retira por su cuenta (ingresar todo/rei 4000) --
+-- no se duplica esa logica aca.
+send("banco")
 send("recall")
 send("n")
 Clases.sendSeq("s", "s", "s", "s", "e", "e", "e", "n")
@@ -2552,7 +2550,7 @@ tempTimer(0.5, function() send("lista") end)</script>
 cecho("&lt;yellow&gt;[Petria-Rhuna] Reinstalando...\n")
 uninstallPackage("Petria-Rhuna")
 tempTimer(0.5, function()
-  installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml?v=1789424453")
+  installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml?v=1789425013")
   cecho("&lt;green&gt;[Petria-Rhuna] Reinstalado.\n")
 end)</script>
 					<command />

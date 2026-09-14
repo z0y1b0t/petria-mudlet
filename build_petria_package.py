@@ -843,34 +843,30 @@ make_alias(
     alias_group, "pocionesfull", r"^pocionesfull$",
     '-- Las lineas "comprar 2/2" y "comprar 3/3" del original estaban\n'
     '-- comentadas ("//") en CMUD -- tambien quedan sin ejecutar aca.\n'
-    '-- "banco" ahora es solo viaje (recall/n/ir Banco), ya no manda\n'
-    '-- "ayuda Banco"/ingre/rei el solo -- esta alias lo hace directo.\n'
+    '-- "banco" ya deposita/retira por su cuenta (ingresar todo/rei 4000) --\n'
+    '-- no se duplica esa logica aca, solo se espera la confirmacion del\n'
+    '-- retiro antes de seguir con la compra.\n'
     'send("banco")\n'
-    'send("ayuda Banco")\n'
-    'Petria.esperarTexto("Para comprobar a cuanto ascienden tus ahorros: SALDO", function()\n'
-    '  send("ingre todo")\n'
-    '  send("rei 1000")\n'
-    '  Petria.esperarTexto("El Banquero de Midgaard dice \'despues de retirar: 1000 monedas\\\\.\'", function()\n'
-    '    send("recall")\n'
-    '    send("n")\n'
-    '    Clases.sendSeq("s", "s", "s", "s", "e", "e", "e", "n")\n'
+    'Petria.esperarTexto("El Banquero de Midgaard dice \'despues de retirar: 4000 monedas\\\\.\'", function()\n'
+    '  send("recall")\n'
+    '  send("n")\n'
+    '  Clases.sendSeq("s", "s", "s", "s", "e", "e", "e", "n")\n'
+    '  tempTimer(0.5, function()\n'
+    '    send("comprar 30*4")\n'
     '    tempTimer(0.5, function()\n'
-    '      send("comprar 30*4")\n'
+    '      send("abrir moch")\n'
     '      tempTimer(0.5, function()\n'
-    '        send("abrir moch")\n'
-    '        tempTimer(0.5, function()\n'
-    '          send("pon todo moch")\n'
-    '        end)\n'
+    '        send("pon todo moch")\n'
     '      end)\n'
     '    end)\n'
-    '  end, 15)\n'
+    '  end)\n'
     'end, 15)'
 )
 
 make_alias(alias_group, "saciar", r"^saciar$", 'Clases.sendSeq("n", "n", "n", "n", "n")\nsend("beber")')
 make_alias(alias_group, "limo", r"^limo$", 'send("recall")\nClases.sendSeq("n", "n", "n", "n", "n")\nfor i = 1, 6 do send("bebe") end')
 make_alias(alias_group, "arena", r"^arena$", 'send("recall")\nClases.sendSeq("n", "n", "n", "n", "n", "w", "w", "n")\nsend("dar 10 oro cobrador")')
-make_alias(alias_group, "banco", r"^banco$", 'send("recall")\nsend("n")\nsend("ir Banco")')
+make_alias(alias_group, "banco", r"^banco$", 'send("recall")\nsend("n")\nsend("ir Banco")\nsend("ingresar todo")\nsend("rei 4000")')
 
 make_alias(
     alias_group, "pocsantu", r"^pocsantu$",
@@ -976,7 +972,9 @@ make_alias(
 
 make_alias(
     alias_group, "pociones", r"^pociones$",
-    'send("banco")\nsend("ingre todo")\nsend("rei 1000")\n'
+    '-- "banco" ya deposita/retira por su cuenta (ingresar todo/rei 4000) --\n'
+    '-- no se duplica esa logica aca.\n'
+    'send("banco")\n'
     'send("recall")\nsend("n")\nClases.sendSeq("s", "s", "s", "s", "e", "e", "e", "n")\n'
     'tempTimer(0.5, function() send("lista") end)'
 )
