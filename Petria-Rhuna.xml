@@ -991,7 +991,7 @@ send("comer melon")</script>
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
-					<name>Coces con herraduras elficas</name>
+					<name>Coces con herraduras (cualquier arma)</name>
 					<script>send("coce")</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
@@ -1004,7 +1004,7 @@ send("comer melon")</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>recibe unas potentes Coces con herraduras Elficas\.$</string>
+						<string>recibe unas potentes Coces con .+\.$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
