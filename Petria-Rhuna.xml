@@ -3331,6 +3331,32 @@ send("curar")</script>
 					<keyCode>16777223</keyCode>
 					<keyModifier>536870912</keyModifier>
 				</Key>
+				<Key isActive="yes" isFolder="no">
+					<name>MAC-Sanar</name>
+					<packageName />
+					<script>send("traga sana")</script>
+					<command />
+					<keyCode>123</keyCode>
+					<keyModifier>0</keyModifier>
+				</Key>
+				<Key isActive="yes" isFolder="no">
+					<name>MAC-SaviaVerde</name>
+					<packageName />
+					<script>send("traga savia")</script>
+					<command />
+					<keyCode>125</keyCode>
+					<keyModifier>0</keyModifier>
+				</Key>
+				<Key isActive="yes" isFolder="no">
+					<name>MAC-Recall</name>
+					<packageName />
+					<script>send("recall")
+send("n")
+send("curar")</script>
+					<command />
+					<keyCode>16777219</keyCode>
+					<keyModifier>0</keyModifier>
+				</Key>
 			</KeyGroup>
 		</KeyGroup>
 	</KeyPackage>
