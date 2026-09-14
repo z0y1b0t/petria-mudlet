@@ -2391,28 +2391,45 @@ send("traga santu")</script>
 				</Alias>
 				<Alias isActive="yes" isFolder="no">
 					<name>can</name>
-					<script>-- Replica el #LOOP 1,2 del original: hasta 2 intentos, corta si detecta
--- exito ("se desvanece." u "Ok.") en la respuesta del server.
+					<script>-- Version original (#LOOP 1,2 de CMUD, 2 intentos): confirmado en
+-- juego que "cancelacion" falla seguido ("Hechizo fallado.", un %
+-- de exito del propio hechizo, no relacionado a si hay algo para
+-- cancelar) -- 2 intentos se quedaban cortos muy seguido, necesito
+-- 6-7 reintentos reales para que conecte. Subido a 6. Tambien corta
+-- temprano si el server dice "Nada que cancelar." (no tiene sentido
+-- seguir intentando si el objetivo no tiene nada activo).
 local tarjet = matches[2]
 local intentos = 0
-local exito = false
+local intentosMax = 6
+local terminado = false
 
 local function intentar()
   intentos = intentos + 1
   send("c 'cancelacion' " .. tarjet)
-  local id
-  id = tempRegexTrigger("se desvanece\\.|Ok\\.", function()
-    killTrigger(id)
-    exito = true
+  local idExito, idNada
+  local function limpiar()
+    if exists(idExito, "trigger") == 1 then killTrigger(idExito) end
+    if exists(idNada, "trigger") == 1 then killTrigger(idNada) end
+  end
+  idExito = tempRegexTrigger("se desvanece\\.|Ok\\.", function()
+    if terminado then return end
+    terminado = true
+    limpiar()
     cecho(string.format("&lt;green&gt;Cancelacion exitosa en %d intento(s).\n", intentos))
   end)
+  idNada = tempRegexTrigger("Nada que cancelar\\.", function()
+    if terminado then return end
+    terminado = true
+    limpiar()
+    cecho("&lt;gray&gt;Nada que cancelar en el objetivo.\n")
+  end)
   tempTimer(0.7, function()
-    if not exito then
-      if exists(id, "trigger") == 1 then killTrigger(id) end
-      if intentos &lt; 2 then
+    if not terminado then
+      limpiar()
+      if intentos &lt; intentosMax then
         intentar()
       else
-        cecho("&lt;red&gt;Cancelacion fallida tras 2 intentos.\n")
+        cecho(string.format("&lt;red&gt;Cancelacion fallida tras %d intentos.\n", intentosMax))
       end
     end
   end)
