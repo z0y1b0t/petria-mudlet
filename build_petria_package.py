@@ -1243,15 +1243,31 @@ ClasesActualizarClaseGMCP()
 -- "not en_combate" solo (ver resto de Pelea, que ya usa ese patron).
 Clases.clasesConEmpalar = { guerrero = true, asesino = true, seguidores = true }
 
--- Cambia a una lanza para empalar y vuelve al arma principal configurada
--- con "setarma" en el GUI oficial (variable global "armaPrincipal",
--- persistida en estado_gui.lua -- no se duplica esa logica aca).
+-- Cambia a una lanza para empalar y vuelve a las armas configuradas con
+-- "setarma"/"setsegun" en el GUI oficial (variables globales
+-- "armaPrincipal"/"armaSecundaria", persistidas en estado_gui.lua -- no se
+-- duplica esa logica aca, solo se leen). El verbo para reequipar la
+-- secundaria es "segun", no "bla" (confirmado leyendo
+-- DesarmePetria.recuperar del GUI, que hace lo mismo tras un desarme).
+--
+-- Confirmado en juego: la lanza es un arma de DOS MANOS -- "bla lanza" con
+-- la secundaria todavia puesta da "No puedes usar un arma de dos manos
+-- llevando arma secundaria." (la principal se descuelga sola, la
+-- secundaria no) y la lanza nunca queda blandida, asi que "empalar" y
+-- despues "gua lanza" fallan en cascada. Por eso hay que guardar la
+-- secundaria ANTES de blandir la lanza.
 function Clases.intentarEmpalar(obj)
   send("get lanza moch")
+  if armaSecundaria and armaSecundaria ~= "" then
+    send("gua " .. armaSecundaria)
+  end
   send("bla lanza")
   send("empalar " .. obj)
   send("gua lanza")
   send("bla " .. (armaPrincipal or ""))
+  if armaSecundaria and armaSecundaria ~= "" then
+    send("segun " .. armaSecundaria)
+  end
 end
 
 -- Despacha al ataque de la clase conectada (Clases[clase].ataque). Comun a
