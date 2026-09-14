@@ -2931,15 +2931,18 @@ Clases.clasesConEmpalar = { guerrero = true, asesino = true, seguidores = true }
 --
 -- Confirmado en juego: la lanza es un arma de DOS MANOS -- "bla lanza" con
 -- la secundaria todavia puesta da "No puedes usar un arma de dos manos
--- llevando arma secundaria." (la principal se descuelga sola, la
--- secundaria no) y la lanza nunca queda blandida, asi que "empalar" y
--- despues "gua lanza" fallan en cascada. Por eso hay que guardar la
--- secundaria ANTES de blandir la lanza.
+-- llevando arma secundaria." y la lanza nunca queda blandida, asi que
+-- "empalar" y despues "gua lanza" fallan en cascada. No alcanza con
+-- confiar en que la principal se descuelgue sola: se guardan las dos
+-- explicitamente ANTES de tocar la lanza.
 function Clases.intentarEmpalar(obj)
-  send("get lanza moch")
+  if armaPrincipal and armaPrincipal ~= "" then
+    send("gua " .. armaPrincipal)
+  end
   if armaSecundaria and armaSecundaria ~= "" then
     send("gua " .. armaSecundaria)
   end
+  send("get lanza moch")
   send("bla lanza")
   send("empalar " .. obj)
   send("gua lanza")
