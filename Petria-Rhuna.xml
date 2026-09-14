@@ -2250,7 +2250,10 @@ Clases.sendSeq("s", "w", "s", "w", "s", "w", "s", "w")</script>
 					<name>pocionesfull</name>
 					<script>-- Las lineas "comprar 2/2" y "comprar 3/3" del original estaban
 -- comentadas ("//") en CMUD -- tambien quedan sin ejecutar aca.
+-- "banco" ahora es solo viaje (recall/n/ir Banco), ya no manda
+-- "ayuda Banco"/ingre/rei el solo -- esta alias lo hace directo.
 send("banco")
+send("ayuda Banco")
 Petria.esperarTexto("Para comprobar a cuanto ascienden tus ahorros: SALDO", function()
   send("ingre todo")
   send("rei 1000")
@@ -2302,11 +2305,8 @@ send("dar 10 oro cobrador")</script>
 				<Alias isActive="yes" isFolder="no">
 					<name>banco</name>
 					<script>send("recall")
-Clases.sendSeq("s", "e", "s", "e", "s", "e", "s", "e")
-send("ayuda Banco")
-send("ingre todo")
-send("rei 1000")
-send("SALDO")</script>
+send("n")
+send("ir Banco")</script>
 					<command />
 					<packageName />
 					<regex>^banco$</regex>
