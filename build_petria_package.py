@@ -410,10 +410,16 @@ make_trigger(pelea_trig_group, "Cegados por suciedad: zancadilla", 'expandAlias(
 # generico -- se dispara si el nombre completo de quien huye (matches[2])
 # contiene el keyword que le pasamos a "k"/"kk" (rasOBJ), asi no persigue
 # a cualquiera que huya en la sala, solo al objetivo actual.
+# Confirmado en juego: rasOBJ queda pegado del ULTIMO k/kk que usaste, sin
+# importar cuanto tiempo paso ni si segui en combate -- sin el chequeo de
+# en_combate, cualquier NPC de la sala cuyo nombre contuviera ese keyword
+# (aunque ya no estuvieras peleando nada) te hacia salir corriendo atras
+# de el, sin querer. "en_combate and en_combate ~= 0" (NO alcanza con
+# "en_combate" solo -- arranca en 0, que en Lua es verdadero).
 make_trigger(
     pelea_trig_group, "Enemigo huye: perseguir y reatacar",
     'local nombreCompleto, direccion = matches[2], matches[3]\n'
-    'if rasOBJ and rasOBJ ~= "" and nombreCompleto:lower():find(rasOBJ:lower(), 1, true) then\n'
+    'if en_combate and en_combate ~= 0 and rasOBJ and rasOBJ ~= "" and nombreCompleto:lower():find(rasOBJ:lower(), 1, true) then\n'
     '  send(direccion)\n'
     '  send("k " .. rasOBJ)\n'
     'end',
