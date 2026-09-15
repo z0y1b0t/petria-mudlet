@@ -1016,71 +1016,14 @@ make_alias(
 
 make_alias(alias_group, "cq", r"^cq$", 'send("quien concilio")')
 
-make_alias(
-    alias_group, "updatepkg", r"^updatepkg(?:\s+(-v|version))?$",
-    '-- "updatepkg -v" (o "updatepkg version"): solo muestra el build\n'
-    '-- instalado (Petria.version, timestamp unix de build_petria_package.py)\n'
-    '-- sin reinstalar nada -- para confirmar de un vistazo si esta\n'
-    '-- sincronizado con el ultimo push, en vez de tener que comparar el\n'
-    '-- comportamiento de los alias a mano.\n'
-    'if matches[2] and matches[2] ~= "" then\n'
-    '  cecho(string.format("<cyan>[Petria-Rhuna] Build instalado: %s\\n", tostring(Petria.version)))\n'
-    '  return\n'
-    'end\n\n'
-    '-- uninstallPackage + installPackage encadenados en una sola linea daban\n'
-    '-- "package X is already installed" por timing (confirmado antes, por\n'
-    '-- eso veniamos pidiendo hacerlo en dos comandos separados). El\n'
-    '-- tempTimer da tiempo a que el uninstall termine antes de reinstalar.\n'
-    '-- Nombre "Petria-Rhuna" (no "Petria" a secas) a proposito: el server\n'
-    '-- tiene un comando "instalarmudlet" que instala/actualiza su propio\n'
-    '-- paquete GUI oficial, y ese instalador sobreescribe cualquier package\n'
-    '-- Mudlet que tenga EL MISMO NOMBRE -- si el nuestro se llamara igual\n'
-    '-- que el oficial (o algo generico como "Petria"), correr\n'
-    '-- "instalarmudlet" en el juego podria borrar todo esto.\n'
-    '-- Instala desde GitHub (via jsdelivr), no un archivo local: asi\n'
-    '-- funciona igual en cualquier PC, no solo en la que genero el archivo.\n'
-    '-- Se usa jsdelivr.net en vez de raw.githubusercontent.com porque esta\n'
-    '-- ultima quedo bloqueada en la red corporativa de la Mac (confirmado\n'
-    '-- con curl: "Connection reset by peer" tanto directo como via el\n'
-    '-- redirect de github.com/.../raw/...). jsdelivr es un CDN publico\n'
-    '-- que espeja repos de GitHub y no tuvo ese bloqueo.\n'
-    '-- "?v=<timestamp>" al final: confirmado en juego que Mudlet cachea la\n'
-    '-- respuesta HTTP del lado del cliente ademas del CDN -- purgar\n'
-    '-- jsdelivr no alcanzaba, updatepkg seguia trayendo la version vieja.\n'
-    '-- Cambia en cada build de este script, asi la url es "nueva" siempre.\n'
-    '-- Confirmado en juego, dos veces seguidas: installPackage() desde una\n'
-    '-- URL puede fallar en silencio (sin "[INFO] Downloading"/"[OK]\n'
-    '-- installed") si se llama muy pronto despues de uninstallPackage --\n'
-    '-- 0.5s de por medio (el delay original) no alcanzaba siempre. Subido\n'
-    '-- a 2s antes del primer intento, mas UN reintento automatico con otros\n'
-    '-- 3s de por medio si getPackages() confirma que sigue sin quedar\n'
-    '-- instalado (antes cecho-eabamos "Reinstalado." sin chequear nada, y\n'
-    '-- el usuario se quedaba con el paquete DESINSTALADO creyendo que\n'
-    '-- habia andado bien, rompiendo todos los alias).\n'
-    'cecho("<yellow>[Petria-Rhuna] Reinstalando...\\n")\n'
-    'uninstallPackage("Petria-Rhuna")\n\n'
-    'local function PetriaRhunaEstaInstalado()\n'
-    '  for _, nombre in ipairs(getPackages()) do\n'
-    '    if nombre == "Petria-Rhuna" then return true end\n'
-    '  end\n'
-    '  return false\n'
-    'end\n\n'
-    'local function PetriaRhunaVerificar(intento)\n'
-    '  if PetriaRhunaEstaInstalado() then\n'
-    '    cecho("<green>[Petria-Rhuna] Reinstalado.\\n")\n'
-    '  elseif intento < 2 then\n'
-    '    cecho(string.format("<yellow>[Petria-Rhuna] Intento %d fallo, reintentando...\\n", intento))\n'
-    f'    installPackage("{JSDELIVR_URL}")\n'
-    '    tempTimer(3, function() PetriaRhunaVerificar(intento + 1) end)\n'
-    '  else\n'
-    f'    cecho("<red>[Petria-Rhuna] FALLO el reinstall tras 2 intentos. Instalalo manual: lua installPackage(\\"{JSDELIVR_URL}\\")\\n")\n'
-    '  end\n'
-    'end\n\n'
-    'tempTimer(2, function()\n'
-    f'  installPackage("{JSDELIVR_URL}")\n'
-    '  tempTimer(3, function() PetriaRhunaVerificar(1) end)\n'
-    'end)'
-)
+# "updatepkg" YA NO VIVE ACA. Vivia en este mismo paquete y se
+# auto-desinstalaba con "uninstallPackage('Petria-Rhuna')" como parte de su
+# propio reinstall -- si el installPackage() posterior fallaba (confirmado
+# en juego, mas de una vez), no quedaba NINGUN "updatepkg" para reintentar,
+# solo un paquete desinstalado y el usuario a ciegas. Se movio a un
+# paquete separado y estable, "Petria-Rhuna-Updater" (ver el bloque al
+# final de este script) que este paquete nunca toca ni desinstala -- se
+# instala UNA sola vez y sobrevive a cualquier falla de reinstall de este.
 make_alias(alias_group, "q", r"^q (.+)$", 'send("get " .. matches[2] .. " moch")\nsend("tra " .. matches[2])')
 make_alias(alias_group, "gp", r"^gp$", 'send("golpetazo")')
 make_alias(alias_group, "toso", r"^toso$", "send(\"c 'totem animal oso'\")")
@@ -1823,3 +1766,103 @@ with open(out_path, "wb") as f:
     tree.write(f, encoding="unicode".encode() if False else "utf-8", xml_declaration=False)
 
 print("OK ->", out_path)
+
+# ================================================================
+# PAQUETE SEPARADO: Petria-Rhuna-Updater
+# ================================================================
+# Contiene SOLO el alias "updatepkg". Vive aparte de Petria-Rhuna a
+# proposito: "updatepkg" hace uninstallPackage("Petria-Rhuna") +
+# installPackage(...) -- si viviera adentro del mismo paquete que
+# reinstala, se borraria a si mismo antes de terminar, y si el
+# installPackage() posterior fallaba (confirmado en juego mas de una vez:
+# fallos silenciosos de red / jsdelivr sin sincronizar todavia), no
+# quedaba NINGUN "updatepkg" instalado para reintentar -- el usuario
+# quedaba a ciegas con el paquete principal desinstalado y sin comando
+# para recuperarlo, dependiendo de que alguien le pasara una URL manual.
+# Este paquete updater es chico y estable (una sola funcion), no necesita
+# actualizarse con la frecuencia del principal -- se instala UNA vez y
+# sobrevive a cualquier falla de reinstall de Petria-Rhuna, porque
+# updatepkg nunca desinstala/reinstala "Petria-Rhuna-Updater" (solo
+# "Petria-Rhuna").
+updater_root = ET.Element("MudletPackage", {"version": "1.001"})
+ET.SubElement(updater_root, "TriggerPackage")
+ET.SubElement(updater_root, "TimerPackage")
+updater_alias_pkg = ET.SubElement(updater_root, "AliasPackage")
+updater_alias_group = make_alias_group(updater_alias_pkg, "Petria-Rhuna-Updater")
+ET.SubElement(updater_root, "ActionPackage")
+ET.SubElement(updater_root, "ScriptPackage")
+ET.SubElement(updater_root, "KeyPackage")
+updater_var_pkg = ET.SubElement(updater_root, "VariablePackage")
+ET.SubElement(updater_var_pkg, "HiddenVariables")
+
+make_alias(
+    updater_alias_group, "updatepkg", r"^updatepkg(?:\s+(-v|version))?$",
+    '-- "updatepkg -v" (o "updatepkg version"): solo muestra el build de\n'
+    '-- Petria-Rhuna instalado (Petria.version, definida alla, no aca) sin\n'
+    '-- reinstalar nada. Si Petria-Rhuna no esta instalado (por eso este\n'
+    '-- updater vive separado, ver nota abajo), Petria no existe todavia --\n'
+    '-- se chequea con seguridad en vez de romper con un error de Lua.\n'
+    'if matches[2] and matches[2] ~= "" then\n'
+    '  if Petria and Petria.version then\n'
+    '    cecho(string.format("<cyan>[Petria-Rhuna] Build instalado: %s\\n", tostring(Petria.version)))\n'
+    '  else\n'
+    '    cecho("<red>[Petria-Rhuna] No parece estar instalado (Petria.version no existe). Corre updatepkg para instalarlo.\\n")\n'
+    '  end\n'
+    '  return\n'
+    'end\n\n'
+    '-- uninstallPackage + installPackage encadenados en una sola linea daban\n'
+    '-- "package X is already installed" por timing (confirmado antes, por\n'
+    '-- eso veniamos pidiendo hacerlo en dos comandos separados). El\n'
+    '-- tempTimer da tiempo a que el uninstall termine antes de reinstalar.\n'
+    '-- Nombre "Petria-Rhuna" (no "Petria" a secas) a proposito: el server\n'
+    '-- tiene un comando "instalarmudlet" que instala/actualiza su propio\n'
+    '-- paquete GUI oficial, y ese instalador sobreescribe cualquier package\n'
+    '-- Mudlet que tenga EL MISMO NOMBRE -- si el nuestro se llamara igual\n'
+    '-- que el oficial (o algo generico como "Petria"), correr\n'
+    '-- "instalarmudlet" en el juego podria borrar todo esto.\n'
+    '-- Instala desde GitHub (via jsdelivr), no un archivo local: asi\n'
+    '-- funciona igual en cualquier PC, no solo en la que genero el archivo.\n'
+    '-- Se usa jsdelivr.net en vez de raw.githubusercontent.com porque esta\n'
+    '-- ultima quedo bloqueada en la red corporativa de la Mac (confirmado\n'
+    '-- con curl: "Connection reset by peer" tanto directo como via el\n'
+    '-- redirect de github.com/.../raw/...). jsdelivr es un CDN publico\n'
+    '-- que espeja repos de GitHub y no tuvo ese bloqueo.\n'
+    '-- URL apuntada a un COMMIT EXACTO (no "@main" ni "?v=<timestamp>"):\n'
+    '-- confirmado en juego, repetidas veces, que la rama mutable con o sin\n'
+    '-- query string para cache-busting fallaba en silencio o traia\n'
+    '-- versiones viejas de forma inconsistente. Un commit exacto es\n'
+    '-- contenido inmutable, sin ambiguedad de cache en ningun lado.\n'
+    'cecho("<yellow>[Petria-Rhuna] Reinstalando...\\n")\n'
+    'uninstallPackage("Petria-Rhuna")\n\n'
+    'local function PetriaRhunaEstaInstalado()\n'
+    '  for _, nombre in ipairs(getPackages()) do\n'
+    '    if nombre == "Petria-Rhuna" then return true end\n'
+    '  end\n'
+    '  return false\n'
+    'end\n\n'
+    'local function PetriaRhunaVerificar(intento)\n'
+    '  if PetriaRhunaEstaInstalado() then\n'
+    '    cecho("<green>[Petria-Rhuna] Reinstalado.\\n")\n'
+    '  elseif intento < 2 then\n'
+    '    cecho(string.format("<yellow>[Petria-Rhuna] Intento %d fallo, reintentando...\\n", intento))\n'
+    f'    installPackage("{JSDELIVR_URL}")\n'
+    '    tempTimer(3, function() PetriaRhunaVerificar(intento + 1) end)\n'
+    '  else\n'
+    f'    cecho("<red>[Petria-Rhuna] FALLO el reinstall tras 2 intentos. Instalalo manual: lua installPackage(\\"{JSDELIVR_URL}\\")\\n")\n'
+    '  end\n'
+    'end\n\n'
+    'tempTimer(2, function()\n'
+    f'  installPackage("{JSDELIVR_URL}")\n'
+    '  tempTimer(3, function() PetriaRhunaVerificar(1) end)\n'
+    'end)'
+)
+
+indent(updater_root)
+updater_tree = ET.ElementTree(updater_root)
+updater_out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Petria-Rhuna-Updater.xml")
+
+with open(updater_out_path, "wb") as f:
+    f.write(b'<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE MudletPackage>\n')
+    updater_tree.write(f, encoding="utf-8", xml_declaration=False)
+
+print("OK ->", updater_out_path)

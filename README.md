@@ -49,41 +49,77 @@ archivos aparte, no dependen del nombre del paquete Mudlet.
 ## Disponible en las dos PCs: GitHub
 
 Repo: **https://github.com/z0y1b0t/petria-mudlet** (público). Cada vez que
-te mando una versión nueva, la subo ahí también. `updatepkg` ya instala
-desde GitHub (vía jsdelivr, ver más abajo), no desde un archivo local —
-funciona igual sea cual sea la PC donde lo corras, siempre que tengas
-internet.
+te mando una versión nueva, la subo ahí también. `updatepkg` instala desde
+GitHub (vía jsdelivr, ver más abajo), no desde un archivo local — funciona
+igual sea cual sea la PC donde lo corras, siempre que tengas internet.
 
 Push con una **deploy key** dedicada a este repo (no tus credenciales
 personales de GitHub, y solo con acceso a este repo puntual, no a toda tu
 cuenta) — así que si en algún momento querés cortar el acceso, la borrás
 desde `Settings → Deploy keys` del repo sin tocar nada más tuyo.
 
+### Dos paquetes Mudlet, no uno: `Petria-Rhuna` + `Petria-Rhuna-Updater`
+
+`build_petria_package.py` genera **dos** archivos:
+
+- **`Petria-Rhuna.xml`** — todo el contenido real (clases, pelea, alias,
+  teclas, etc.). Este es el que se reinstala seguido, con `updatepkg`.
+- **`Petria-Rhuna-Updater.xml`** — paquete chico y separado que contiene
+  **solo** el alias `updatepkg`. Se instala **una sola vez** y prácticamente
+  nunca hace falta reinstalarlo.
+
+Están separados a propósito: `updatepkg` hace
+`uninstallPackage("Petria-Rhuna")` + reinstalar. Si viviera dentro del
+mismo paquete que borra, se autodestruiría antes de terminar — y si el
+`installPackage()` posterior fallaba (confirmado en juego más de una vez:
+fallos silenciosos de red, o jsdelivr sin sincronizar todavía el último
+commit), no quedaba **ningún** `updatepkg` instalado para reintentar. El
+usuario quedaba con el paquete principal desinstalado y sin comando para
+recuperarlo, dependiendo de que alguien le pasara una URL manual. Con
+`updatepkg` viviendo en su propio paquete separado (que nunca se
+desinstala a sí mismo), sobrevive a cualquier falla de reinstall de
+`Petria-Rhuna` y siempre queda disponible para reintentar.
+
 ### ⚠️ `raw.githubusercontent.com` bloqueado en la red corporativa (Mac)
 
-`updatepkg` originalmente instalaba desde `raw.githubusercontent.com`
-(la URL raw estándar de GitHub) — confirmado en juego que funciona bien
-así en la PC Linux. En la Mac corporativa esa URL está bloqueada (`curl`
-da `Connection reset by peer`, tanto directo como siguiendo el redirect
-de `github.com/.../raw/...` — no es un bloqueo de navegador, corta la
+Originalmente se instalaba desde `raw.githubusercontent.com` (la URL raw
+estándar de GitHub) — confirmado en juego que funciona bien así en la PC
+Linux. En la Mac corporativa esa URL está bloqueada (`curl` da
+`Connection reset by peer`, tanto directo como siguiendo el redirect de
+`github.com/.../raw/...` — no es un bloqueo de navegador, corta la
 conexión a nivel red/TLS). Se cambió a **jsdelivr**
 (`cdn.jsdelivr.net/gh/...`), un CDN público que espeja repos de GitHub por
-otro dominio — confirmado con `curl` y con `installPackage` real en
-Mudlet que sí funciona en la Mac. Como es solo un espejo del mismo repo,
-sigue funcionando igual en la PC Linux.
+otro dominio. Como es solo un espejo del mismo repo, sigue funcionando
+igual en la PC Linux.
 
-**Ojo con el caché de jsdelivr**: los archivos servidos por la rama
-(`@main`) quedan cacheados un rato (hasta ~12hs) antes de reflejar un push
-nuevo. Si corrés `updatepkg` justo después de que te mande una versión
-nueva y no ves el cambio, puede ser caché — probar de nuevo más tarde, o
-pedirme que fuerce el purge (`https://purge.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml`)
-después de pushear.
+### ⚠️ URL apuntada a un commit exacto, no a `@main`
 
-Para instalarlo por primera vez en la otra PC (con Mudlet + GMCP activado):
+Se probó primero con la rama mutable `@main` (con y sin
+`?v=<timestamp>` como cache-buster) y falló de forma inconsistente varias
+veces en juego — instalaciones silenciosamente fallidas o trayendo
+versiones viejas, tanto por caché del CDN como, aparentemente, del lado
+del cliente (Mudlet/Qt). Lo único que funcionó siempre, sin excepción, fue
+apuntar a un **commit exacto**
+(`@<sha>/Petria-Rhuna.xml`, sin query string) — contenido inmutable, sin
+ambigüedad de caché en ningún lado.
+
+Por eso el workflow de publicación de una versión nueva son **dos
+commits**: el cambio funcional primero, pusheado; después
+`build_petria_package.py` se corre de nuevo (ahora que ese commit ya es
+HEAD) para que la URL de `updatepkg` quede apuntando a ese commit recién
+pusheado, y se commitea/pushea ese ajuste de URL aparte ("Clavar
+updatepkg al commit recién pusheado").
+
+Para instalarlo por primera vez en la otra PC (con Mudlet + GMCP activado
+— usar el commit más reciente del repo, no `@main`):
 ```
-lua installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml")
+lua installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@<ultimo-commit>/Petria-Rhuna-Updater.xml")
 ```
-Después, `updatepkg` funciona igual que en esta.
+```
+lua installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@<ultimo-commit>/Petria-Rhuna.xml")
+```
+Después, `updatepkg` reinstala solo `Petria-Rhuna` — el updater no hace
+falta tocarlo de nuevo.
 
 ## Seguir editando el código desde otra máquina (ej. la Mac)
 
