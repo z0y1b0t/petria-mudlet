@@ -2455,10 +2455,18 @@ local function intentar()
     if exists(idFallo, "trigger") == 1 then killTrigger(idFallo) end
     if exists(idTimeout, "timer") == 1 then killTimer(idTimeout) end
   end
+  -- Confirmado en juego (con codigo verificado, instalacion limpia sin
+  -- duplicados): igual salian los 6 intentos en rafaga. Sospecha: crear
+  -- un tempRegexTrigger nuevo con el MISMO patron ("Hechizo fallado.")
+  -- desde adentro del callback que esta procesando esa misma linea
+  -- puede hacer que Mudlet evalue el trigger recien creado contra la
+  -- linea que TODAVIA esta despachando, encadenando varios intentos en
+  -- el mismo tick. tempTimer(0.05, ...) saca la creacion del siguiente
+  -- intento de ese mismo ciclo de procesamiento.
   local function siguienteOFinal()
     limpiar()
     if intentos &lt; intentosMax then
-      intentar()
+      tempTimer(0.05, intentar)
     else
       terminado = true
       cecho(string.format("&lt;red&gt;Cancelacion fallida tras %d intentos.\n", intentosMax))
@@ -2803,7 +2811,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789489399
+Petria.version = 1789499467
 
 function Petria.esperarTexto(patron, callback, timeoutSeg)
   local id
