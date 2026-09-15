@@ -2783,7 +2783,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789486847
+Petria.version = 1789486868
 
 function Petria.esperarTexto(patron, callback, timeoutSeg)
   local id
