@@ -2396,7 +2396,22 @@ send("traga santu")</script>
 -- 6-7 reintentos reales para que conecte. Subido a 6. Tambien corta
 -- temprano si el server dice "Nada que cancelar." (no tiene sentido
 -- seguir intentando si el objetivo no tiene nada activo).
+-- "Memoria corta" (Petria.canNadaHasta): confirmado en juego que en
+-- medio de una pelea tensa es facil reescribir "can &lt;obj&gt;" varias
+-- veces seguidas a mano sin darse cuenta que el intento anterior ya
+-- dijo "Nada que cancelar." -- cada llamada a este alias es
+-- independiente, no se acuerda de la anterior. Si el mismo objetivo
+-- dio "Nada que cancelar." hace menos de 8s, no vuelve a mandar el
+-- hechizo (evita gastar mana de nuevo en lo mismo).
+Petria.canNadaHasta = Petria.canNadaHasta or {}
 local tarjet = matches[2]
+local tarjetKey = tarjet:lower()
+local vencimiento = Petria.canNadaHasta[tarjetKey]
+if vencimiento and os.time() &lt; vencimiento then
+  cecho(string.format("&lt;gray&gt;[can] %s ya dijo \"Nada que cancelar.\" hace poco, no reintento.\n", tarjet))
+  return
+end
+
 local intentos = 0
 local intentosMax = 6
 local terminado = false
@@ -2419,6 +2434,7 @@ local function intentar()
     if terminado then return end
     terminado = true
     limpiar()
+    Petria.canNadaHasta[tarjetKey] = os.time() + 8
     cecho("&lt;gray&gt;Nada que cancelar en el objetivo.\n")
   end)
   tempTimer(0.7, function()
@@ -2581,15 +2597,15 @@ local function PetriaRhunaVerificar(intento)
     cecho("&lt;green&gt;[Petria-Rhuna] Reinstalado.\n")
   elseif intento &lt; 2 then
     cecho(string.format("&lt;yellow&gt;[Petria-Rhuna] Intento %d fallo, reintentando...\n", intento))
-    installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@286608ded040efb173adb9a47c07dd5168af0b48/Petria-Rhuna.xml")
+    installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@6af6e5b34d3027e56f44d5ecf86c6d8e666002e7/Petria-Rhuna.xml")
     tempTimer(3, function() PetriaRhunaVerificar(intento + 1) end)
   else
-    cecho("&lt;red&gt;[Petria-Rhuna] FALLO el reinstall tras 2 intentos. Instalalo manual: lua installPackage(\"https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@286608ded040efb173adb9a47c07dd5168af0b48/Petria-Rhuna.xml\")\n")
+    cecho("&lt;red&gt;[Petria-Rhuna] FALLO el reinstall tras 2 intentos. Instalalo manual: lua installPackage(\"https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@6af6e5b34d3027e56f44d5ecf86c6d8e666002e7/Petria-Rhuna.xml\")\n")
   end
 end
 
 tempTimer(2, function()
-  installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@286608ded040efb173adb9a47c07dd5168af0b48/Petria-Rhuna.xml")
+  installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@6af6e5b34d3027e56f44d5ecf86c6d8e666002e7/Petria-Rhuna.xml")
   tempTimer(3, function() PetriaRhunaVerificar(1) end)
 end)</script>
 					<command />
@@ -2820,7 +2836,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789484455
+Petria.version = 1789485467
 
 function Petria.esperarTexto(patron, callback, timeoutSeg)
   local id
