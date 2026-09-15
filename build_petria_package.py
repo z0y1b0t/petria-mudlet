@@ -1,31 +1,30 @@
 import os
-import subprocess
 import time
 import xml.etree.ElementTree as ET
 
-# URL de jsdelivr para "updatepkg": confirmado en juego, varias veces, que
-# "@main/Petria-Rhuna.xml" (rama mutable) es poco confiable -- ya sea por
-# cache (CDN o del cliente Qt de Mudlet) o por algo en como Mudlet maneja
-# la descarga, quedaba trayendo versiones viejas o fallando en silencio.
-# Un "?v=<timestamp>" para forzar cache-busting tambien fallo (Mudlet no
-# bajaba el paquete con esa url en mas de un intento). LO UNICO que
-# funciono siempre, sin excepcion, fue instalar desde un COMMIT EXACTO
-# (@<sha>/Petria-Rhuna.xml, sin query string) -- un commit ya empujado a
-# GitHub es contenido inmutable, jsdelivr lo sirve sin ambiguedad de cache
-# apenas existe. Por eso "updatepkg" apunta al commit HEAD *previo* a este
-# build (obtenido con "git rev-parse HEAD" antes de generar el archivo):
-# ese commit ya esta pusheado y ya tiene todo el contenido funcional de
-# este build salvo, como mucho, el numero de commit al que apunta esta
-# misma linea -- nunca al codigo real (triggers/alias/scripts). El
-# workflow de publicacion hace un segundo commit chico despues de este
-# para "clavar" la url al commit recien creado (ver mensajes de build).
-try:
-    JSDELIVR_PIN_COMMIT = subprocess.check_output(
-        ["git", "rev-parse", "HEAD"], cwd=os.path.dirname(os.path.abspath(__file__))
-    ).decode().strip()
-except Exception:
-    JSDELIVR_PIN_COMMIT = "main"
-JSDELIVR_URL = f"https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@{JSDELIVR_PIN_COMMIT}/Petria-Rhuna.xml"
+# URL de jsdelivr para "updatepkg" (vive en el paquete separado
+# Petria-Rhuna-Updater, ver el final de este script): "@main" (rama
+# mutable), NO un commit fijo.
+#
+# Se probo primero con un commit exacto (@<sha>/Petria-Rhuna.xml) porque
+# @main solo, con o sin "?v=<timestamp>" de cache-busting, fallaba de
+# forma inconsistente en juego (instalaciones silenciosamente fallidas o
+# trayendo versiones viejas). El commit exacto sí resultó mas confiable
+# en cada prueba puntual -- PERO confirmado en juego que trae un problema
+# de diseño peor: el Updater es un paquete que se instala UNA vez y no se
+# vuelve a tocar (ese es su objetivo, sobrevivir a fallas del paquete
+# principal) -- si su URL apunta a un commit fijo, ese commit queda
+# congelado para siempre salvo que el usuario reinstale el Updater cada
+# vez que hay un push nuevo, lo cual contradice por completo el objetivo
+# de "no hace falta tocarlo nunca". updatepkg termino trayendo siempre
+# una version vieja indefinidamente.
+#
+# Vuelto a "@main", confiando en cambio en las mitigaciones ya agregadas
+# para los fallos que motivaron el commit fijo: purgar jsdelivr despues de
+# cada push, esperar unos segundos antes de pedirle al usuario que corra
+# updatepkg, y la logica de reintento + verificacion con getPackages() que
+# ya tiene el propio updatepkg.
+JSDELIVR_URL = "https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml"
 JSDELIVR_CACHE_BUSTER = int(time.time())  # usado solo para Petria.version ("updatepkg -v")
 
 def indent(elem, level=0):

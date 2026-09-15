@@ -92,31 +92,33 @@ conexión a nivel red/TLS). Se cambió a **jsdelivr**
 otro dominio. Como es solo un espejo del mismo repo, sigue funcionando
 igual en la PC Linux.
 
-### ⚠️ URL apuntada a un commit exacto, no a `@main`
+### `updatepkg` usa `@main` (rama mutable), no un commit fijo
 
-Se probó primero con la rama mutable `@main` (con y sin
-`?v=<timestamp>` como cache-buster) y falló de forma inconsistente varias
-veces en juego — instalaciones silenciosamente fallidas o trayendo
-versiones viejas, tanto por caché del CDN como, aparentemente, del lado
-del cliente (Mudlet/Qt). Lo único que funcionó siempre, sin excepción, fue
-apuntar a un **commit exacto**
-(`@<sha>/Petria-Rhuna.xml`, sin query string) — contenido inmutable, sin
-ambigüedad de caché en ningún lado.
+Se probó apuntar a un **commit exacto** (`@<sha>/Petria-Rhuna.xml`) para
+evitar fallos de caché de `@main` — funcionó en cada prueba puntual, pero
+resultó ser un error de diseño peor: el Updater es un paquete que se
+instala una vez y no se vuelve a tocar (todo su objetivo es sobrevivir a
+fallas del paquete principal sin necesitar reinstalación). Si su URL
+queda pegada a un commit fijo, ese commit queda **congelado para
+siempre** salvo que el usuario reinstale el Updater después de cada push
+— exactamente lo que se quería evitar. `updatepkg` terminaba trayendo
+siempre una versión vieja indefinidamente.
 
-Por eso el workflow de publicación de una versión nueva son **dos
-commits**: el cambio funcional primero, pusheado; después
-`build_petria_package.py` se corre de nuevo (ahora que ese commit ya es
-HEAD) para que la URL de `updatepkg` quede apuntando a ese commit recién
-pusheado, y se commitea/pushea ese ajuste de URL aparte ("Clavar
-updatepkg al commit recién pusheado").
+Vuelto a `@main`, confiando en las mitigaciones ya en pie para los fallos
+que originalmente motivaron el commit fijo: purgar el caché de jsdelivr
+después de cada push
+(`https://purge.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml`),
+esperar unos segundos antes de pedirle al usuario que corra `updatepkg`
+(jsdelivr puede tardar en sincronizar un commit recién pusheado), y la
+lógica de reintento + verificación con `getPackages()` que ya tiene
+`updatepkg` en sí.
 
-Para instalarlo por primera vez en la otra PC (con Mudlet + GMCP activado
-— usar el commit más reciente del repo, no `@main`):
+Para instalarlo por primera vez en la otra PC (con Mudlet + GMCP activado):
 ```
-lua installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@<ultimo-commit>/Petria-Rhuna-Updater.xml")
+lua installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna-Updater.xml")
 ```
 ```
-lua installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@<ultimo-commit>/Petria-Rhuna.xml")
+lua installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml")
 ```
 Después, `updatepkg` reinstala solo `Petria-Rhuna` — el updater no hace
 falta tocarlo de nuevo.
