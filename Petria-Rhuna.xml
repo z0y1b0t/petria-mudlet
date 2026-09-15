@@ -2396,6 +2396,15 @@ send("traga santu")</script>
 -- 6-7 reintentos reales para que conecte. Subido a 6. Tambien corta
 -- temprano si el server dice "Nada que cancelar." (no tiene sentido
 -- seguir intentando si el objetivo no tiene nada activo).
+-- Confirmado en juego: mandar cada reintento a ciegas cada 0.7s (sin
+-- esperar la respuesta real del intento anterior) amontonaba pedidos
+-- en la cola de casteo del server -- seguian llegando "Hechizo
+-- fallado." (y hasta un exito tardio) DESPUES de que este alias ya
+-- habia dicho "Cancelacion fallida tras 6 intentos.", con mas mana
+-- gastado del que reflejaba el contador local. Ahora cada intento
+-- espera la respuesta real del server ("Hechizo fallado." dispara el
+-- siguiente intento) en vez de un timer ciego -- el timer de 4s queda
+-- solo como red de seguridad si el server no contesta nada.
 -- "Memoria corta" (Petria.canNadaHasta): confirmado en juego que en
 -- medio de una pelea tensa es facil reescribir "can &lt;obj&gt;" varias
 -- veces seguidas a mano sin darse cuenta que el intento anterior ya
@@ -2419,12 +2428,23 @@ local terminado = false
 local function intentar()
   intentos = intentos + 1
   send("c 'cancelacion' " .. tarjet)
-  local idExito, idNada
+  local idExito, idNada, idFallo, idTimeout
   local function limpiar()
     if exists(idExito, "trigger") == 1 then killTrigger(idExito) end
     if exists(idNada, "trigger") == 1 then killTrigger(idNada) end
+    if exists(idFallo, "trigger") == 1 then killTrigger(idFallo) end
+    if exists(idTimeout, "timer") == 1 then killTimer(idTimeout) end
   end
-  idExito = tempRegexTrigger("se desvanece\\.|Ok\\.", function()
+  local function siguienteOFinal()
+    limpiar()
+    if intentos &lt; intentosMax then
+      intentar()
+    else
+      terminado = true
+      cecho(string.format("&lt;red&gt;Cancelacion fallida tras %d intentos.\n", intentosMax))
+    end
+  end
+  idExito = tempRegexTrigger("se desvanece\\.", function()
     if terminado then return end
     terminado = true
     limpiar()
@@ -2437,14 +2457,13 @@ local function intentar()
     Petria.canNadaHasta[tarjetKey] = os.time() + 8
     cecho("&lt;gray&gt;Nada que cancelar en el objetivo.\n")
   end)
-  tempTimer(0.7, function()
+  idFallo = tempRegexTrigger("Hechizo fallado\\.", function()
+    if terminado then return end
+    siguienteOFinal()
+  end)
+  idTimeout = tempTimer(4, function()
     if not terminado then
-      limpiar()
-      if intentos &lt; intentosMax then
-        intentar()
-      else
-        cecho(string.format("&lt;red&gt;Cancelacion fallida tras %d intentos.\n", intentosMax))
-      end
+      siguienteOFinal()
     end
   end)
 end
@@ -2764,7 +2783,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789485973
+Petria.version = 1789486847
 
 function Petria.esperarTexto(patron, callback, timeoutSeg)
   local id
