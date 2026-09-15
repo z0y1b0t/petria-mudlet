@@ -404,6 +404,12 @@ make_trigger(
 make_trigger(pelea_trig_group, "Recuperado de golpetazo", 'expandAlias("skill golpeta")', [r"se recupera de los efectos del golpetazo\.$"])
 make_trigger(pelea_trig_group, "Transeunte resiste raices", 'send("c rai")', [r"pero un transeunte casual se resiste a ellas\.$"])
 make_trigger(pelea_trig_group, "Cegados por suciedad: zancadilla", 'expandAlias("skill zancadilla")', [r"han sido cegados por la suciedad!"])
+# Deslumbrado (uno mismo, no el enemigo -- eso es el trigger de arriba).
+# Pedido explicito: prioridad sobre cualquier otra accion -- como Mudlet
+# procesa cada trigger apenas llega la linea (no hay cola propia nuestra
+# de por medio), send() acá ya sale antes que cualquier cosa que dispare
+# despues en la misma pelea.
+make_trigger(pelea_trig_group, "Deslumbrado: curar ya", 'send("c \'curar deslumbrar\'")', [r"Has sido deslumbrado!!"])
 # Enemigo (PvE normal, no WoF/PK) huye de la pelea: lo perseguimos y
 # reatacamos, en vez de dejarlo escapar. Igual patron que "Amigo WoF se va
 # por una salida" (linea de abajo, esa es solo para WoFriends) pero
