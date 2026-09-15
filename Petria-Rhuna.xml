@@ -2597,15 +2597,15 @@ local function PetriaRhunaVerificar(intento)
     cecho("&lt;green&gt;[Petria-Rhuna] Reinstalado.\n")
   elseif intento &lt; 2 then
     cecho(string.format("&lt;yellow&gt;[Petria-Rhuna] Intento %d fallo, reintentando...\n", intento))
-    installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@6af6e5b34d3027e56f44d5ecf86c6d8e666002e7/Petria-Rhuna.xml")
+    installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@a7cdc08909a79f31985c193f5efe82034183d9c6/Petria-Rhuna.xml")
     tempTimer(3, function() PetriaRhunaVerificar(intento + 1) end)
   else
-    cecho("&lt;red&gt;[Petria-Rhuna] FALLO el reinstall tras 2 intentos. Instalalo manual: lua installPackage(\"https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@6af6e5b34d3027e56f44d5ecf86c6d8e666002e7/Petria-Rhuna.xml\")\n")
+    cecho("&lt;red&gt;[Petria-Rhuna] FALLO el reinstall tras 2 intentos. Instalalo manual: lua installPackage(\"https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@a7cdc08909a79f31985c193f5efe82034183d9c6/Petria-Rhuna.xml\")\n")
   end
 end
 
 tempTimer(2, function()
-  installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@6af6e5b34d3027e56f44d5ecf86c6d8e666002e7/Petria-Rhuna.xml")
+  installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@a7cdc08909a79f31985c193f5efe82034183d9c6/Petria-Rhuna.xml")
   tempTimer(3, function() PetriaRhunaVerificar(1) end)
 end)</script>
 					<command />
@@ -2836,7 +2836,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789485467
+Petria.version = 1789485504
 
 function Petria.esperarTexto(patron, callback, timeoutSeg)
   local id
