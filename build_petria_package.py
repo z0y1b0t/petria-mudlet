@@ -630,7 +630,7 @@ def make_montegnomo_trigger(name, script, patterns):
 make_montegnomo_trigger(
     "Monte tiembla: usar palanca",
     'send("n")\nsend("usar palanca")',
-    [r"^El Monte tiembla\. Un rugido sordo sube desde las profundidades\.$"],
+    [r"^El Monte tiembla\."],
 )
 make_montegnomo_trigger(
     "Panel de roca abierto: agarrar chispa",
