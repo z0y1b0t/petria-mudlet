@@ -36,18 +36,18 @@ end
 -- Mudlet que tenga EL MISMO NOMBRE -- si el nuestro se llamara igual
 -- que el oficial (o algo generico como "Petria"), correr
 -- "instalarmudlet" en el juego podria borrar todo esto.
--- Instala desde GitHub (via jsdelivr), no un archivo local: asi
--- funciona igual en cualquier PC, no solo en la que genero el archivo.
--- Se usa jsdelivr.net en vez de raw.githubusercontent.com porque esta
--- ultima quedo bloqueada en la red corporativa de la Mac (confirmado
--- con curl: "Connection reset by peer" tanto directo como via el
--- redirect de github.com/.../raw/...). jsdelivr es un CDN publico
--- que espeja repos de GitHub y no tuvo ese bloqueo.
--- URL apuntada a un COMMIT EXACTO (no "@main" ni "?v=&lt;timestamp&gt;"):
--- confirmado en juego, repetidas veces, que la rama mutable con o sin
--- query string para cache-busting fallaba en silencio o traia
--- versiones viejas de forma inconsistente. Un commit exacto es
--- contenido inmutable, sin ambiguedad de cache en ningun lado.
+-- Instala desde GitHub (via raw.githack.com), no un archivo local:
+-- asi funciona igual en cualquier PC, no solo en la que genero el
+-- archivo. No usa raw.githubusercontent.com directo porque esa quedo
+-- bloqueada en la red corporativa de la Mac (confirmado con curl:
+-- "Connection reset by peer"). Se probo jsdelivr.net primero, pero
+-- confirmado en juego, repetidas veces, que jsdelivr podia tardar
+-- minutos en sincronizar un push nuevo incluso purgando su cache
+-- enseguida -- comparado en vivo con raw.githack.com/rawcdn.githack.com
+-- sobre el mismo push, esos dos ya mostraban el build nuevo mientras
+-- jsdelivr seguia atascado en el anterior. raw.githack.com (la
+-- variante pensada para contenido que cambia seguido, no la
+-- "produccion" rawcdn.githack.com) resulto mas confiable.
 cecho("&lt;yellow&gt;[Petria-Rhuna] Reinstalando...\n")
 uninstallPackage("Petria-Rhuna")
 
@@ -63,15 +63,15 @@ local function PetriaRhunaVerificar(intento)
     cecho("&lt;green&gt;[Petria-Rhuna] Reinstalado.\n")
   elseif intento &lt; 2 then
     cecho(string.format("&lt;yellow&gt;[Petria-Rhuna] Intento %d fallo, reintentando...\n", intento))
-    installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml")
+    installPackage("https://raw.githack.com/z0y1b0t/petria-mudlet/main/Petria-Rhuna.xml")
     tempTimer(3, function() PetriaRhunaVerificar(intento + 1) end)
   else
-    cecho("&lt;red&gt;[Petria-Rhuna] FALLO el reinstall tras 2 intentos. Instalalo manual: lua installPackage(\"https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml\")\n")
+    cecho("&lt;red&gt;[Petria-Rhuna] FALLO el reinstall tras 2 intentos. Instalalo manual: lua installPackage(\"https://raw.githack.com/z0y1b0t/petria-mudlet/main/Petria-Rhuna.xml\")\n")
   end
 end
 
 tempTimer(2, function()
-  installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml")
+  installPackage("https://raw.githack.com/z0y1b0t/petria-mudlet/main/Petria-Rhuna.xml")
   tempTimer(3, function() PetriaRhunaVerificar(1) end)
 end)</script>
 				<command />

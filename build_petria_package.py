@@ -2,29 +2,28 @@ import os
 import time
 import xml.etree.ElementTree as ET
 
-# URL de jsdelivr para "updatepkg" (vive en el paquete separado
-# Petria-Rhuna-Updater, ver el final de este script): "@main" (rama
-# mutable), NO un commit fijo.
+# URL para "updatepkg" (vive en el paquete separado Petria-Rhuna-Updater,
+# ver el final de este script): raw.githack.com sobre "main" (rama
+# mutable), NO jsdelivr y NO un commit fijo.
 #
-# Se probo primero con un commit exacto (@<sha>/Petria-Rhuna.xml) porque
-# @main solo, con o sin "?v=<timestamp>" de cache-busting, fallaba de
-# forma inconsistente en juego (instalaciones silenciosamente fallidas o
-# trayendo versiones viejas). El commit exacto sí resultó mas confiable
-# en cada prueba puntual -- PERO confirmado en juego que trae un problema
-# de diseño peor: el Updater es un paquete que se instala UNA vez y no se
-# vuelve a tocar (ese es su objetivo, sobrevivir a fallas del paquete
-# principal) -- si su URL apunta a un commit fijo, ese commit queda
-# congelado para siempre salvo que el usuario reinstale el Updater cada
-# vez que hay un push nuevo, lo cual contradice por completo el objetivo
-# de "no hace falta tocarlo nunca". updatepkg termino trayendo siempre
-# una version vieja indefinidamente.
-#
-# Vuelto a "@main", confiando en cambio en las mitigaciones ya agregadas
-# para los fallos que motivaron el commit fijo: purgar jsdelivr despues de
-# cada push, esperar unos segundos antes de pedirle al usuario que corra
-# updatepkg, y la logica de reintento + verificacion con getPackages() que
-# ya tiene el propio updatepkg.
-JSDELIVR_URL = "https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml"
+# Historia (por que no las otras dos opciones):
+# - Commit fijo (@<sha>/Petria-Rhuna.xml en jsdelivr): confiable en cada
+#   prueba puntual, pero mal diseno de fondo -- el Updater se instala UNA
+#   vez y nunca se vuelve a tocar (ese es su objetivo, sobrevivir a fallas
+#   del paquete principal). Si su URL apunta a un commit fijo, ese commit
+#   queda CONGELADO para siempre salvo que el usuario reinstale el Updater
+#   despues de cada push -- contradice el "nunca hace falta tocarlo".
+# - jsdelivr con "@main" (rama mutable): confirmado en juego, repetidas
+#   veces, que jsdelivr puede tardar minutos en sincronizar un push nuevo
+#   (bastante mas que la propagacion normal esperada) -- incluso con purge
+#   inmediato despues de cada push. Comparado en vivo con raw.githack.com
+#   y rawcdn.githack.com sobre el mismo push: ambos ya mostraban el ultimo
+#   build mientras jsdelivr @main seguia atascado en el anterior.
+# raw.githack.com esta pensado justo para esto (contenido que cambia
+# seguido, poca cache) -- por eso se eligio en vez de la variante
+# "produccion" rawcdn.githack.com (mas cacheada, pensada para contenido
+# estable).
+JSDELIVR_URL = "https://raw.githack.com/z0y1b0t/petria-mudlet/main/Petria-Rhuna.xml"
 JSDELIVR_CACHE_BUSTER = int(time.time())  # usado solo para Petria.version ("updatepkg -v")
 
 def indent(elem, level=0):
@@ -1910,18 +1909,18 @@ make_alias(
     '-- Mudlet que tenga EL MISMO NOMBRE -- si el nuestro se llamara igual\n'
     '-- que el oficial (o algo generico como "Petria"), correr\n'
     '-- "instalarmudlet" en el juego podria borrar todo esto.\n'
-    '-- Instala desde GitHub (via jsdelivr), no un archivo local: asi\n'
-    '-- funciona igual en cualquier PC, no solo en la que genero el archivo.\n'
-    '-- Se usa jsdelivr.net en vez de raw.githubusercontent.com porque esta\n'
-    '-- ultima quedo bloqueada en la red corporativa de la Mac (confirmado\n'
-    '-- con curl: "Connection reset by peer" tanto directo como via el\n'
-    '-- redirect de github.com/.../raw/...). jsdelivr es un CDN publico\n'
-    '-- que espeja repos de GitHub y no tuvo ese bloqueo.\n'
-    '-- URL apuntada a un COMMIT EXACTO (no "@main" ni "?v=<timestamp>"):\n'
-    '-- confirmado en juego, repetidas veces, que la rama mutable con o sin\n'
-    '-- query string para cache-busting fallaba en silencio o traia\n'
-    '-- versiones viejas de forma inconsistente. Un commit exacto es\n'
-    '-- contenido inmutable, sin ambiguedad de cache en ningun lado.\n'
+    '-- Instala desde GitHub (via raw.githack.com), no un archivo local:\n'
+    '-- asi funciona igual en cualquier PC, no solo en la que genero el\n'
+    '-- archivo. No usa raw.githubusercontent.com directo porque esa quedo\n'
+    '-- bloqueada en la red corporativa de la Mac (confirmado con curl:\n'
+    '-- "Connection reset by peer"). Se probo jsdelivr.net primero, pero\n'
+    '-- confirmado en juego, repetidas veces, que jsdelivr podia tardar\n'
+    '-- minutos en sincronizar un push nuevo incluso purgando su cache\n'
+    '-- enseguida -- comparado en vivo con raw.githack.com/rawcdn.githack.com\n'
+    '-- sobre el mismo push, esos dos ya mostraban el build nuevo mientras\n'
+    '-- jsdelivr seguia atascado en el anterior. raw.githack.com (la\n'
+    '-- variante pensada para contenido que cambia seguido, no la\n'
+    '-- "produccion" rawcdn.githack.com) resulto mas confiable.\n'
     'cecho("<yellow>[Petria-Rhuna] Reinstalando...\\n")\n'
     'uninstallPackage("Petria-Rhuna")\n\n'
     'local function PetriaRhunaEstaInstalado()\n'
