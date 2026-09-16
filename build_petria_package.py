@@ -1818,6 +1818,17 @@ QT_KEY_QUESTIONDOWN = 191  # "¿" fisico del teclado Mac (Backspace no sirve:
 # Mudlet lo usa para editar el texto de la linea de comando, nunca llega
 # al sistema de Key Bindings - confirmado probando en juego)
 
+# Teclas numericas de la PC Linux, recreadas tras perderse en una limpieza
+# total de paquetes. Codigos Qt estandar (NO capturados/confirmados como
+# el resto de este archivo -- el usuario pidio explicitamente avanzar asi
+# y corregirlos el mismo despues en el editor de Mudlet si no coinciden):
+# "/" = 47, "*" = 42, "-" = 45, con el modificador de teclado numerico
+# (igual que sanar/Savia verde, por las dudas sean especificas del
+# numerico y no las mismas teclas del bloque principal).
+QT_KEY_SLASH = 47
+QT_KEY_ASTERISK = 42
+QT_KEY_MINUS = 45
+
 petria_key_group = make_key_group(key_pkg, "Petria-Rhuna")
 teclas_key_group = make_key_group(petria_key_group, "Teclas")
 make_key(teclas_key_group, "sanar", QT_KEY_INSERT, QT_KEYPAD_MODIFIER, 'send("traga sana")')
@@ -1825,6 +1836,9 @@ make_key(teclas_key_group, "recall", QT_KEY_END, 0, 'send("recall")\nsend("n")\n
 make_key(teclas_key_group, "Savia verde", QT_KEY_DELETE, QT_KEYPAD_MODIFIER, 'send("traga savia")')
 make_key(teclas_key_group, "MAC-Sanar", QT_KEY_BRACELEFT, 0, 'send("traga sana")')
 make_key(teclas_key_group, "MAC-SaviaVerde", QT_KEY_BRACERIGHT, 0, 'send("traga savia")')
+make_key(teclas_key_group, "Linux-MejoraAlquimica", QT_KEY_SLASH, QT_KEYPAD_MODIFIER, "send(\"c 'mejora alquimica' savia\")")
+make_key(teclas_key_group, "Linux-Super", QT_KEY_ASTERISK, QT_KEYPAD_MODIFIER, 'send("traga super")')
+make_key(teclas_key_group, "Linux-Rayo", QT_KEY_MINUS, QT_KEYPAD_MODIFIER, 'send("c rayo " .. (rasOBJ or ""))')
 make_key(teclas_key_group, "MAC-Recall", QT_KEY_QUESTIONDOWN, 0, 'send("recall")\nsend("n")\nsend("curar")')
 
 # ---------- VariablePackage ----------
