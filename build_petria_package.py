@@ -1838,7 +1838,7 @@ make_key(teclas_key_group, "MAC-Sanar", QT_KEY_BRACELEFT, 0, 'send("traga sana")
 make_key(teclas_key_group, "MAC-SaviaVerde", QT_KEY_BRACERIGHT, 0, 'send("traga savia")')
 make_key(teclas_key_group, "Linux-MejoraAlquimica", QT_KEY_SLASH, QT_KEYPAD_MODIFIER, "send(\"c 'mejora alquimica' savia\")")
 make_key(teclas_key_group, "Linux-Super", QT_KEY_ASTERISK, QT_KEYPAD_MODIFIER, 'send("traga super")')
-make_key(teclas_key_group, "Linux-Rayo", QT_KEY_MINUS, QT_KEYPAD_MODIFIER, 'send("c rayo " .. (rasOBJ or ""))')
+make_key(teclas_key_group, "Linux-Rayo", QT_KEY_MINUS, QT_KEYPAD_MODIFIER, 'if rasOBJ and rasOBJ ~= "" then send("c rayo " .. rasOBJ) end')
 make_key(teclas_key_group, "MAC-Recall", QT_KEY_QUESTIONDOWN, 0, 'send("recall")\nsend("n")\nsend("curar")')
 
 # ---------- VariablePackage ----------
