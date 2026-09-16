@@ -612,6 +612,41 @@ end''',
     [r"(.*)"],
 )
 
+# --- Subcarpeta MonteGnomo ---
+# Migracion literal de la clase "MonteGnomo" de CMUD (evento/puzzle de la
+# zona Monte Gnomo): el monte tiembla -> usar la palanca -> se abre un
+# panel de roca -> agarrar la chispa del nucleo -> guardarla y ocultarse
+# (eds) -> 2 avisos de progreso de erupciones detenidas, cada uno te saca
+# y te oculta de nuevo. El "#waitfor" de CMUD se traduce a
+# Petria.esperarTexto (igual patron que pocsantu/pocionesfull).
+# Pedido explicito: solo aplica si Raza: gnomo -- mismo alcance que
+# "astucia gnoma" (Clases.intentarAstucia), asi que cada trigger chequea
+# Petria.esGnomo() antes de hacer nada.
+montegnomo_trig_group = make_trigger_group(petria_trig_group, "MonteGnomo")
+
+def make_montegnomo_trigger(name, script, patterns):
+    return make_trigger(montegnomo_trig_group, name, 'if not Petria.esGnomo() then return end\n' + script, patterns)
+
+make_montegnomo_trigger(
+    "Monte tiembla: usar palanca",
+    'send("n")\nsend("usar palanca")',
+    [r"^El Monte tiembla\. Un rugido sordo sube desde las profundidades\.$"],
+)
+make_montegnomo_trigger(
+    "Panel de roca abierto: agarrar chispa",
+    'send("e")\n'
+    'Petria.esperarTexto("Una Chispa del Nucleo flota aqui\\\\.\\\\.", function()\n'
+    '  send("get chispa")\n'
+    '  send("w")\n'
+    '  send("s")\n'
+    '  send("pon chispa moch")\n'
+    '  expandAlias("eds")\n'
+    'end, 15)',
+    [r"^El panel de roca gira abriendo la pared Este\.$"],
+)
+make_montegnomo_trigger("2/3 erupciones detenidas", 'send("s")\nexpandAlias("eds")', [r"^Has detenido 2/3 erupciones\.$"])
+make_montegnomo_trigger("1/3 erupciones detenidas", 'send("s")\nexpandAlias("eds")', [r"^Has detenido 1/3 erupciones\.$"])
+
 ET.SubElement(root, "TimerPackage")
 
 # ---------- AliasPackage ----------
@@ -1159,6 +1194,15 @@ Petria = Petria or {{}}
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
 Petria.version = {JSDELIVR_CACHE_BUSTER}
+
+-- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
+-- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
+-- alcance que Clases.intentarAstucia (astucia gnoma), pero como esto no
+-- es especifico de ninguna clase queda en Petria, no en Clases.
+function Petria.esGnomo()
+  return gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.race
+    and gmcp.Char.Base.race:lower() == "gnomo"
+end
 
 function Petria.esperarTexto(patron, callback, timeoutSeg)
   local id

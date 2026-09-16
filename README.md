@@ -527,9 +527,11 @@ los dos comandos `lua`.
 
 ## Siguiente
 
+`MonteGnomo` — hecho (evento/puzzle de la zona, solo para raza gnomo).
+
 Migrar como próxima subcarpeta de `Petria`: `01-Oficios`. Después:
 `02-Habituales`, `04-Quest`, `05-Com` (DISCORD/COMM/CLAN/COMM_FMT),
 `08-Rastrear`, `12-Puertas`, `13-Logs`, `17-Variables`, `19-Desarmar`,
 `20-Misc`, `CAN`, `DD-Engine` (con `dd`/`ddo`/`ddq`), `Entrenar`,
-`Equipaje`, `MonteGnomo`, `UTF8`. Y, cuando confirmes cada caso, ir
-asociando triggers de `Pelea` a su `Clases/<clase>` correspondiente.
+`Equipaje`, `UTF8`. Y, cuando confirmes cada caso, ir asociando triggers
+de `Pelea` a su `Clases/<clase>` correspondiente.
