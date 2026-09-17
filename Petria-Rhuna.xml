@@ -826,21 +826,28 @@ end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Envenenado: curar</name>
-					<script>-- El original de CMUD (y una version posterior de este mismo trigger)
--- mandaba "curar veneno" -- pero confirmado en juego que ese comando
--- SOLO funciona con un curandero al lado, y el equivalente por
--- hechizo ("c 'curar veneno'") solo si la clase lo tiene (Mago, por
--- ejemplo, no) -- ninguno de los dos es confiable en medio de una
--- pelea random. Cambiado a una pocion universal (funciona para
--- cualquier clase, sin depender de estar cerca de un curandero):
--- "pocion negra del karma" (item "karma", nivel 60, contiene
--- sanar/sanar/veneno). "traga", no "q" -- "q" esta roto en este
--- server (ver el fix ya documentado mas arriba en el README).
+					<script>-- El original de CMUD mandaba "curar veneno" bare -- confirmado en
+-- juego que SOLO funciona con un curandero al lado. Version anterior
+-- de este trigger cambio a una pocion universal asumiendo que el
+-- hechizo ('c "curar veneno"') no existia para ninguna clase --
+-- INCORRECTO: confirmado en juego que Seguidores SI lo tiene (y las
+-- comillas dobles funcionan bien, "No conoces ningun hechizo" era por
+-- la clase, no por la sintaxis) -- solo Mago no. En vez de asumir por
+-- clase, intenta el hechizo primero y SOLO si falla (con ese mensaje
+-- especifico) cae a la pocion universal como respaldo.
 if not cd_veneno or cd_veneno == 0 then
-  send("get karma moch")
-  send("traga karma")
   cd_veneno = 1
   tempTimer(6, function() cd_veneno = 0 end)
+  send('c "curar veneno"')
+  local idFallo
+  idFallo = tempRegexTrigger("No conoces .* hechizo con ese nombre\\.", function()
+    if exists(idFallo, "trigger") == 1 then killTrigger(idFallo) end
+    send("get karma moch")
+    send("traga karma")
+  end)
+  tempTimer(1, function()
+    if exists(idFallo, "trigger") == 1 then killTrigger(idFallo) end
+  end)
 end</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
@@ -2957,7 +2964,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789684092
+Petria.version = 1789685814
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
