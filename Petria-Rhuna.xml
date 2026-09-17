@@ -656,7 +656,18 @@ send("bebe")</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Inmune a golpe acido</name>
-					<script>pcall(disableTriggerGroup, "GA01")</script>
+					<script>-- "GA01" no existe como trigger group real en este paquete (resto
+-- vestigial de CMUD, el pcall solo evita que tire error) -- el golpe
+-- acido ya no se reintenta solo porque su propio loop de cooldown
+-- esta atado a su mensaje de EXITO (que nunca llega si es inmune).
+-- Pedido explicito: cambiar a "aliento tormentoso" (rayo) apenas se
+-- detecta la inmunidad, en vez de esperar al proximo ciclo de 5s del
+-- loop de "Cooldown aliento tormentoso" (que sigue reintentando solo
+-- de ahi en mas, ya que se casteo una vez al inicio del combate).
+pcall(disableTriggerGroup, "GA01")
+if rasOBJ and rasOBJ ~= "" then
+  send("c 'aliento tormentoso' " .. rasOBJ)
+end</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -2921,7 +2932,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789578649
+Petria.version = 1789660606
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
