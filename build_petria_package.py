@@ -328,12 +328,16 @@ make_trigger(
 make_trigger(pelea_trig_group, "Debilidad Luz termina", "ResetAliento()", [r"^La Debilidad Luz deja de afectar"])
 make_trigger(
     pelea_trig_group, "Debilidad Rayo termina",
-    'ResetAliento()\nsend("c \'debilidad rayo\'")',
+    '-- Confirmado en juego: faltaba el objetivo -- mandaba "c \'debilidad\n'
+    '-- rayo\'" solo, sin destinatario.\n'
+    'ResetAliento()\n'
+    'if rasOBJ and rasOBJ ~= "" then send("c \'debilidad rayo\' " .. rasOBJ) end',
     [r"^La Debilidad Rayo deja de afectar"],
 )
 make_trigger(
     pelea_trig_group, "Debilidad Acida termina",
-    'send("c \'debilidad acida\'")',
+    '-- Mismo bug que "Debilidad Rayo termina": faltaba el objetivo.\n'
+    'if rasOBJ and rasOBJ ~= "" then send("c \'debilidad acida\' " .. rasOBJ) end',
     [r"^La Debilidad Acida deja de afectar a"],
 )
 make_trigger(
