@@ -402,15 +402,19 @@ make_trigger(
 )
 make_trigger(
     pelea_trig_group, "Envenenado: curar",
-    '-- El original de CMUD mandaba "curar veneno" 3 veces, SIN el prefijo\n'
-    '-- "c" -- es un comando directo del juego (como "curar refrescar", ya\n'
-    '-- usado asi en otro lado), no un hechizo. El "c \\"curar veneno\\""\n'
-    '-- extra que habia aca era un error de migracion: confirmado en juego\n'
-    '-- que producia "No conoces ningun hechizo con ese nombre." seguido de\n'
-    '-- "No puedes hacer eso aqui" x3 (los "curar veneno" sueltos fallando\n'
-    '-- por la sintaxis rota del intento anterior).\n'
+    '-- El original de CMUD (y una version posterior de este mismo trigger)\n'
+    '-- mandaba "curar veneno" -- pero confirmado en juego que ese comando\n'
+    '-- SOLO funciona con un curandero al lado, y el equivalente por\n'
+    '-- hechizo ("c \'curar veneno\'") solo si la clase lo tiene (Mago, por\n'
+    '-- ejemplo, no) -- ninguno de los dos es confiable en medio de una\n'
+    '-- pelea random. Cambiado a una pocion universal (funciona para\n'
+    '-- cualquier clase, sin depender de estar cerca de un curandero):\n'
+    '-- "pocion negra del karma" (item "karma", nivel 60, contiene\n'
+    '-- sanar/sanar/veneno). "traga", no "q" -- "q" esta roto en este\n'
+    '-- server (ver el fix ya documentado mas arriba en el README).\n'
     'if not cd_veneno or cd_veneno == 0 then\n'
-    '  send("curar veneno"); send("curar veneno"); send("curar veneno")\n'
+    '  send("get karma moch")\n'
+    '  send("traga karma")\n'
     '  cd_veneno = 1\n'
     '  tempTimer(6, function() cd_veneno = 0 end)\n'
     'end',

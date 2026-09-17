@@ -815,15 +815,19 @@ end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Envenenado: curar</name>
-					<script>-- El original de CMUD mandaba "curar veneno" 3 veces, SIN el prefijo
--- "c" -- es un comando directo del juego (como "curar refrescar", ya
--- usado asi en otro lado), no un hechizo. El "c \"curar veneno\""
--- extra que habia aca era un error de migracion: confirmado en juego
--- que producia "No conoces ningun hechizo con ese nombre." seguido de
--- "No puedes hacer eso aqui" x3 (los "curar veneno" sueltos fallando
--- por la sintaxis rota del intento anterior).
+					<script>-- El original de CMUD (y una version posterior de este mismo trigger)
+-- mandaba "curar veneno" -- pero confirmado en juego que ese comando
+-- SOLO funciona con un curandero al lado, y el equivalente por
+-- hechizo ("c 'curar veneno'") solo si la clase lo tiene (Mago, por
+-- ejemplo, no) -- ninguno de los dos es confiable en medio de una
+-- pelea random. Cambiado a una pocion universal (funciona para
+-- cualquier clase, sin depender de estar cerca de un curandero):
+-- "pocion negra del karma" (item "karma", nivel 60, contiene
+-- sanar/sanar/veneno). "traga", no "q" -- "q" esta roto en este
+-- server (ver el fix ya documentado mas arriba en el README).
 if not cd_veneno or cd_veneno == 0 then
-  send("curar veneno"); send("curar veneno"); send("curar veneno")
+  send("get karma moch")
+  send("traga karma")
   cd_veneno = 1
   tempTimer(6, function() cd_veneno = 0 end)
 end</script>
@@ -2942,7 +2946,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789669484
+Petria.version = 1789672145
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
