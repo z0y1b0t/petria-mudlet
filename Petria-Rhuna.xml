@@ -815,8 +815,14 @@ end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Envenenado: curar</name>
-					<script>if not cd_veneno or cd_veneno == 0 then
-  send('c "curar veneno"')
+					<script>-- El original de CMUD mandaba "curar veneno" 3 veces, SIN el prefijo
+-- "c" -- es un comando directo del juego (como "curar refrescar", ya
+-- usado asi en otro lado), no un hechizo. El "c \"curar veneno\""
+-- extra que habia aca era un error de migracion: confirmado en juego
+-- que producia "No conoces ningun hechizo con ese nombre." seguido de
+-- "No puedes hacer eso aqui" x3 (los "curar veneno" sueltos fallando
+-- por la sintaxis rota del intento anterior).
+if not cd_veneno or cd_veneno == 0 then
   send("curar veneno"); send("curar veneno"); send("curar veneno")
   cd_veneno = 1
   tempTimer(6, function() cd_veneno = 0 end)
@@ -1227,8 +1233,13 @@ send("c 'aliento tormentoso'")</script>
 					</Trigger>
 					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 						<name>Vulnerable al Acido</name>
-						<script>acido_ok = 1
-send("c \"golpe acido\"")</script>
+						<script>-- Confirmado en juego (log real): el comando que realmente conecta es
+-- "c golpe" solo, sin comillas (una palabra, como "c fuente"/"c torme")
+-- -- disparo "Tu golpe acido hace..." decenas de veces asi durante toda
+-- la pelea. "c \"golpe acido\"" (con comillas y la palabra de mas) no
+-- es el comando real, quedaba sin usarse.
+acido_ok = 1
+send("c golpe")</script>
 						<triggerType>0</triggerType>
 						<conditonLineDelta>0</conditonLineDelta>
 						<mStayOpen>0</mStayOpen>
@@ -2931,7 +2942,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789662492
+Petria.version = 1789669484
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual

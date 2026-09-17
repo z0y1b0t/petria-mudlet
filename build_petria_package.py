@@ -402,8 +402,14 @@ make_trigger(
 )
 make_trigger(
     pelea_trig_group, "Envenenado: curar",
+    '-- El original de CMUD mandaba "curar veneno" 3 veces, SIN el prefijo\n'
+    '-- "c" -- es un comando directo del juego (como "curar refrescar", ya\n'
+    '-- usado asi en otro lado), no un hechizo. El "c \\"curar veneno\\""\n'
+    '-- extra que habia aca era un error de migracion: confirmado en juego\n'
+    '-- que producia "No conoces ningun hechizo con ese nombre." seguido de\n'
+    '-- "No puedes hacer eso aqui" x3 (los "curar veneno" sueltos fallando\n'
+    '-- por la sintaxis rota del intento anterior).\n'
     'if not cd_veneno or cd_veneno == 0 then\n'
-    '  send(\'c "curar veneno"\')\n'
     '  send("curar veneno"); send("curar veneno"); send("curar veneno")\n'
     '  cd_veneno = 1\n'
     '  tempTimer(6, function() cd_veneno = 0 end)\n'
@@ -483,7 +489,17 @@ make_trigger(pelea_trig_group, "Astucia gnoma se disipa (racial, no de clase)", 
 ataques_group = make_trigger_group(pelea_trig_group, "ATAQUES")
 make_trigger(ataques_group, "Vulnerable al Rayo", 'rayo_ok = 1\nsend("c \'aliento tormentoso\'")', [r"vulnerable al Rayo\."])
 make_trigger(ataques_group, "Vulnerable al Fuego", "fuego_ok = 1", [r"vulnerable al Fuego\."])
-make_trigger(ataques_group, "Vulnerable al Acido", 'acido_ok = 1\nsend("c \\"golpe acido\\"")', [r"vulnerable al acido\."])
+make_trigger(
+    ataques_group, "Vulnerable al Acido",
+    '-- Confirmado en juego (log real): el comando que realmente conecta es\n'
+    '-- "c golpe" solo, sin comillas (una palabra, como "c fuente"/"c torme")\n'
+    '-- -- disparo "Tu golpe acido hace..." decenas de veces asi durante toda\n'
+    '-- la pelea. "c \\"golpe acido\\"" (con comillas y la palabra de mas) no\n'
+    '-- es el comando real, quedaba sin usarse.\n'
+    'acido_ok = 1\n'
+    'send("c golpe")',
+    [r"vulnerable al acido\."],
+)
 
 # --- Subcarpeta PK ---
 # Mismo problema que WoF: patrones genericos como "esta aqui!$" matchean
