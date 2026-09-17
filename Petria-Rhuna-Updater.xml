@@ -60,6 +60,15 @@ end
 
 local function PetriaRhunaVerificar(intento)
   if PetriaRhunaEstaInstalado() then
+    -- Confirmado en juego: el "DirectionKeyGroup" del GUI oficial
+    -- (numerico para movimiento, mismo modificador de teclado numerico
+    -- que usamos para sanar/Savia verde/Linux-Rayo/etc.) puede quedar
+    -- activo y pisar nuestras teclas custom con el mismo keyCode --
+    -- confirmado que producia resultados random (ej. "u" en vez de
+    -- lanzar rayo) hasta desactivarlo. Se desactiva solo en cada
+    -- update, sin que haga falta acordarse a mano. pcall porque puede
+    -- no existir si el GUI oficial no esta instalado.
+    pcall(disableKey, "DirectionKeyGroup")
     cecho("&lt;green&gt;[Petria-Rhuna] Reinstalado.\n")
   elseif intento &lt; 2 then
     cecho(string.format("&lt;yellow&gt;[Petria-Rhuna] Intento %d fallo, reintentando...\n", intento))
