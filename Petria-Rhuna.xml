@@ -490,9 +490,20 @@ if rasOBJ and rasOBJ ~= "" then send("ras " .. rasOBJ) end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Demasiado cansado: refrescar</name>
-					<script>send("c refrescar")
-send("c refrescar")
-send("c refrescar")</script>
+					<script>-- Confirmado en juego: "c refrescar" no es un comando real -- 4 rondas
+-- de 3 intentos gastaron mana sin mover el mv de 0 ni una vez. El que
+-- si funciona es "curar refre" (bare, sin "c" -- pide al curandero,
+-- mismo comando que ya usa "Menos cansado: seguir curando hasta
+-- llenar move"). Pedido explicito: mandar 1-2, no spamear -- este
+-- mensaje se repite solo en cada prompt mientras el mv siga en 0, asi
+-- que ademas se agrega un cooldown para no pedir de nuevo cada vez
+-- que se repite el mismo mensaje.
+if not cd_cansado or cd_cansado == 0 then
+  send("curar refre")
+  send("curar refre")
+  cd_cansado = 1
+  tempTimer(6, function() cd_cansado = 0 end)
+end</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -2946,7 +2957,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789683715
+Petria.version = 1789684092
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual

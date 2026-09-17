@@ -317,7 +317,20 @@ make_trigger(pelea_trig_group, "Sangrado fuerte: huir", 'send("huir")', [r"(?i)�
 make_trigger(pelea_trig_group, "Perdiendo mucha sangre: curar", 'send("traga sana")', [r"(?i)¡?¡?EST[aáA]S PERDIENDO DEMASIADA SANGRE!!"])
 make_trigger(
     pelea_trig_group, "Demasiado cansado: refrescar",
-    'send("c refrescar")\nsend("c refrescar")\nsend("c refrescar")',
+    '-- Confirmado en juego: "c refrescar" no es un comando real -- 4 rondas\n'
+    '-- de 3 intentos gastaron mana sin mover el mv de 0 ni una vez. El que\n'
+    '-- si funciona es "curar refre" (bare, sin "c" -- pide al curandero,\n'
+    '-- mismo comando que ya usa "Menos cansado: seguir curando hasta\n'
+    '-- llenar move"). Pedido explicito: mandar 1-2, no spamear -- este\n'
+    '-- mensaje se repite solo en cada prompt mientras el mv siga en 0, asi\n'
+    '-- que ademas se agrega un cooldown para no pedir de nuevo cada vez\n'
+    '-- que se repite el mismo mensaje.\n'
+    'if not cd_cansado or cd_cansado == 0 then\n'
+    '  send("curar refre")\n'
+    '  send("curar refre")\n'
+    '  cd_cansado = 1\n'
+    '  tempTimer(6, function() cd_cansado = 0 end)\n'
+    'end',
     [r"^Estas demasiado cansado\.$"],
 )
 make_trigger(
