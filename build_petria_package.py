@@ -360,17 +360,13 @@ make_trigger(
 make_trigger(
     pelea_trig_group, "Inmune a golpe acido",
     '-- "GA01" no existe como trigger group real en este paquete (resto\n'
-    '-- vestigial de CMUD, el pcall solo evita que tire error) -- el golpe\n'
-    '-- acido ya no se reintenta solo porque su propio loop de cooldown\n'
-    '-- esta atado a su mensaje de EXITO (que nunca llega si es inmune).\n'
-    '-- Pedido explicito: cambiar a "aliento tormentoso" (rayo) apenas se\n'
-    '-- detecta la inmunidad, en vez de esperar al proximo ciclo de 5s del\n'
-    '-- loop de "Cooldown aliento tormentoso" (que sigue reintentando solo\n'
-    '-- de ahi en mas, ya que se casteo una vez al inicio del combate).\n'
-    'pcall(disableTriggerGroup, "GA01")\n'
-    'if rasOBJ and rasOBJ ~= "" then\n'
-    '  send("c \'aliento tormentoso\' " .. rasOBJ)\n'
-    'end',
+    '-- vestigial de CMUD, el pcall solo evita que tire error). No hace\n'
+    '-- falta mandar nada mas aca: el golpe acido ya no se reintenta solo\n'
+    '-- porque su propio loop de cooldown esta atado a su mensaje de EXITO\n'
+    '-- (que nunca llega si es inmune), y "aliento tormentoso" (rayo) sigue\n'
+    '-- pegando solo via su propio loop independiente ("Cooldown aliento\n'
+    '-- tormentoso"), sin depender de este trigger -- confirmado en juego.\n'
+    'pcall(disableTriggerGroup, "GA01")',
     [r"es inmune a tu golpe acido!"],
 )
 make_trigger(
