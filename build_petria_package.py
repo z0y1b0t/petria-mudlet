@@ -423,7 +423,13 @@ make_trigger(
     '-- comillas dobles funcionan bien, "No conoces ningun hechizo" era por\n'
     '-- la clase, no por la sintaxis) -- solo Mago no. En vez de asumir por\n'
     '-- clase, intenta el hechizo primero y SOLO si falla (con ese mensaje\n'
-    '-- especifico) cae a la pocion universal como respaldo.\n'
+    '-- especifico) cae a un respaldo. El respaldo depende de la zona: en\n'
+    '-- Torre de la Desesperanza "traga" te teletransporta a un foso (ver\n'
+    '-- Petria.enZonaSinPociones), asi que ahi se usa el "amuleto raro"\n'
+    '-- (varita, 10 cargas, hechizo curar veneno -- se usa con zap, no\n'
+    '-- traga, mismo patron que el puntero de autocurarse del alias "za")\n'
+    '-- en vez de la pocion, para no gastar cargas limitadas fuera de la\n'
+    '-- zona donde no hace falta.\n'
     'if not cd_veneno or cd_veneno == 0 then\n'
     '  cd_veneno = 1\n'
     '  tempTimer(6, function() cd_veneno = 0 end)\n'
@@ -431,8 +437,14 @@ make_trigger(
     '  local idFallo\n'
     '  idFallo = tempRegexTrigger("No conoces .* hechizo con ese nombre\\\\.", function()\n'
     '    if exists(idFallo, "trigger") == 1 then killTrigger(idFallo) end\n'
-    '    send("get karma moch")\n'
-    '    send("traga karma")\n'
+    '    if Petria.enZonaSinPociones() then\n'
+    '      send("get amuleto moch")\n'
+    '      send("sos amuleto")\n'
+    '      send("zap self")\n'
+    '    else\n'
+    '      send("get karma moch")\n'
+    '      send("traga karma")\n'
+    '    end\n'
     '  end)\n'
     '  tempTimer(1, function()\n'
     '    if exists(idFallo, "trigger") == 1 then killTrigger(idFallo) end\n'
@@ -1142,6 +1154,30 @@ make_alias(alias_group, "cq", r"^cq$", 'send("quien concilio")')
 # final de este script) que este paquete nunca toca ni desinstala -- se
 # instala UNA sola vez y sobrevive a cualquier falla de reinstall de este.
 make_alias(alias_group, "q", r"^q (.+)$", 'send("get " .. matches[2] .. " moch")\nsend("tra " .. matches[2])')
+
+# Intercepta CUALQUIER "traga <obj>" -- tipeado a mano o mandado por
+# nuestros propios triggers/teclas via send() (que dispara alias igual que
+# texto tipeado, mismo patron ya usado en todo este paquete para llamar
+# un alias desde otro). Bloquea si Petria.enZonaSinPociones() (Torre de la
+# Desesperanza) en vez de dejar pasar el "traga" real, porque ahi
+# teletransporta a un foso random -- mejor bloquear en un solo lugar que
+# tener que acordarse de gatear cada tecla/trigger que usa "traga" por
+# separado.
+make_alias(
+    alias_group, "traga", r"^traga (.+)$",
+    '-- Guard de reentrada: si send() dispara este mismo alias de nuevo al\n'
+    '-- reenviar el "traga" real (no confirmado si send() pasa por alias\n'
+    '-- locales o no, pero mejor no confiarse), esto corta cualquier loop\n'
+    '-- de entrada sin importar cual sea el comportamiento real.\n'
+    'if Petria.enPasoTraga then return end\n'
+    'if Petria.enZonaSinPociones() then\n'
+    '  cecho("<red>[BLOQUEADO] \\"traga\\" te teletransporta a un foso en esta zona (Torre de la Desesperanza) -- usa un hechizo de cura en cambio.\\n")\n'
+    '  return\n'
+    'end\n'
+    'Petria.enPasoTraga = true\n'
+    'send("traga " .. matches[2])\n'
+    'Petria.enPasoTraga = false',
+)
 make_alias(alias_group, "gp", r"^gp$", 'send("golpetazo")')
 make_alias(alias_group, "toso", r"^toso$", "send(\"c 'totem animal oso'\")")
 make_alias(alias_group, "ttortu", r"^ttortu$", "send(\"c 'totem animal tortuga'\")")
@@ -1252,6 +1288,35 @@ Petria.version = {JSDELIVR_CACHE_BUSTER}
 function Petria.esGnomo()
   return gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.race
     and gmcp.Char.Base.race:lower() == "gnomo"
+end
+
+-- true si la sala actual (gmcp.Room.Info.area) es "Torre de la Desesperanza".
+-- Los 5 jefes de esa zona (Ferronox/Okskur/Kinkimo/Urtioica/Wendigo)
+-- comparten un mobprog que dispara con la palabra "traga" en la sala (no
+-- con "huir" como parecia a primera vista) y directamente TELETRANSPORTA
+-- a quien la diga a un foso random -- tomar pociones/pildoras en esta
+-- zona es literalmente peligroso, no solo inutil.
+function Petria.enZonaSinPociones()
+  return gmcp and gmcp.Room and gmcp.Room.Info and gmcp.Room.Info.area
+    and gmcp.Room.Info.area:lower() == "torre de la desesperanza"
+end
+
+-- Cura HP: "traga sana" normalmente, pero en Petria.enZonaSinPociones()
+-- eso te teletransporta a un foso (ver el mismo comentario en el alias
+-- "traga"). Reemplazo con "la varita bendita de Don Puchito" (hechizo
+-- sanar nivel 108 -- el "puntero" que usa el alias "za" es nivel 21,
+-- muy bajo para nivel 90+). Esta varita esta justo en el 2do piso de la
+-- Torre (sala #5805), se agarra de paso subiendo. Usa "zap", no "traga",
+-- asi que no entra en el bloqueo. Usado por las teclas sanar/MAC-Sanar
+-- en vez de repetir la logica en cada una.
+function Petria.sanar()
+  if Petria.enZonaSinPociones() then
+    send("get bendicion moch")
+    send("sos bendicion")
+    send("zap self")
+  else
+    send("traga sana")
+  end
 end
 
 function Petria.esperarTexto(patron, callback, timeoutSeg)
@@ -1881,10 +1946,10 @@ QT_KEY_MINUS = 45
 
 petria_key_group = make_key_group(key_pkg, "Petria-Rhuna")
 teclas_key_group = make_key_group(petria_key_group, "Teclas")
-make_key(teclas_key_group, "sanar", QT_KEY_INSERT, QT_KEYPAD_MODIFIER, 'send("traga sana")')
+make_key(teclas_key_group, "sanar", QT_KEY_INSERT, QT_KEYPAD_MODIFIER, "Petria.sanar()")
 make_key(teclas_key_group, "recall", QT_KEY_END, 0, 'send("recall")\nsend("n")\nsend("curar")')
 make_key(teclas_key_group, "Savia verde", QT_KEY_DELETE, QT_KEYPAD_MODIFIER, 'send("traga savia")')
-make_key(teclas_key_group, "MAC-Sanar", QT_KEY_BRACELEFT, 0, 'send("traga sana")')
+make_key(teclas_key_group, "MAC-Sanar", QT_KEY_BRACELEFT, 0, "Petria.sanar()")
 make_key(teclas_key_group, "MAC-SaviaVerde", QT_KEY_BRACERIGHT, 0, 'send("traga savia")')
 make_key(teclas_key_group, "Linux-MejoraAlquimica", QT_KEY_SLASH, QT_KEYPAD_MODIFIER, "send(\"c 'mejora alquimica' savia\")")
 make_key(teclas_key_group, "Linux-Super", QT_KEY_ASTERISK, QT_KEYPAD_MODIFIER, 'send("traga super")')

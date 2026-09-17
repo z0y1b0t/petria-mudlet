@@ -834,7 +834,13 @@ end</script>
 -- comillas dobles funcionan bien, "No conoces ningun hechizo" era por
 -- la clase, no por la sintaxis) -- solo Mago no. En vez de asumir por
 -- clase, intenta el hechizo primero y SOLO si falla (con ese mensaje
--- especifico) cae a la pocion universal como respaldo.
+-- especifico) cae a un respaldo. El respaldo depende de la zona: en
+-- Torre de la Desesperanza "traga" te teletransporta a un foso (ver
+-- Petria.enZonaSinPociones), asi que ahi se usa el "amuleto raro"
+-- (varita, 10 cargas, hechizo curar veneno -- se usa con zap, no
+-- traga, mismo patron que el puntero de autocurarse del alias "za")
+-- en vez de la pocion, para no gastar cargas limitadas fuera de la
+-- zona donde no hace falta.
 if not cd_veneno or cd_veneno == 0 then
   cd_veneno = 1
   tempTimer(6, function() cd_veneno = 0 end)
@@ -842,8 +848,14 @@ if not cd_veneno or cd_veneno == 0 then
   local idFallo
   idFallo = tempRegexTrigger("No conoces .* hechizo con ese nombre\\.", function()
     if exists(idFallo, "trigger") == 1 then killTrigger(idFallo) end
-    send("get karma moch")
-    send("traga karma")
+    if Petria.enZonaSinPociones() then
+      send("get amuleto moch")
+      send("sos amuleto")
+      send("zap self")
+    else
+      send("get karma moch")
+      send("traga karma")
+    end
   end)
   tempTimer(1, function()
     if exists(idFallo, "trigger") == 1 then killTrigger(idFallo) end
@@ -2749,6 +2761,24 @@ send("tra " .. matches[2])</script>
 					<regex>^q (.+)$</regex>
 				</Alias>
 				<Alias isActive="yes" isFolder="no">
+					<name>traga</name>
+					<script>-- Guard de reentrada: si send() dispara este mismo alias de nuevo al
+-- reenviar el "traga" real (no confirmado si send() pasa por alias
+-- locales o no, pero mejor no confiarse), esto corta cualquier loop
+-- de entrada sin importar cual sea el comportamiento real.
+if Petria.enPasoTraga then return end
+if Petria.enZonaSinPociones() then
+  cecho("&lt;red&gt;[BLOQUEADO] \"traga\" te teletransporta a un foso en esta zona (Torre de la Desesperanza) -- usa un hechizo de cura en cambio.\n")
+  return
+end
+Petria.enPasoTraga = true
+send("traga " .. matches[2])
+Petria.enPasoTraga = false</script>
+					<command />
+					<packageName />
+					<regex>^traga (.+)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
 					<name>gp</name>
 					<script>send("golpetazo")</script>
 					<command />
@@ -2964,7 +2994,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789685814
+Petria.version = 1789687032
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -2973,6 +3003,35 @@ Petria.version = 1789685814
 function Petria.esGnomo()
   return gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.race
     and gmcp.Char.Base.race:lower() == "gnomo"
+end
+
+-- true si la sala actual (gmcp.Room.Info.area) es "Torre de la Desesperanza".
+-- Los 5 jefes de esa zona (Ferronox/Okskur/Kinkimo/Urtioica/Wendigo)
+-- comparten un mobprog que dispara con la palabra "traga" en la sala (no
+-- con "huir" como parecia a primera vista) y directamente TELETRANSPORTA
+-- a quien la diga a un foso random -- tomar pociones/pildoras en esta
+-- zona es literalmente peligroso, no solo inutil.
+function Petria.enZonaSinPociones()
+  return gmcp and gmcp.Room and gmcp.Room.Info and gmcp.Room.Info.area
+    and gmcp.Room.Info.area:lower() == "torre de la desesperanza"
+end
+
+-- Cura HP: "traga sana" normalmente, pero en Petria.enZonaSinPociones()
+-- eso te teletransporta a un foso (ver el mismo comentario en el alias
+-- "traga"). Reemplazo con "la varita bendita de Don Puchito" (hechizo
+-- sanar nivel 108 -- el "puntero" que usa el alias "za" es nivel 21,
+-- muy bajo para nivel 90+). Esta varita esta justo en el 2do piso de la
+-- Torre (sala #5805), se agarra de paso subiendo. Usa "zap", no "traga",
+-- asi que no entra en el bloqueo. Usado por las teclas sanar/MAC-Sanar
+-- en vez de repetir la logica en cada una.
+function Petria.sanar()
+  if Petria.enZonaSinPociones() then
+    send("get bendicion moch")
+    send("sos bendicion")
+    send("zap self")
+  else
+    send("traga sana")
+  end
 end
 
 function Petria.esperarTexto(patron, callback, timeoutSeg)
@@ -3635,7 +3694,7 @@ PeleaActualizarEnemigoGMCP()
 				<Key isActive="yes" isFolder="no">
 					<name>sanar</name>
 					<packageName />
-					<script>send("traga sana")</script>
+					<script>Petria.sanar()</script>
 					<command />
 					<keyCode>16777222</keyCode>
 					<keyModifier>536870912</keyModifier>
@@ -3661,7 +3720,7 @@ send("curar")</script>
 				<Key isActive="yes" isFolder="no">
 					<name>MAC-Sanar</name>
 					<packageName />
-					<script>send("traga sana")</script>
+					<script>Petria.sanar()</script>
 					<command />
 					<keyCode>123</keyCode>
 					<keyModifier>0</keyModifier>
