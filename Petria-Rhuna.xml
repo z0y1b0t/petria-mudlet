@@ -852,6 +852,8 @@ if not cd_veneno or cd_veneno == 0 then
       send("get amuleto moch")
       send("sos amuleto")
       send("zap self")
+      if armaPrincipal and armaPrincipal ~= "" then send("bla " .. armaPrincipal) end
+      if armaSecundaria and armaSecundaria ~= "" then send("segun " .. armaSecundaria) end
     else
       send("get karma moch")
       send("traga karma")
@@ -2887,9 +2889,16 @@ send("ras Idhrall")</script>
 				</Alias>
 				<Alias isActive="yes" isFolder="no">
 					<name>za</name>
-					<script>send("get puntero moch")
-send("sos puntero")
-send("zap self")</script>
+					<script>-- Cambiado de "puntero" (nivel 21, muy bajo) a "bendicion" (la varita
+-- de Don Puchito, hechizo sanar nivel 108). "sos" ocupa una mano de
+-- arma, asi que despues del zap hay que volver a blandir el equipo
+-- normal (armaPrincipal/armaSecundaria, configuradas con
+-- setarma/setsegun del GUI oficial).
+send("get bendicion moch")
+send("sos bendicion")
+send("zap self")
+if armaPrincipal and armaPrincipal ~= "" then send("bla " .. armaPrincipal) end
+if armaSecundaria and armaSecundaria ~= "" then send("segun " .. armaSecundaria) end</script>
 					<command />
 					<packageName />
 					<regex>^za$</regex>
@@ -2994,7 +3003,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789687032
+Petria.version = 1789690363
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -3029,6 +3038,8 @@ function Petria.sanar()
     send("get bendicion moch")
     send("sos bendicion")
     send("zap self")
+    if armaPrincipal and armaPrincipal ~= "" then send("bla " .. armaPrincipal) end
+    if armaSecundaria and armaSecundaria ~= "" then send("segun " .. armaSecundaria) end
   else
     send("traga sana")
   end

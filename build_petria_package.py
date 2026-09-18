@@ -441,6 +441,8 @@ make_trigger(
     '      send("get amuleto moch")\n'
     '      send("sos amuleto")\n'
     '      send("zap self")\n'
+    '      if armaPrincipal and armaPrincipal ~= "" then send("bla " .. armaPrincipal) end\n'
+    '      if armaSecundaria and armaSecundaria ~= "" then send("segun " .. armaSecundaria) end\n'
     '    else\n'
     '      send("get karma moch")\n'
     '      send("traga karma")\n'
@@ -1192,7 +1194,19 @@ make_alias(alias_group, "co", r"^co (.+)$", 'local t = matches[2]\nsend("contrag
 make_alias(alias_group, "cc", r"^cc (.+)$", "local t = matches[2]\nsend(\"c 'curar deslumbrar' \" .. t)\nsend(\"c 'curar critico' \" .. t)")
 make_alias(alias_group, "asa", r"^asa (.+)$", 'local t = matches[2]\nexpandAlias("can " .. t)\nsend("c rai " .. t)\nsend("hui n")')
 make_alias(alias_group, "fabada", r"^fabada$", 'send("creg")\nsend("ras Idhrall")')
-make_alias(alias_group, "za", r"^za$", 'send("get puntero moch")\nsend("sos puntero")\nsend("zap self")')
+make_alias(
+    alias_group, "za", r"^za$",
+    '-- Cambiado de "puntero" (nivel 21, muy bajo) a "bendicion" (la varita\n'
+    '-- de Don Puchito, hechizo sanar nivel 108). "sos" ocupa una mano de\n'
+    '-- arma, asi que despues del zap hay que volver a blandir el equipo\n'
+    '-- normal (armaPrincipal/armaSecundaria, configuradas con\n'
+    '-- setarma/setsegun del GUI oficial).\n'
+    'send("get bendicion moch")\n'
+    'send("sos bendicion")\n'
+    'send("zap self")\n'
+    'if armaPrincipal and armaPrincipal ~= "" then send("bla " .. armaPrincipal) end\n'
+    'if armaSecundaria and armaSecundaria ~= "" then send("segun " .. armaSecundaria) end',
+)
 
 make_alias(
     alias_group, "ene", r"^ene (add|del) (.+)$",
@@ -1314,6 +1328,8 @@ function Petria.sanar()
     send("get bendicion moch")
     send("sos bendicion")
     send("zap self")
+    if armaPrincipal and armaPrincipal ~= "" then send("bla " .. armaPrincipal) end
+    if armaSecundaria and armaSecundaria ~= "" then send("segun " .. armaSecundaria) end
   else
     send("traga sana")
   end
