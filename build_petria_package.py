@@ -1974,8 +1974,12 @@ teclas_key_group = make_key_group(petria_key_group, "Teclas")
 make_key(teclas_key_group, "sanar", QT_KEY_INSERT, QT_KEYPAD_MODIFIER, "Petria.sanar()")
 make_key(teclas_key_group, "recall", QT_KEY_END, 0, 'send("recall")\nsend("n")\nsend("curar")')
 make_key(teclas_key_group, "Savia verde", QT_KEY_DELETE, QT_KEYPAD_MODIFIER, 'send("traga savia")')
-make_key(teclas_key_group, "MAC-Sanar", QT_KEY_BRACELEFT, 0, "Petria.sanar()")
-make_key(teclas_key_group, "MAC-SaviaVerde", QT_KEY_BRACERIGHT, 0, 'send("traga savia")')
+# Teclas Mac creadas a mano en la UI de Mudlet (leidas del perfil, codigos
+# capturados). Reemplazan a MAC-Sanar / MAC-SaviaVerde, que usaban estos
+# mismos codigos (123 / 125) y ya no existen en el perfil de la Mac.
+make_key(teclas_key_group, "MAC-MejoraAlquimica", QT_KEY_BRACELEFT, 0, "send(\"c 'mejora alquimica' savia\")")
+make_key(teclas_key_group, "MAC-SUPER", QT_KEY_BRACERIGHT, 0, 'send("traga super")')
+make_key(teclas_key_group, "MAC-Rayo", QT_KEY_MINUS, 0, 'if rasOBJ and rasOBJ ~= "" then send("c rayo " .. rasOBJ) end')
 make_key(teclas_key_group, "Linux-MejoraAlquimica", QT_KEY_SLASH, QT_KEYPAD_MODIFIER, "send(\"c 'mejora alquimica' savia\")")
 make_key(teclas_key_group, "Linux-Super", QT_KEY_ASTERISK, QT_KEYPAD_MODIFIER, 'send("traga super")')
 make_key(teclas_key_group, "Linux-Rayo", QT_KEY_MINUS, QT_KEYPAD_MODIFIER, 'if rasOBJ and rasOBJ ~= "" then send("c rayo " .. rasOBJ) end')

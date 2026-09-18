@@ -3008,7 +3008,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789698605
+Petria.version = 1789761665
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -3738,19 +3738,27 @@ send("curar")</script>
 					<keyModifier>536870912</keyModifier>
 				</Key>
 				<Key isActive="yes" isFolder="no">
-					<name>MAC-Sanar</name>
+					<name>MAC-MejoraAlquimica</name>
 					<packageName />
-					<script>Petria.sanar()</script>
+					<script>send("c 'mejora alquimica' savia")</script>
 					<command />
 					<keyCode>123</keyCode>
 					<keyModifier>0</keyModifier>
 				</Key>
 				<Key isActive="yes" isFolder="no">
-					<name>MAC-SaviaVerde</name>
+					<name>MAC-SUPER</name>
 					<packageName />
-					<script>send("traga savia")</script>
+					<script>send("traga super")</script>
 					<command />
 					<keyCode>125</keyCode>
+					<keyModifier>0</keyModifier>
+				</Key>
+				<Key isActive="yes" isFolder="no">
+					<name>MAC-Rayo</name>
+					<packageName />
+					<script>if rasOBJ and rasOBJ ~= "" then send("c rayo " .. rasOBJ) end</script>
+					<command />
+					<keyCode>45</keyCode>
 					<keyModifier>0</keyModifier>
 				</Key>
 				<Key isActive="yes" isFolder="no">
