@@ -438,6 +438,8 @@ make_trigger(
     '  idFallo = tempRegexTrigger("No conoces .* hechizo con ese nombre\\\\.", function()\n'
     '    if exists(idFallo, "trigger") == 1 then killTrigger(idFallo) end\n'
     '    if Petria.enZonaSinPociones() then\n'
+    '      if armaPrincipal and armaPrincipal ~= "" then send("gua " .. armaPrincipal) end\n'
+    '      if armaSecundaria and armaSecundaria ~= "" then send("gua " .. armaSecundaria) end\n'
     '      send("get amuleto moch")\n'
     '      send("sos amuleto")\n'
     '      send("zap self")\n'
@@ -1197,10 +1199,13 @@ make_alias(alias_group, "fabada", r"^fabada$", 'send("creg")\nsend("ras Idhrall"
 make_alias(
     alias_group, "za", r"^za$",
     '-- Cambiado de "puntero" (nivel 21, muy bajo) a "bendicion" (la varita\n'
-    '-- de Don Puchito, hechizo sanar nivel 108). "sos" ocupa una mano de\n'
-    '-- arma, asi que despues del zap hay que volver a blandir el equipo\n'
-    '-- normal (armaPrincipal/armaSecundaria, configuradas con\n'
-    '-- setarma/setsegun del GUI oficial).\n'
+    '-- de Don Puchito, hechizo sanar nivel 108). Confirmado en juego:\n'
+    '-- "sos" (sostener) falla con "No puedes sostener un objeto mientras\n'
+    '-- estes blandiendo dos armas." si ya estas dual-wield -- igual que la\n'
+    '-- lanza de intentarEmpalar, hay que GUARDAR ambas armas ANTES de\n'
+    '-- intentar sostener la varita, no alcanza con reequiparlas despues.\n'
+    'if armaPrincipal and armaPrincipal ~= "" then send("gua " .. armaPrincipal) end\n'
+    'if armaSecundaria and armaSecundaria ~= "" then send("gua " .. armaSecundaria) end\n'
     'send("get bendicion moch")\n'
     'send("sos bendicion")\n'
     'send("zap self")\n'
@@ -1325,6 +1330,10 @@ end
 -- en vez de repetir la logica en cada una.
 function Petria.sanar()
   if Petria.enZonaSinPociones() then
+    -- "sos" falla si ya estas dual-wield -- guardar ambas armas antes,
+    -- no alcanza con reequiparlas despues (confirmado en juego).
+    if armaPrincipal and armaPrincipal ~= "" then send("gua " .. armaPrincipal) end
+    if armaSecundaria and armaSecundaria ~= "" then send("gua " .. armaSecundaria) end
     send("get bendicion moch")
     send("sos bendicion")
     send("zap self")

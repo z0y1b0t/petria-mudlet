@@ -849,6 +849,8 @@ if not cd_veneno or cd_veneno == 0 then
   idFallo = tempRegexTrigger("No conoces .* hechizo con ese nombre\\.", function()
     if exists(idFallo, "trigger") == 1 then killTrigger(idFallo) end
     if Petria.enZonaSinPociones() then
+      if armaPrincipal and armaPrincipal ~= "" then send("gua " .. armaPrincipal) end
+      if armaSecundaria and armaSecundaria ~= "" then send("gua " .. armaSecundaria) end
       send("get amuleto moch")
       send("sos amuleto")
       send("zap self")
@@ -2890,10 +2892,13 @@ send("ras Idhrall")</script>
 				<Alias isActive="yes" isFolder="no">
 					<name>za</name>
 					<script>-- Cambiado de "puntero" (nivel 21, muy bajo) a "bendicion" (la varita
--- de Don Puchito, hechizo sanar nivel 108). "sos" ocupa una mano de
--- arma, asi que despues del zap hay que volver a blandir el equipo
--- normal (armaPrincipal/armaSecundaria, configuradas con
--- setarma/setsegun del GUI oficial).
+-- de Don Puchito, hechizo sanar nivel 108). Confirmado en juego:
+-- "sos" (sostener) falla con "No puedes sostener un objeto mientras
+-- estes blandiendo dos armas." si ya estas dual-wield -- igual que la
+-- lanza de intentarEmpalar, hay que GUARDAR ambas armas ANTES de
+-- intentar sostener la varita, no alcanza con reequiparlas despues.
+if armaPrincipal and armaPrincipal ~= "" then send("gua " .. armaPrincipal) end
+if armaSecundaria and armaSecundaria ~= "" then send("gua " .. armaSecundaria) end
 send("get bendicion moch")
 send("sos bendicion")
 send("zap self")
@@ -3003,7 +3008,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789690363
+Petria.version = 1789698605
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -3035,6 +3040,10 @@ end
 -- en vez de repetir la logica en cada una.
 function Petria.sanar()
   if Petria.enZonaSinPociones() then
+    -- "sos" falla si ya estas dual-wield -- guardar ambas armas antes,
+    -- no alcanza con reequiparlas despues (confirmado en juego).
+    if armaPrincipal and armaPrincipal ~= "" then send("gua " .. armaPrincipal) end
+    if armaSecundaria and armaSecundaria ~= "" then send("gua " .. armaSecundaria) end
     send("get bendicion moch")
     send("sos bendicion")
     send("zap self")
