@@ -106,16 +106,23 @@ pelea_trig_group = make_trigger_group(petria_trig_group, "Pelea")
 # lista de spells (podria ser el fin de un efecto hostil, no un buff propio
 # para recastear) -- confirmar antes de agregarlo.
 autodope_trig_group = make_trigger_group(petria_trig_group, "Autodope")
-make_trigger(autodope_trig_group, "Santuario se despeja", 'send("c santuario")', [r"^Los efectos de Santuario se van despejando\.$"])
-make_trigger(autodope_trig_group, "Inspiracion divina se va", 'send("c inspiracion")', [r"^Sientes como tu inspiracion divina te abandona\.\.\.$"])
-make_trigger(autodope_trig_group, "Fuerza colosal se va (mas debil)", 'send("c \'fuerza colosal\'")', [r"^Te sientes mas debil\.$"])
-make_trigger(autodope_trig_group, "Proteccion infernal mengua", 'send("c \'proteccion infernal\'")', [r"^Tu proteccion contra el mal mengua\.$"])
-make_trigger(autodope_trig_group, "Escudo de luz desaparece", 'send("c \'escudo luz\'")', [r"^El escudo de luz que te rodeaba desaparece\.$"])
-make_trigger(autodope_trig_group, "Luz protectora desaparece", 'send("c \'luz protectora\'")', [r"^Los rayos de luz que te rodeaban desaparecen\.$"])
-make_trigger(autodope_trig_group, "Proteccion sagrada se desvanece", 'send("c \'proteccion sagrada\'")', [r"^Tu proteccion sagrada se desvanece"])
-make_trigger(autodope_trig_group, "Acelerar termina (ritmo normal)", 'send("c acelerar")', [r"^Ya vuelves a recuperar tu ritmo normal\.$"])
-make_trigger(autodope_trig_group, "Volar termina", 'send("c volar")', [r"^Despacito dejas de levitar como un Lama tibetano\.$"])
-make_trigger(autodope_trig_group, "Bendecir termina", 'send("c bendecir")', [r"^La bendicion ya no tiene efecto\.$"])
+# Confirmado en juego (log de PvP contra un disipar magia): el servidor manda
+# TODOS los mensajes de "se te pasa el efecto" pegados en un solo bloque, sin
+# salto de linea entre ellos, y ademas corta a ~100 columnas en medio de
+# frases ("Despacito dejas de / levitar...", "Tu proteccion contra / el mal
+# mengua"). Con patrones anclados (^...$) ninguno matcheaba. Por eso van sin
+# anclas y con un fragmento corto que sobrevive al corte. Ademas solo recasteo
+# si el hechizo esta en el dope de la clase (Clases.reponer).
+make_trigger(autodope_trig_group, "Santuario se despeja", 'Clases.reponer("santuario", "c santuario")', [r"Los efectos de Santuario"])
+make_trigger(autodope_trig_group, "Inspiracion divina se va", 'Clases.reponer("inspiracion", "c inspiracion")', [r"tu inspiracion divina"])
+make_trigger(autodope_trig_group, "Fuerza colosal se va (mas debil)", 'Clases.reponer("fuerza colosal", "c \'fuerza colosal\'")', [r"Te sientes mas debil\."])
+make_trigger(autodope_trig_group, "Proteccion infernal mengua", 'Clases.reponer("proteccion infernal", "c \'proteccion infernal\'")', [r"el mal mengua"])
+make_trigger(autodope_trig_group, "Escudo de luz desaparece", 'Clases.reponer("escudo luz", "c \'escudo luz\'")', [r"El escudo de luz que te rodeaba"])
+make_trigger(autodope_trig_group, "Luz protectora desaparece", 'Clases.reponer("luz protectora", "c \'luz protectora\'")', [r"Los rayos de luz que te rodeaban"])
+make_trigger(autodope_trig_group, "Proteccion sagrada se desvanece", 'Clases.reponer("proteccion sagrada", "c \'proteccion sagrada\'")', [r"Tu proteccion sagrada se desvanece"])
+make_trigger(autodope_trig_group, "Acelerar termina (ritmo normal)", 'Clases.reponer("acelerar", "c acelerar")', [r"Ya vuelves a recuperar tu ritmo normal"])
+make_trigger(autodope_trig_group, "Volar termina", 'Clases.reponer("volar", "c volar")', [r"Despacito dejas de"])
+make_trigger(autodope_trig_group, "Bendecir termina", 'Clases.reponer("bendecir", "c bendecir")', [r"La bendicion ya no tiene efecto"])
 make_trigger(
     autodope_trig_group, "Menos cansado: seguir curando hasta llenar move",
     '-- Intencional: "curar refre" tirado a mano dispara al curandero, y\n'
@@ -1449,6 +1456,28 @@ function Clases.esVulnerableA(palabra)
     end
   end
   return false
+end
+
+-- true si "nombre" esta en la lista de dope de la clase actual (substring en
+-- ambos sentidos, igual que tieneActivo: "inspiracion" calza con
+-- "inspiracion divina").
+function Clases.enDope(nombre)
+  local lista = clase and Clases.dopes[clase]
+  if not lista then return false end
+  local buscado = nombre:lower()
+  for _, h in ipairs(lista) do
+    local hl = tostring(h):lower()
+    if hl:find(buscado, 1, true) or buscado:find(hl, 1, true) then
+      return true
+    end
+  end
+  return false
+end
+
+-- Recastea un buff que acaba de expirar, solo si esta en el dope de la clase.
+-- No consulta GMCP a proposito: el mensaje de texto acaba de decir que se fue.
+function Clases.reponer(nombreDope, comando)
+  if Clases.enDope(nombreDope) then send(comando) end
 end
 
 -- Lanza cada hechizo de "lista" (tabla de nombres) sobre "obj" (o sobre uno

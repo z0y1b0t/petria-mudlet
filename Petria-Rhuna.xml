@@ -1762,7 +1762,7 @@ end</script>
 				<regexCodePropertyList />
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Santuario se despeja</name>
-					<script>send("c santuario")</script>
+					<script>Clases.reponer("santuario", "c santuario")</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -1774,7 +1774,7 @@ end</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^Los efectos de Santuario se van despejando\.$</string>
+						<string>Los efectos de Santuario</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -1782,7 +1782,7 @@ end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Inspiracion divina se va</name>
-					<script>send("c inspiracion")</script>
+					<script>Clases.reponer("inspiracion", "c inspiracion")</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -1794,7 +1794,7 @@ end</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^Sientes como tu inspiracion divina te abandona\.\.\.$</string>
+						<string>tu inspiracion divina</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -1802,7 +1802,7 @@ end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Fuerza colosal se va (mas debil)</name>
-					<script>send("c 'fuerza colosal'")</script>
+					<script>Clases.reponer("fuerza colosal", "c 'fuerza colosal'")</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -1814,7 +1814,7 @@ end</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^Te sientes mas debil\.$</string>
+						<string>Te sientes mas debil\.</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -1822,7 +1822,7 @@ end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Proteccion infernal mengua</name>
-					<script>send("c 'proteccion infernal'")</script>
+					<script>Clases.reponer("proteccion infernal", "c 'proteccion infernal'")</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -1834,7 +1834,7 @@ end</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^Tu proteccion contra el mal mengua\.$</string>
+						<string>el mal mengua</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -1842,7 +1842,7 @@ end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Escudo de luz desaparece</name>
-					<script>send("c 'escudo luz'")</script>
+					<script>Clases.reponer("escudo luz", "c 'escudo luz'")</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -1854,7 +1854,7 @@ end</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^El escudo de luz que te rodeaba desaparece\.$</string>
+						<string>El escudo de luz que te rodeaba</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -1862,7 +1862,7 @@ end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Luz protectora desaparece</name>
-					<script>send("c 'luz protectora'")</script>
+					<script>Clases.reponer("luz protectora", "c 'luz protectora'")</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -1874,7 +1874,7 @@ end</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^Los rayos de luz que te rodeaban desaparecen\.$</string>
+						<string>Los rayos de luz que te rodeaban</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -1882,7 +1882,7 @@ end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Proteccion sagrada se desvanece</name>
-					<script>send("c 'proteccion sagrada'")</script>
+					<script>Clases.reponer("proteccion sagrada", "c 'proteccion sagrada'")</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -1894,7 +1894,7 @@ end</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^Tu proteccion sagrada se desvanece</string>
+						<string>Tu proteccion sagrada se desvanece</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -1902,7 +1902,7 @@ end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Acelerar termina (ritmo normal)</name>
-					<script>send("c acelerar")</script>
+					<script>Clases.reponer("acelerar", "c acelerar")</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -1914,7 +1914,7 @@ end</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^Ya vuelves a recuperar tu ritmo normal\.$</string>
+						<string>Ya vuelves a recuperar tu ritmo normal</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -1922,7 +1922,7 @@ end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Volar termina</name>
-					<script>send("c volar")</script>
+					<script>Clases.reponer("volar", "c volar")</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -1934,7 +1934,7 @@ end</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^Despacito dejas de levitar como un Lama tibetano\.$</string>
+						<string>Despacito dejas de</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -1942,7 +1942,7 @@ end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Bendecir termina</name>
-					<script>send("c bendecir")</script>
+					<script>Clases.reponer("bendecir", "c bendecir")</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -1954,7 +1954,7 @@ end</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^La bendicion ya no tiene efecto\.$</string>
+						<string>La bendicion ya no tiene efecto</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -3008,7 +3008,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789761665
+Petria.version = 1789871718
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -3165,6 +3165,28 @@ function Clases.esVulnerableA(palabra)
     end
   end
   return false
+end
+
+-- true si "nombre" esta en la lista de dope de la clase actual (substring en
+-- ambos sentidos, igual que tieneActivo: "inspiracion" calza con
+-- "inspiracion divina").
+function Clases.enDope(nombre)
+  local lista = clase and Clases.dopes[clase]
+  if not lista then return false end
+  local buscado = nombre:lower()
+  for _, h in ipairs(lista) do
+    local hl = tostring(h):lower()
+    if hl:find(buscado, 1, true) or buscado:find(hl, 1, true) then
+      return true
+    end
+  end
+  return false
+end
+
+-- Recastea un buff que acaba de expirar, solo si esta en el dope de la clase.
+-- No consulta GMCP a proposito: el mensaje de texto acaba de decir que se fue.
+function Clases.reponer(nombreDope, comando)
+  if Clases.enDope(nombreDope) then send(comando) end
 end
 
 -- Lanza cada hechizo de "lista" (tabla de nombres) sobre "obj" (o sobre uno
