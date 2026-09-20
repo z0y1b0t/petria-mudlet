@@ -2277,6 +2277,22 @@ cecho(string.format("&lt;cyan&gt;Ronda: %s, hechizo: %s\n", Petria.rondaActiva a
 					<regex>^ronda(?: (\w+))?$</regex>
 				</Alias>
 				<Alias isActive="yes" isFolder="no">
+					<name>aa (carrusel de ronda)</name>
+					<script>-- "aa" a secas: rota el hechizo de "ronda" rayo -&gt; ira -&gt; destruir -&gt; rayo.
+-- No cambia si la ronda esta ON u OFF (eso es "ronda on/off"). El "aa &lt;obj&gt;"
+-- de abrir puertas sigue igual: exige argumento.
+local ciclo = {"rayo de sinceridad", "ira divina", "destruir maldad"}
+local idx = 0
+for i, h in ipairs(ciclo) do
+  if h == Petria.rondaHechizo then idx = i end
+end
+Petria.rondaHechizo = ciclo[(idx % #ciclo) + 1]
+cecho(string.format("&lt;cyan&gt;Ronda: %s, hechizo: %s\n", Petria.rondaActiva and "ON" or "OFF", Petria.rondaHechizo))</script>
+					<command />
+					<packageName />
+					<regex>^aa$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
 					<name>engancha</name>
 					<script>local obj = matches[2]
 if clase and Clases[clase] and Clases[clase].engancha then
@@ -3124,7 +3140,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789920902
+Petria.version = 1789921380
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual

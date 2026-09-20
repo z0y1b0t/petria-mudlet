@@ -896,6 +896,20 @@ cecho(string.format("<cyan>Ronda: %s, hechizo: %s\n", Petria.rondaActiva and "ON
 )
 
 make_alias(
+    clases_alias_group, "aa (carrusel de ronda)", r"^aa$",
+    r'''-- "aa" a secas: rota el hechizo de "ronda" rayo -> ira -> destruir -> rayo.
+-- No cambia si la ronda esta ON u OFF (eso es "ronda on/off"). El "aa <obj>"
+-- de abrir puertas sigue igual: exige argumento.
+local ciclo = {"rayo de sinceridad", "ira divina", "destruir maldad"}
+local idx = 0
+for i, h in ipairs(ciclo) do
+  if h == Petria.rondaHechizo then idx = i end
+end
+Petria.rondaHechizo = ciclo[(idx % #ciclo) + 1]
+cecho(string.format("<cyan>Ronda: %s, hechizo: %s\n", Petria.rondaActiva and "ON" or "OFF", Petria.rondaHechizo))'''
+)
+
+make_alias(
     clases_alias_group, "engancha", r"^engancha (.+)$",
     'local obj = matches[2]\n'
     'if clase and Clases[clase] and Clases[clase].engancha then\n'
