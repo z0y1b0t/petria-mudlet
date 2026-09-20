@@ -807,7 +807,9 @@ send("traga ceguera")</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Enemigo deslumbrado: curar</name>
-					<script>send("c 'curar deslumbrar'")</script>
+					<script>local e = enemigoNombre and tostring(enemigoNombre):lower()
+if e and e ~= "" and (line or ""):lower():find(e, 1, true) then return end
+send("c 'curar deslumbrar'")</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -2247,15 +2249,18 @@ Clases.despacharAtaque(obj)</script>
 				</Alias>
 				<Alias isActive="yes" isFolder="no">
 					<name>ronda</name>
-					<script>-- ronda [on|off|ira|destruir]: un hechizo de ataque de Oteren por ronda de
--- melee mientras estes en combate. Medido en juego (diablo ingeniero):
--- ~230 de dano por cast, 10 de mana, y UN cast por ronda no le quita golpes
--- al melee (dos seguidos si).
+					<script>-- ronda [on|off|rayo|ira|destruir]: un hechizo de ataque de Oteren por ronda
+-- de melee mientras estes en combate. Medido en juego (diablo ingeniero):
+-- rayo ~350 (20 de mana), ira/destruir ~235 (10 de mana); UN cast por ronda
+-- no le quita golpes al melee (dos seguidos si).
 local arg = (matches[2] or ""):lower()
 if arg == "on" then
   Petria.rondaActiva = true
 elseif arg == "off" then
   Petria.rondaActiva = false
+elseif arg == "rayo" then
+  Petria.rondaHechizo = "rayo de sinceridad"
+  Petria.rondaActiva = true
 elseif arg == "ira" then
   Petria.rondaHechizo = "ira divina"
   Petria.rondaActiva = true
@@ -2263,7 +2268,7 @@ elseif arg == "destruir" then
   Petria.rondaHechizo = "destruir maldad"
   Petria.rondaActiva = true
 elseif arg ~= "" then
-  cecho("&lt;red&gt;Uso: ronda [on|off|ira|destruir]\n")
+  cecho("&lt;red&gt;Uso: ronda [on|off|rayo|ira|destruir]\n")
   return
 end
 cecho(string.format("&lt;cyan&gt;Ronda: %s, hechizo: %s\n", Petria.rondaActiva and "ON" or "OFF", Petria.rondaHechizo))</script>
@@ -3119,7 +3124,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789880258
+Petria.version = 1789920902
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -3168,7 +3173,7 @@ end
 -- "ronda": un cast por ronda de melee (ver alias "ronda" y trigger
 -- "Ronda: lanzar hechizo" en Pelea).
 if Petria.rondaActiva == nil then Petria.rondaActiva = false end
-Petria.rondaHechizo = Petria.rondaHechizo or "destruir maldad"
+Petria.rondaHechizo = Petria.rondaHechizo or "rayo de sinceridad"
 
 function Petria.esperarTexto(patron, callback, timeoutSeg)
   local id
@@ -3667,9 +3672,10 @@ Clases.dopes.seguidores = Clases.dopes.seguidores or {
 }
 
 Clases.seguidores = {
-  -- Solo para "kk". "ira divina" (helpfile en juego): ataque de Oteren, hace
-  -- mas dano que "destruir maldad", tiene EFECTO DE AREA y solo se puede
-  -- lanzar con alineamiento bueno o mas alto. Por el area no se usa en "k".
+  -- Solo para "kk". Medido en juego contra un diablo ingeniero: "rayo de
+  -- sinceridad" ~350 por cast (20 de mana) y ademas deslumbra al rival;
+  -- "ira divina" y "destruir maldad" ~235 (10 de mana). Los tres solo dan a
+  -- objetivos malignos. "ira divina" tiene area, por eso no se usa aqui.
   -- La clase GMCP "seguidores_de_Runk" tambien se reduce a "seguidores", asi
   -- que se chequea el nombre completo para no tirarlo con un Runk.
   defensa = function(obj)
@@ -3678,9 +3684,9 @@ Clases.seguidores = {
       return
     end
     if obj ~= "" and obj:lower() ~= "someone" then
-      send("conjurar 'ira divina' " .. obj)
+      send("conjurar 'rayo de sinceridad' " .. obj)
     else
-      send("conjurar 'ira divina'")
+      send("conjurar 'rayo de sinceridad'")
     end
   end,
   ataque = function(obj)

@@ -463,7 +463,17 @@ make_trigger(
     "qcomm = tonumber(matches[3])",
     [r"^\|(.*)\[(\d+)\]\s*(.*)G"],
 )
-make_trigger(pelea_trig_group, "Enemigo deslumbrado: curar", 'send("c \'curar deslumbrar\'")', [r"ha sido deslumbrado!!$"])
+# Heredado de CMUD ("ha sido deslumbrado!!" -> c 'curar deslumbrar', sin
+# objetivo = sobre uno mismo). Con "rayo de sinceridad" deslumbras al ENEMIGO
+# y esto gastaba un cast en "No estas deslumbrado." (confirmado en juego). Se
+# salta si la linea nombra a tu enemigo actual (GMCP).
+make_trigger(
+    pelea_trig_group, "Enemigo deslumbrado: curar",
+    r'''local e = enemigoNombre and tostring(enemigoNombre):lower()
+if e and e ~= "" and (line or ""):lower():find(e, 1, true) then return end
+send("c 'curar deslumbrar'")''',
+    [r"ha sido deslumbrado!!$"],
+)
 make_trigger(pelea_trig_group, "Raices resistidas: reintentar", 'send("c raices")', [r"Haces brotar ra.ces del suelo, pero (.*) se resiste a ellas\.$"])
 make_trigger(
     pelea_trig_group, "Guardia del puente",
@@ -860,15 +870,18 @@ make_alias(
 
 make_alias(
     clases_alias_group, "ronda", r"^ronda(?: (\w+))?$",
-    r'''-- ronda [on|off|ira|destruir]: un hechizo de ataque de Oteren por ronda de
--- melee mientras estes en combate. Medido en juego (diablo ingeniero):
--- ~230 de dano por cast, 10 de mana, y UN cast por ronda no le quita golpes
--- al melee (dos seguidos si).
+    r'''-- ronda [on|off|rayo|ira|destruir]: un hechizo de ataque de Oteren por ronda
+-- de melee mientras estes en combate. Medido en juego (diablo ingeniero):
+-- rayo ~350 (20 de mana), ira/destruir ~235 (10 de mana); UN cast por ronda
+-- no le quita golpes al melee (dos seguidos si).
 local arg = (matches[2] or ""):lower()
 if arg == "on" then
   Petria.rondaActiva = true
 elseif arg == "off" then
   Petria.rondaActiva = false
+elseif arg == "rayo" then
+  Petria.rondaHechizo = "rayo de sinceridad"
+  Petria.rondaActiva = true
 elseif arg == "ira" then
   Petria.rondaHechizo = "ira divina"
   Petria.rondaActiva = true
@@ -876,7 +889,7 @@ elseif arg == "destruir" then
   Petria.rondaHechizo = "destruir maldad"
   Petria.rondaActiva = true
 elseif arg ~= "" then
-  cecho("<red>Uso: ronda [on|off|ira|destruir]\n")
+  cecho("<red>Uso: ronda [on|off|rayo|ira|destruir]\n")
   return
 end
 cecho(string.format("<cyan>Ronda: %s, hechizo: %s\n", Petria.rondaActiva and "ON" or "OFF", Petria.rondaHechizo))'''
@@ -1451,7 +1464,7 @@ end
 -- "ronda": un cast por ronda de melee (ver alias "ronda" y trigger
 -- "Ronda: lanzar hechizo" en Pelea).
 if Petria.rondaActiva == nil then Petria.rondaActiva = false end
-Petria.rondaHechizo = Petria.rondaHechizo or "destruir maldad"
+Petria.rondaHechizo = Petria.rondaHechizo or "rayo de sinceridad"
 
 function Petria.esperarTexto(patron, callback, timeoutSeg)
   local id
@@ -1883,9 +1896,10 @@ Clases.dopes.seguidores = Clases.dopes.seguidores or {
 }
 
 Clases.seguidores = {
-  -- Solo para "kk". "ira divina" (helpfile en juego): ataque de Oteren, hace
-  -- mas dano que "destruir maldad", tiene EFECTO DE AREA y solo se puede
-  -- lanzar con alineamiento bueno o mas alto. Por el area no se usa en "k".
+  -- Solo para "kk". Medido en juego contra un diablo ingeniero: "rayo de
+  -- sinceridad" ~350 por cast (20 de mana) y ademas deslumbra al rival;
+  -- "ira divina" y "destruir maldad" ~235 (10 de mana). Los tres solo dan a
+  -- objetivos malignos. "ira divina" tiene area, por eso no se usa aqui.
   -- La clase GMCP "seguidores_de_Runk" tambien se reduce a "seguidores", asi
   -- que se chequea el nombre completo para no tirarlo con un Runk.
   defensa = function(obj)
@@ -1894,9 +1908,9 @@ Clases.seguidores = {
       return
     end
     if obj ~= "" and obj:lower() ~= "someone" then
-      send("conjurar 'ira divina' " .. obj)
+      send("conjurar 'rayo de sinceridad' " .. obj)
     else
-      send("conjurar 'ira divina'")
+      send("conjurar 'rayo de sinceridad'")
     end
   end,
   ataque = function(obj)
