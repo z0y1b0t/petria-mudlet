@@ -126,6 +126,9 @@ make_trigger(autodope_trig_group, "Volar termina", 'Clases.reponer("volar", "c v
 # un cancelacion rival, entre los buffs de dope; por lo de "oscuridad" lo
 # tomo como el fin de gatovision (inferido, no confirmado aislado).
 make_trigger(autodope_trig_group, "Gatovision termina", 'Clases.reponer("gatovision", "c gatovision")', [r"Ya no ves ni tres en un burro"])
+# "Ya no ves objetos invisibles ni na de na." salio en un cancelacion propio y
+# no habia trigger: detectar invisibilidad quedaba sin recastear.
+make_trigger(autodope_trig_group, "Detectar invisibilidad termina", 'Clases.reponer("detectar invisibilidad", "c \'detectar invisibilidad\'")', [r"Ya no ves objetos invisibles"])
 make_trigger(autodope_trig_group, "Bendecir termina", 'Clases.reponer("bendecir", "c bendecir")', [r"La bendicion ya no tiene efecto"])
 make_trigger(
     autodope_trig_group, "Menos cansado: seguir curando hasta llenar move",
@@ -1244,6 +1247,16 @@ make_alias(
     '-- hechizo (evita gastar mana de nuevo en lo mismo).\n'
     'Petria.canNadaHasta = Petria.canNadaHasta or {}\n'
     'local tarjet = matches[2]\n'
+    '-- Confirmado en juego: "can self" se quita TODOS tus buffs, el autodope los\n'
+    '-- relanza, y como el mensaje de exito sobre uno mismo ("...se van\n'
+    '-- despejando... Ok.") no es el de un objetivo ajeno, el alias lo tomaba por\n'
+    '-- fallo y reintentaba 6 veces: cancelar y recastear en bucle (~900 de mana).\n'
+    'local yo = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.name\n'
+    'local tl = tarjet:lower()\n'
+    'if tl == "self" or tl == "yo" or (yo and tl == tostring(yo):lower()) then\n'
+    '  cecho("<yellow>[can] no se usa sobre uno mismo: te quita todos los buffs y el autodope los relanza en bucle.\\n")\n'
+    '  return\n'
+    'end\n'
     'local tarjetKey = tarjet:lower()\n'
     'local vencimiento = Petria.canNadaHasta[tarjetKey]\n'
     'if vencimiento and os.time() < vencimiento then\n'
@@ -1684,6 +1697,16 @@ Clases.buffsDeCombate = {
 }
 function Clases.reponer(nombreDope, comando)
   if not Clases.enDope(nombreDope) then return end
+  -- Confirmado en juego: un Oteren peleando recibe "No alcanzas la
+  -- concentracion necesaria." al lanzar santuario (solo el Mago puede). Gasta
+  -- un cast y mana para nada.
+  if nombreDope == "santuario" and en_combate and en_combate ~= 0 then
+    local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
+    if completa and tostring(completa):lower():find("oteren", 1, true) then
+      cecho("<yellow>En combate: Oteren no puede lanzar santuario, se omite.\\n")
+      return
+    end
+  end
   if en_combate and en_combate ~= 0 and not Clases.buffsDeCombate[nombreDope] then
     cecho("<yellow>En combate: se omite recastear '" .. nombreDope .. "' (usa dope al terminar)\\n")
     return
