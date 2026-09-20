@@ -401,11 +401,11 @@ end''',
 # "Recuperado de golpetazo" lo reaplica cuando se le acaba el efecto.
 # Mensaje confirmado en juego cuando TE aplican golpetazo: "!X te hace ver las
 # estrellas con un poderoso golpetazo!". El golpetazo impide tomar pociones
-# (dato del jugador); se marca 10 s (duracion sin confirmar) y la autocura pasa
-# a "c sanar" si eres Oteren.
+# (dato del jugador). La condicion real la da el afecto "golpetazo" por GMCP
+# (Petria.sinPociones); aqui solo se marcan 4 s de respaldo y se avisa.
 make_trigger(
     pelea_trig_group, "Golpetazo recibido: sin pociones, curar con hechizo",
-    r'''Petria.sinPocionesHasta = os.time() + 10
+    r'''Petria.sinPocionesHasta = os.time() + 4
 if Petria.puedeSanarConHechizo() then
   cecho("<yellow>Golpetazo: sin pociones unos segundos, me curo con c sanar\n")
 end''',
@@ -1635,9 +1635,14 @@ end
 -- Torre (sala #5805), se agarra de paso subiendo. Usa "zap", no "traga",
 -- asi que no entra en el bloqueo. Usado por las teclas sanar/MAC-Sanar
 -- en vez de repetir la logica en cada una.
--- true mientras dura (estimado) el golpetazo que te dejo sin pociones. Lo marca
--- el trigger "Golpetazo recibido". Duracion desconocida: 10 s por defecto.
+-- true mientras tengas el efecto "golpetazo" (en "aff" sale como "Hechizo:
+-- golpetazo ... Efecto: hinchado"; es lo que te deja sin pociones). Se lee de
+-- gmcp.Char.Affects; de respaldo, el trigger "Golpetazo recibido" marca unos
+-- segundos por si el afecto tarda en llegar.
 function Petria.sinPociones()
+  if Clases and Clases.tieneActivo and Clases.tieneActivo("golpetazo") then
+    return true
+  end
   return Petria.sinPocionesHasta ~= nil and os.time() < Petria.sinPocionesHasta
 end
 

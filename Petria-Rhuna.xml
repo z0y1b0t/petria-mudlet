@@ -555,7 +555,7 @@ end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Golpetazo recibido: sin pociones, curar con hechizo</name>
-					<script>Petria.sinPocionesHasta = os.time() + 10
+					<script>Petria.sinPocionesHasta = os.time() + 4
 if Petria.puedeSanarConHechizo() then
   cecho("&lt;yellow&gt;Golpetazo: sin pociones unos segundos, me curo con c sanar\n")
 end</script>
@@ -3384,7 +3384,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789930871
+Petria.version = 1789930974
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -3414,9 +3414,14 @@ end
 -- Torre (sala #5805), se agarra de paso subiendo. Usa "zap", no "traga",
 -- asi que no entra en el bloqueo. Usado por las teclas sanar/MAC-Sanar
 -- en vez de repetir la logica en cada una.
--- true mientras dura (estimado) el golpetazo que te dejo sin pociones. Lo marca
--- el trigger "Golpetazo recibido". Duracion desconocida: 10 s por defecto.
+-- true mientras tengas el efecto "golpetazo" (en "aff" sale como "Hechizo:
+-- golpetazo ... Efecto: hinchado"; es lo que te deja sin pociones). Se lee de
+-- gmcp.Char.Affects; de respaldo, el trigger "Golpetazo recibido" marca unos
+-- segundos por si el afecto tarda en llegar.
 function Petria.sinPociones()
+  if Clases and Clases.tieneActivo and Clases.tieneActivo("golpetazo") then
+    return true
+  end
   return Petria.sinPocionesHasta ~= nil and os.time() &lt; Petria.sinPocionesHasta
 end
 
