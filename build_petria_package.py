@@ -393,6 +393,27 @@ if kw and (ataque == "ira divina" or ataque == "rayo de sinceridad" or ataque ==
 end''',
     [r"^(.+?) es inmune a tu (.+)!\s*$"],
 )
+# PvP: golpetazo deja al rival sin poder tomar pociones (confirmado por el
+# jugador). Conviene mandarlo cuando ya esta medio bajo de HP: un Mago no se
+# puede curar de otra forma, mientras que un Oteren sigue con "c sanar". Solo
+# contra JUGADORES: su nombre sale de una palabra y sin articulo ("Needle"),
+# los mobs traen articulo o varias palabras. El trigger ya existente
+# "Recuperado de golpetazo" lo reaplica cuando se le acaba el efecto.
+make_trigger(
+    pelea_trig_group, "PvP: golpetazo si el rival esta bajo de HP",
+    r'''if Petria.golpetazoPvP == false then return end
+if cd_golpetazo == 1 then return end
+local nombre = matches[2] or ""
+if not nombre:match("^[%w_]+$") then return end
+local l = (line or ""):lower()
+if l:find("bastante herido", 1, true) or l:find("mal estado", 1, true)
+   or l:find("malherido", 1, true) or l:find("la muerte le llama", 1, true) then
+  cd_golpetazo = 1
+  tempTimer(8, function() cd_golpetazo = 0 end)
+  send("golpetazo")
+end''',
+    [r"^(.+?) (?:tiene algunos cortes|est[aá] bastante herido|est[aá] en mal estado|est[aá] malherido|nota que la muerte le llama|est[aá] en una excelente condici[oó]n)"],
+)
 make_trigger(
     pelea_trig_group, "Ronda: lanzar hechizo",
     r'''if not Petria.rondaActiva then return end
@@ -1015,6 +1036,19 @@ end
 local idx = indiceActual()
 local etiqueta = Petria.rondaActiva and (idx > 0 and modos[idx][1] or "ON") or "OFF"
 cecho(string.format("<cyan>Ronda: %s, hechizo: %s\n", etiqueta, Petria.rondaHechizo))'''
+)
+
+make_alias(
+    clases_alias_group, "gpvp", r"^gpvp(?: (on|off))?$",
+    r'''-- gpvp on|off: mandar golpetazo solo contra jugadores cuando estan medio bajos
+-- de HP (no pueden tomar pociones). Sin argumento muestra el estado.
+local arg = matches[2]
+if arg == "on" then
+  Petria.golpetazoPvP = true
+elseif arg == "off" then
+  Petria.golpetazoPvP = false
+end
+cecho(string.format("<cyan>golpetazo PvP: %s\n", Petria.golpetazoPvP ~= false and "ON" or "OFF"))'''
 )
 
 make_alias(

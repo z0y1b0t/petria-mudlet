@@ -554,6 +554,36 @@ end</script>
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>PvP: golpetazo si el rival esta bajo de HP</name>
+					<script>if Petria.golpetazoPvP == false then return end
+if cd_golpetazo == 1 then return end
+local nombre = matches[2] or ""
+if not nombre:match("^[%w_]+$") then return end
+local l = (line or ""):lower()
+if l:find("bastante herido", 1, true) or l:find("mal estado", 1, true)
+   or l:find("malherido", 1, true) or l:find("la muerte le llama", 1, true) then
+  cd_golpetazo = 1
+  tempTimer(8, function() cd_golpetazo = 0 end)
+  send("golpetazo")
+end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^(.+?) (?:tiene algunos cortes|est[aá] bastante herido|est[aá] en mal estado|est[aá] malherido|nota que la muerte le llama|est[aá] en una excelente condici[oó]n)</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Ronda: lanzar hechizo</name>
 					<script>if not Petria.rondaActiva then return end
 if cd_ronda == 1 then return end
@@ -2452,6 +2482,21 @@ cecho(string.format("&lt;cyan&gt;Ronda: %s, hechizo: %s\n", etiqueta, Petria.ron
 					<regex>^aa(?: (\w+))?$</regex>
 				</Alias>
 				<Alias isActive="yes" isFolder="no">
+					<name>gpvp</name>
+					<script>-- gpvp on|off: mandar golpetazo solo contra jugadores cuando estan medio bajos
+-- de HP (no pueden tomar pociones). Sin argumento muestra el estado.
+local arg = matches[2]
+if arg == "on" then
+  Petria.golpetazoPvP = true
+elseif arg == "off" then
+  Petria.golpetazoPvP = false
+end
+cecho(string.format("&lt;cyan&gt;golpetazo PvP: %s\n", Petria.golpetazoPvP ~= false and "ON" or "OFF"))</script>
+					<command />
+					<packageName />
+					<regex>^gpvp(?: (on|off))?$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
 					<name>autocura</name>
 					<script>-- autocura on|off: curacion automatica por %HP en combate (75% -&gt; 1 pocion,
 -- 55% -&gt; 2, 35% -&gt; 3, con enfriamiento de 3 s). Sin argumento muestra el estado.
@@ -3316,7 +3361,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789929422
+Petria.version = 1789930110
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
