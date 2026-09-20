@@ -2107,6 +2107,88 @@ end)</script>
 				</regexCodePropertyList>
 			</Trigger>
 			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>PvP: un jugador te ataca</name>
+				<script>if not Petria.torneo then return end
+local nombre = matches[2]
+if not nombre then return end
+Petria.pvpAtacante = nombre
+Petria.pvpVisto = os.time()
+if Petria.pvpKkFecha and os.time() - Petria.pvpKkFecha &lt; 60 then return end
+Petria.pvpKkFecha = os.time()
+cecho("&lt;red&gt;[PVP] " .. nombre .. " te ataca: can + ataque (kk)\n")
+expandAlias("kk " .. nombre)</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand />
+				<packageName />
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile />
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>^(?:El|La|Los|Las) .+ de ([A-Z][\wáéíóúñ]*) te </string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>PvP: huida lograda, recuperarse</name>
+				<script>if Petria.torneo and Petria.pvpHuyo then
+  Petria.pvpHuyo = false
+  Petria.pvpKkFecha = 0
+  Petria.pvpRecuperar()
+end</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand />
+				<packageName />
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile />
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>Logras HUIR!</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>Muerte: rutina de recuperacion</name>
+				<script>if Petria.postMuerte == false then return end
+Petria.pvpRecuperando = false
+Petria.pvpHuyo = false
+cecho("&lt;yellow&gt;[MUERTE] rutina: dope, recoger cuerpo, vestir, curar\n")
+expandAlias("dope")
+send("get todo cu")
+send("vest todo")
+send("w")
+send("curar todo hp")
+send("curar todo mana")
+send("curar refrescar")</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand />
+				<packageName />
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile />
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>Has sido\.\.\. ASESINADO!!</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 				<name>Torneo: contadores del prompt</name>
 				<script>Petria.poc = tonumber(matches[2]) or Petria.poc
 Petria.per = tonumber(matches[3]) or Petria.per
@@ -3381,6 +3463,21 @@ Petria.enPasoTraga = false</script>
 					<regex>^gp$</regex>
 				</Alias>
 				<Alias isActive="yes" isFolder="no">
+					<name>postmuerte</name>
+					<script>-- postmuerte on|off: al morir, dope + get todo cu + vest todo + w + curar todo hp
+-- + curar todo mana + curar refrescar. Sin argumento muestra el estado.
+local arg = matches[2]
+if arg == "on" then
+  Petria.postMuerte = true
+elseif arg == "off" then
+  Petria.postMuerte = false
+end
+cecho(string.format("&lt;cyan&gt;Rutina de muerte: %s\n", Petria.postMuerte ~= false and "ON" or "OFF"))</script>
+					<command />
+					<packageName />
+					<regex>^postmuerte(?: (on|off))?$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
 					<name>torON</name>
 					<script>Petria.torneo = true
 Petria.huidas = 0
@@ -3621,7 +3718,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789942408
+Petria.version = 1789947141
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -3763,6 +3860,45 @@ function Petria.huir(cmd)
   Petria.huidasPend = (Petria.huidasPend or 0) + 1
   send(cmd or "huir")
   return true
+end
+
+-- ================================================================
+-- Defensa PvP automatica (solo con torON): un jugador te ataca -&gt; "kk &lt;nombre&gt;"
+-- (can + ataque); HP &lt; 30% -&gt; huir (respeta el limite de 3 huidas); ya fuera del
+-- combate -&gt; dope rapido + c sanar hasta 70% y aviso para volver al ataque.
+-- ================================================================
+function Petria.pvpActivo()
+  return Petria.torneo and Petria.pvpAtacante ~= nil
+     and os.time() - (Petria.pvpVisto or 0) &lt; 90
+end
+
+function Petria.pvpRecuperar()
+  Petria.pvpRecuperando = true
+  -- Dope rapido: solo lo que esta en el dope de la clase y no esta activo.
+  local lista = {"santuario", "volar", "acelerar", "detectar invisibilidad", "gatovision"}
+  for _, h in ipairs(lista) do
+    if Clases.enDope(h) and not Clases.tieneActivo(h) then
+      send("c '" .. h .. "'")
+    end
+  end
+  local intentos = 0
+  local function curar()
+    if not Petria.pvpRecuperando then return end
+    if en_combate and en_combate ~= 0 then
+      Petria.pvpRecuperando = false
+      return
+    end
+    intentos = intentos + 1
+    if (HPpct or 100) &gt;= 70 or intentos &gt; 15 then
+      Petria.pvpRecuperando = false
+      cecho(string.format("&lt;green&gt;[PVP] recuperado (HP %d%%). 'kk %s' para volver al ataque.\n",
+        HPpct or 0, Petria.pvpAtacante or ""))
+      return
+    end
+    if Petria.puedeSanarConHechizo() then send("c sanar") else Petria.sanar() end
+    tempTimer(2, curar)
+  end
+  tempTimer(3, curar)
 end
 
 -- Palabra clave de un nombre de mob para comandos de una sola palabra
@@ -4478,6 +4614,16 @@ function PeleaActualizarVitalsGMCP()
       cd_mv = 1
       tempTimer(3, function() cd_mv = 0 end)
     end
+  end
+
+  -- Defensa PvP (torON): con un jugador atacandote y HP &lt; 30%, huir.
+  if Petria.pvpActivo and Petria.pvpActivo() and HPpct &lt; 30
+     and (not cd_pvpHuir or cd_pvpHuir == 0) then
+    cd_pvpHuir = 1
+    tempTimer(3, function() cd_pvpHuir = 0 end)
+    Petria.pvpHuyo = true
+    cecho("&lt;red&gt;[PVP] HP bajo 30%: huyo\n")
+    Petria.huir()
   end
 
   -- Curacion automatica por %HP (migrada de CMUD). Cambios respecto al

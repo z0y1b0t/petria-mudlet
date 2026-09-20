@@ -170,6 +170,52 @@ end)""",
     [r"ESTA MUERTO !!$", r"Logras HUIR!"],
 )
 
+# --- Defensa PvP (solo con torON) ---
+# Linea de dano recibido de un jugador: "El empalar de Alien te hace ...",
+# "El golpe de espada de Rhuna te ...", "El tentaculo del averno de Needle te ...".
+# Un nombre propio de una palabra con mayuscula ("Alien"); los mobs traen
+# articulo en minuscula ("una hormiga pretoriana"). Un mob con nombre propio
+# (Cain, Lilith) tambien calzaria: en torneo se acepta ese falso positivo.
+make_trigger(
+    petria_trig_group, "PvP: un jugador te ataca",
+    r"""if not Petria.torneo then return end
+local nombre = matches[2]
+if not nombre then return end
+Petria.pvpAtacante = nombre
+Petria.pvpVisto = os.time()
+if Petria.pvpKkFecha and os.time() - Petria.pvpKkFecha < 60 then return end
+Petria.pvpKkFecha = os.time()
+cecho("<red>[PVP] " .. nombre .. " te ataca: can + ataque (kk)\n")
+expandAlias("kk " .. nombre)""",
+    [r"^(?:El|La|Los|Las) .+ de ([A-Z][\wáéíóúñ]*) te "],
+)
+make_trigger(
+    petria_trig_group, "PvP: huida lograda, recuperarse",
+    r"""if Petria.torneo and Petria.pvpHuyo then
+  Petria.pvpHuyo = false
+  Petria.pvpKkFecha = 0
+  Petria.pvpRecuperar()
+end""",
+    [r"Logras HUIR!"],
+)
+
+# --- Rutina al morir ---
+make_trigger(
+    petria_trig_group, "Muerte: rutina de recuperacion",
+    r"""if Petria.postMuerte == false then return end
+Petria.pvpRecuperando = false
+Petria.pvpHuyo = false
+cecho("<yellow>[MUERTE] rutina: dope, recoger cuerpo, vestir, curar\n")
+expandAlias("dope")
+send("get todo cu")
+send("vest todo")
+send("w")
+send("curar todo hp")
+send("curar todo mana")
+send("curar refrescar")""",
+    [r"Has sido\.\.\. ASESINADO!!"],
+)
+
 # --- Modo torneo: contadores del prompt y huidas logradas ---
 # "Poc: N Per: N Var: N" del prompt = pociones, pergaminos y varitas USADOS.
 make_trigger(
@@ -1608,6 +1654,18 @@ make_alias(
     'Petria.enPasoTraga = false',
 )
 make_alias(alias_group, "gp", r"^gp$", 'send("golpetazo")')
+make_alias(
+    alias_group, "postmuerte", r"^postmuerte(?: (on|off))?$",
+    r'''-- postmuerte on|off: al morir, dope + get todo cu + vest todo + w + curar todo hp
+-- + curar todo mana + curar refrescar. Sin argumento muestra el estado.
+local arg = matches[2]
+if arg == "on" then
+  Petria.postMuerte = true
+elseif arg == "off" then
+  Petria.postMuerte = false
+end
+cecho(string.format("<cyan>Rutina de muerte: %s\n", Petria.postMuerte ~= false and "ON" or "OFF"))'''
+)
 
 # Modo torneo: 10 pociones, 10 pergaminos, 10 varitas y 3 huidas.
 make_alias(
@@ -1887,6 +1945,45 @@ function Petria.huir(cmd)
   Petria.huidasPend = (Petria.huidasPend or 0) + 1
   send(cmd or "huir")
   return true
+end
+
+-- ================================================================
+-- Defensa PvP automatica (solo con torON): un jugador te ataca -> "kk <nombre>"
+-- (can + ataque); HP < 30% -> huir (respeta el limite de 3 huidas); ya fuera del
+-- combate -> dope rapido + c sanar hasta 70% y aviso para volver al ataque.
+-- ================================================================
+function Petria.pvpActivo()
+  return Petria.torneo and Petria.pvpAtacante ~= nil
+     and os.time() - (Petria.pvpVisto or 0) < 90
+end
+
+function Petria.pvpRecuperar()
+  Petria.pvpRecuperando = true
+  -- Dope rapido: solo lo que esta en el dope de la clase y no esta activo.
+  local lista = {{"santuario", "volar", "acelerar", "detectar invisibilidad", "gatovision"}}
+  for _, h in ipairs(lista) do
+    if Clases.enDope(h) and not Clases.tieneActivo(h) then
+      send("c '" .. h .. "'")
+    end
+  end
+  local intentos = 0
+  local function curar()
+    if not Petria.pvpRecuperando then return end
+    if en_combate and en_combate ~= 0 then
+      Petria.pvpRecuperando = false
+      return
+    end
+    intentos = intentos + 1
+    if (HPpct or 100) >= 70 or intentos > 15 then
+      Petria.pvpRecuperando = false
+      cecho(string.format("<green>[PVP] recuperado (HP %d%%). 'kk %s' para volver al ataque.\\n",
+        HPpct or 0, Petria.pvpAtacante or ""))
+      return
+    end
+    if Petria.puedeSanarConHechizo() then send("c sanar") else Petria.sanar() end
+    tempTimer(2, curar)
+  end
+  tempTimer(3, curar)
 end
 
 -- Palabra clave de un nombre de mob para comandos de una sola palabra
@@ -2527,6 +2624,16 @@ function PeleaActualizarVitalsGMCP()
       cd_mv = 1
       tempTimer(3, function() cd_mv = 0 end)
     end
+  end
+
+  -- Defensa PvP (torON): con un jugador atacandote y HP < 30%, huir.
+  if Petria.pvpActivo and Petria.pvpActivo() and HPpct < 30
+     and (not cd_pvpHuir or cd_pvpHuir == 0) then
+    cd_pvpHuir = 1
+    tempTimer(3, function() cd_pvpHuir = 0 end)
+    Petria.pvpHuyo = true
+    cecho("<red>[PVP] HP bajo 30%: huyo\\n")
+    Petria.huir()
   end
 
   -- Curacion automatica por %HP (migrada de CMUD). Cambios respecto al
