@@ -1018,6 +1018,19 @@ cecho(string.format("<cyan>Ronda: %s, hechizo: %s\n", etiqueta, Petria.rondaHech
 )
 
 make_alias(
+    clases_alias_group, "autocura", r"^autocura(?: (on|off))?$",
+    r'''-- autocura on|off: curacion automatica por %HP en combate (75% -> 1 pocion,
+-- 55% -> 2, 35% -> 3, con enfriamiento de 3 s). Sin argumento muestra el estado.
+local arg = matches[2]
+if arg == "on" then
+  Petria.autoCurar = true
+elseif arg == "off" then
+  Petria.autoCurar = false
+end
+cecho(string.format("<cyan>Autocura: %s\n", Petria.autoCurar ~= false and "ON" or "OFF"))'''
+)
+
+make_alias(
     clases_alias_group, "engancha", r"^engancha (.+)$",
     'local obj = matches[2]\n'
     'if clase and Clases[clase] and Clases[clase].engancha then\n'
@@ -2134,6 +2147,13 @@ if gargantaCortada == nil then gargantaCortada = false end
 -- Sin sonido: Mudlet soporta playSoundFile(ruta) si en algun momento se
 -- quiere sumar un audio, pero no hay ningun archivo de sonido en este
 -- paquete todavia.
+-- OJO: "Pelea" tiene que existir ANTES de definir cualquier Pelea.algo. Estaba
+-- definida mas abajo: si la tabla no existia todavia, el script se caia en la
+-- primera "function Pelea.alerta" y NADA de lo que sigue quedaba definido
+-- (PeleaActualizarVitalsGMCP / PeleaActualizarEnemigoGMCP eran nil: sin
+-- curacion automatica por HP, sin en_combate por GMCP, sin refrescar por mv).
+Pelea = Pelea or {}
+
 function Pelea.alerta(mensaje)
   local raya = "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
   cecho(string.format(
@@ -2228,17 +2248,23 @@ function PeleaActualizarVitalsGMCP()
     end
   end
 
-  if not curando or curando == 0 then
-    if HPpct < 35 then
-      send("traga sa"); send("traga sa"); send("traga sa")
-      curando = 1
-      tempTimer(3, function() curando = 0 end)
-    elseif HPpct < 55 then
-      send("traga sa"); send("traga sa")
-      curando = 1
-      tempTimer(3, function() curando = 0 end)
-    elseif HPpct < 75 then
-      send("traga sa")
+  -- Curacion automatica por %HP (migrada de CMUD). Cambios respecto al
+  -- original: solo EN COMBATE (no gastar pociones regenerando afuera), "traga
+  -- sana" en vez de "traga sa" (el prefijo "sa" puede calzar con la pocion de
+  -- santuario) y, en la Torre de la Desesperanza, Petria.sanar() -- ahi
+  -- "traga" teletransporta al pozo. "autocura off" la apaga.
+  if Petria.autoCurar ~= false and en_combate and en_combate ~= 0
+     and (not curando or curando == 0) then
+    local n = 0
+    if HPpct < 35 then n = 3
+    elseif HPpct < 55 then n = 2
+    elseif HPpct < 75 then n = 1 end
+    if n > 0 then
+      if Petria.enZonaSinPociones and Petria.enZonaSinPociones() then
+        Petria.sanar()
+      else
+        for _ = 1, n do send("traga sana") end
+      end
       curando = 1
       tempTimer(3, function() curando = 0 end)
     end
