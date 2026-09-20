@@ -2134,6 +2134,14 @@ Clases.despacharAtaque(obj)</script>
 				<Alias isActive="yes" isFolder="no">
 					<name>kk</name>
 					<script>local obj = matches[2] or ""
+-- "kk" a secas: usar el enemigo que GMCP ya rastrea (Char.Enemies) para
+-- que igual se lance "can" (quitar santuario del rival). Solo si es un
+-- nombre de una palabra ASCII (jugador); un mob de varias palabras
+-- ("Un guardia de Clentigna") no sirve como objetivo de "can".
+if obj == "" and en_combate and en_combate ~= 0 and enemigoNombre
+   and tostring(enemigoNombre):match("^[%w_]+$") then
+  obj = tostring(enemigoNombre)
+end
 rasOBJ = obj
 pcall(disableTriggerGroup, "WoF")
 pcall(enableTriggerGroup, "Pelea")
@@ -3008,7 +3016,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789871718
+Petria.version = 1789872089
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual

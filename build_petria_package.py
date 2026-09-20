@@ -765,6 +765,14 @@ make_alias(
 make_alias(
     clases_alias_group, "kk", r"^kk(?: (.+))?$",
     'local obj = matches[2] or ""\n'
+    '-- "kk" a secas: usar el enemigo que GMCP ya rastrea (Char.Enemies) para\n'
+    '-- que igual se lance "can" (quitar santuario del rival). Solo si es un\n'
+    '-- nombre de una palabra ASCII (jugador); un mob de varias palabras\n'
+    '-- ("Un guardia de Clentigna") no sirve como objetivo de "can".\n'
+    'if obj == "" and en_combate and en_combate ~= 0 and enemigoNombre\n'
+    '   and tostring(enemigoNombre):match("^[%w_]+$") then\n'
+    '  obj = tostring(enemigoNombre)\n'
+    'end\n'
     'rasOBJ = obj\n'
     'pcall(disableTriggerGroup, "WoF")\n'
     'pcall(enableTriggerGroup, "Pelea")\n\n'
