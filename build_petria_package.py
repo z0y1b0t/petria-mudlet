@@ -337,6 +337,33 @@ make_trigger(
     'Petria.sanar()',
     [r"(?i)¡?¡?EST[aáA]S PERDIENDO DEMASIADA SANGRE!!"],
 )
+# Linea de estado del enemigo que el server manda UNA vez al final de cada
+# ronda de melee (vista en los logs: "X tiene algunos cortes y magulladuras.",
+# "esta bastante herido", "esta en mal estado", "esta malherido", "nota que
+# la muerte le llama", "esta en una excelente condicion"). Si aparece otra
+# variante en algun mob, esa ronda simplemente no lanza (nunca lanza de mas).
+make_trigger(
+    pelea_trig_group, "Ronda: lanzar hechizo",
+    r'''if not Petria.rondaActiva then return end
+if not (en_combate and en_combate ~= 0) then return end
+if cd_ronda == 1 then return end
+local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
+if not (completa and tostring(completa):lower():find("oteren", 1, true)) then return end
+local mana = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.mana)
+if mana and mana < 100 then return end
+-- "conjurar" toma una sola palabra de objetivo: sacar una palabra clave del
+-- nombre ("El diablo ingeniero" -> "diablo").
+local articulos = {el = true, la = true, los = true, las = true, un = true, una = true}
+local kw
+for w in (matches[2] or ""):lower():gmatch("%S+") do
+  if not articulos[w] and #w > 2 then kw = w; break end
+end
+if not kw then return end
+cd_ronda = 1
+tempTimer(1, function() cd_ronda = 0 end)
+send("conjurar '" .. Petria.rondaHechizo .. "' " .. kw)''',
+    [r"^(.+?) (?:tiene algunos cortes|est[aá] bastante herido|est[aá] en mal estado|est[aá] malherido|nota que la muerte le llama|est[aá] en una excelente condici[oó]n)"],
+)
 # Confirmado en juego (PvP): sin pociones "traga sana" da "No tienes esa
 # pocion." y se gastaron 4 rondas repitiendolo a 170 HP. Cae a "c sanar".
 make_trigger(
@@ -827,6 +854,30 @@ make_alias(
     '  Clases[clase].defensa(obj)\n'
     'end\n\n'
     'Clases.despacharAtaque(obj)'
+)
+
+make_alias(
+    clases_alias_group, "ronda", r"^ronda(?: (\w+))?$",
+    r'''-- ronda [on|off|ira|destruir]: un hechizo de ataque de Oteren por ronda de
+-- melee mientras estes en combate. Medido en juego (diablo ingeniero):
+-- ~230 de dano por cast, 10 de mana, y UN cast por ronda no le quita golpes
+-- al melee (dos seguidos si).
+local arg = (matches[2] or ""):lower()
+if arg == "on" then
+  Petria.rondaActiva = true
+elseif arg == "off" then
+  Petria.rondaActiva = false
+elseif arg == "ira" then
+  Petria.rondaHechizo = "ira divina"
+  Petria.rondaActiva = true
+elseif arg == "destruir" then
+  Petria.rondaHechizo = "destruir maldad"
+  Petria.rondaActiva = true
+elseif arg ~= "" then
+  cecho("<red>Uso: ronda [on|off|ira|destruir]\n")
+  return
+end
+cecho(string.format("<cyan>Ronda: %s, hechizo: %s\n", Petria.rondaActiva and "ON" or "OFF", Petria.rondaHechizo))'''
 )
 
 make_alias(
@@ -1391,6 +1442,11 @@ function Petria.sanar()
     send("traga sana")
   end
 end
+
+-- "ronda": un cast por ronda de melee (ver alias "ronda" y trigger
+-- "Ronda: lanzar hechizo" en Pelea).
+if Petria.rondaActiva == nil then Petria.rondaActiva = false end
+Petria.rondaHechizo = Petria.rondaHechizo or "destruir maldad"
 
 function Petria.esperarTexto(patron, callback, timeoutSeg)
   local id

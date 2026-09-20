@@ -472,6 +472,43 @@ Petria.sanar()</script>
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Ronda: lanzar hechizo</name>
+					<script>if not Petria.rondaActiva then return end
+if not (en_combate and en_combate ~= 0) then return end
+if cd_ronda == 1 then return end
+local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
+if not (completa and tostring(completa):lower():find("oteren", 1, true)) then return end
+local mana = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.mana)
+if mana and mana &lt; 100 then return end
+-- "conjurar" toma una sola palabra de objetivo: sacar una palabra clave del
+-- nombre ("El diablo ingeniero" -&gt; "diablo").
+local articulos = {el = true, la = true, los = true, las = true, un = true, una = true}
+local kw
+for w in (matches[2] or ""):lower():gmatch("%S+") do
+  if not articulos[w] and #w &gt; 2 then kw = w; break end
+end
+if not kw then return end
+cd_ronda = 1
+tempTimer(1, function() cd_ronda = 0 end)
+send("conjurar '" .. Petria.rondaHechizo .. "' " .. kw)</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^(.+?) (?:tiene algunos cortes|est[aá] bastante herido|est[aá] en mal estado|est[aá] malherido|nota que la muerte le llama|est[aá] en una excelente condici[oó]n)</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Sin pocion: curar con hechizo</name>
 					<script>if cd_sinpocion == 1 then return end
 local hp = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.hp)
@@ -2207,6 +2244,32 @@ Clases.despacharAtaque(obj)</script>
 					<regex>^kk(?: (.+))?$</regex>
 				</Alias>
 				<Alias isActive="yes" isFolder="no">
+					<name>ronda</name>
+					<script>-- ronda [on|off|ira|destruir]: un hechizo de ataque de Oteren por ronda de
+-- melee mientras estes en combate. Medido en juego (diablo ingeniero):
+-- ~230 de dano por cast, 10 de mana, y UN cast por ronda no le quita golpes
+-- al melee (dos seguidos si).
+local arg = (matches[2] or ""):lower()
+if arg == "on" then
+  Petria.rondaActiva = true
+elseif arg == "off" then
+  Petria.rondaActiva = false
+elseif arg == "ira" then
+  Petria.rondaHechizo = "ira divina"
+  Petria.rondaActiva = true
+elseif arg == "destruir" then
+  Petria.rondaHechizo = "destruir maldad"
+  Petria.rondaActiva = true
+elseif arg ~= "" then
+  cecho("&lt;red&gt;Uso: ronda [on|off|ira|destruir]\n")
+  return
+end
+cecho(string.format("&lt;cyan&gt;Ronda: %s, hechizo: %s\n", Petria.rondaActiva and "ON" or "OFF", Petria.rondaHechizo))</script>
+					<command />
+					<packageName />
+					<regex>^ronda(?: (\w+))?$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
 					<name>engancha</name>
 					<script>local obj = matches[2]
 if clase and Clases[clase] and Clases[clase].engancha then
@@ -3051,7 +3114,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789875064
+Petria.version = 1789878466
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -3096,6 +3159,11 @@ function Petria.sanar()
     send("traga sana")
   end
 end
+
+-- "ronda": un cast por ronda de melee (ver alias "ronda" y trigger
+-- "Ronda: lanzar hechizo" en Pelea).
+if Petria.rondaActiva == nil then Petria.rondaActiva = false end
+Petria.rondaHechizo = Petria.rondaHechizo or "destruir maldad"
 
 function Petria.esperarTexto(patron, callback, timeoutSeg)
   local id
