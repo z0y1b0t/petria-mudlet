@@ -99,6 +99,17 @@ def make_trigger(parent, name, script, patterns):
 petria_trig_group = make_trigger_group(trig_pkg, "Petria-Rhuna")
 pelea_trig_group = make_trigger_group(petria_trig_group, "Pelea")
 
+# --- Estados del prompt (%S): V volando, I invisible, A adrenalina, M maldito,
+# G golpetazo... Confirmado en logs: "V I", "M A", "G A". Linea ejemplo:
+#   < 3024hp[3024hp] 1340m[1340m] 1270mv[1270mv]>  V I  Lv4800 >
+make_trigger(
+    petria_trig_group, "Estados del prompt (letras de %S)",
+    r'''local letras = matches[2] or ""
+Petria.estadosPrompt = letras
+Petria.enGolpetazo = letras:find("G", 1, true) ~= nil''',
+    [r"mv\[\d+mv\]>\s+(.*?)\s*Lv\d+ >"],
+)
+
 # --- Modo torneo: contadores del prompt y huidas logradas ---
 # "Poc: N Per: N Var: N" del prompt = pociones, pergaminos y varitas USADOS.
 make_trigger(
@@ -427,6 +438,7 @@ end''',
 make_trigger(
     pelea_trig_group, "Golpetazo recibido: sin pociones, curar con hechizo",
     r'''Petria.sinPocionesHasta = os.time() + 4
+Petria.enGolpetazo = true
 if Petria.puedeSanarConHechizo() then
   cecho("<yellow>Golpetazo: sin pociones unos segundos, me curo con c sanar\n")
 end''',
@@ -437,6 +449,7 @@ end''',
 make_trigger(
     pelea_trig_group, "Recuperado del golpetazo propio: pociones otra vez",
     r'''Petria.sinPocionesHasta = nil
+Petria.enGolpetazo = false
 Petria.golpetazoFinAt = os.time()
 cecho("<green>Golpetazo terminado: ya puedes tomar pociones\n")''',
     [r"^[!¡]Bash!\s*$"],
@@ -1694,8 +1707,12 @@ end
 -- gmcp.Char.Affects; de respaldo, el trigger "Golpetazo recibido" marca unos
 -- segundos por si el afecto tarda en llegar.
 function Petria.sinPociones()
-  -- Recien salido del golpetazo ("!Bash!"): el afecto puede seguir apareciendo
-  -- en gmcp.Char.Affects unos segundos, no hacerle caso.
+  -- Lo mas exacto: la letra "G" (golpetazo) de %S en el prompt. La leen el
+  -- trigger del prompt (cada linea), el mensaje "te hace ver las estrellas" y
+  -- "!Bash!" (al recuperarte).
+  if Petria.enGolpetazo ~= nil then
+    return Petria.enGolpetazo
+  end
   if Petria.golpetazoFinAt and os.time() - Petria.golpetazoFinAt < 3 then
     return false
   end

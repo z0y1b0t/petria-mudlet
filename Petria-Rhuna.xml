@@ -556,6 +556,7 @@ end</script>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Golpetazo recibido: sin pociones, curar con hechizo</name>
 					<script>Petria.sinPocionesHasta = os.time() + 4
+Petria.enGolpetazo = true
 if Petria.puedeSanarConHechizo() then
   cecho("&lt;yellow&gt;Golpetazo: sin pociones unos segundos, me curo con c sanar\n")
 end</script>
@@ -579,6 +580,7 @@ end</script>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Recuperado del golpetazo propio: pociones otra vez</name>
 					<script>Petria.sinPocionesHasta = nil
+Petria.enGolpetazo = false
 Petria.golpetazoFinAt = os.time()
 cecho("&lt;green&gt;Golpetazo terminado: ya puedes tomar pociones\n")</script>
 					<triggerType>0</triggerType>
@@ -1970,6 +1972,28 @@ end</script>
 					</Trigger>
 				</TriggerGroup>
 			</TriggerGroup>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>Estados del prompt (letras de %S)</name>
+				<script>local letras = matches[2] or ""
+Petria.estadosPrompt = letras
+Petria.enGolpetazo = letras:find("G", 1, true) ~= nil</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand />
+				<packageName />
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile />
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>mv\[\d+mv\]&gt;\s+(.*?)\s*Lv\d+ &gt;</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
 			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 				<name>Torneo: contadores del prompt</name>
 				<script>Petria.poc = tonumber(matches[2]) or Petria.poc
@@ -3485,7 +3509,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789937925
+Petria.version = 1789938560
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -3520,8 +3544,12 @@ end
 -- gmcp.Char.Affects; de respaldo, el trigger "Golpetazo recibido" marca unos
 -- segundos por si el afecto tarda en llegar.
 function Petria.sinPociones()
-  -- Recien salido del golpetazo ("!Bash!"): el afecto puede seguir apareciendo
-  -- en gmcp.Char.Affects unos segundos, no hacerle caso.
+  -- Lo mas exacto: la letra "G" (golpetazo) de %S en el prompt. La leen el
+  -- trigger del prompt (cada linea), el mensaje "te hace ver las estrellas" y
+  -- "!Bash!" (al recuperarte).
+  if Petria.enGolpetazo ~= nil then
+    return Petria.enGolpetazo
+  end
   if Petria.golpetazoFinAt and os.time() - Petria.golpetazoFinAt &lt; 3 then
     return false
   end
