@@ -411,6 +411,15 @@ if Petria.puedeSanarConHechizo() then
 end''',
     [r"te hace ver las estrellas con un poderoso golpetazo"],
 )
+# Confirmado por el jugador: al recuperarte tu del golpetazo, lo unico que
+# muestra el juego es "!Bash!". A partir de ahi ya puedes tomar pociones.
+make_trigger(
+    pelea_trig_group, "Recuperado del golpetazo propio: pociones otra vez",
+    r'''Petria.sinPocionesHasta = nil
+Petria.golpetazoFinAt = os.time()
+cecho("<green>Golpetazo terminado: ya puedes tomar pociones\n")''',
+    [r"^[!\u00a1]Bash!\s*$"],
+)
 make_trigger(
     pelea_trig_group, "PvP: golpetazo si el rival esta bajo de HP",
     r'''if Petria.golpetazoPvP == false then return end
@@ -1640,6 +1649,11 @@ end
 -- gmcp.Char.Affects; de respaldo, el trigger "Golpetazo recibido" marca unos
 -- segundos por si el afecto tarda en llegar.
 function Petria.sinPociones()
+  -- Recien salido del golpetazo ("!Bash!"): el afecto puede seguir apareciendo
+  -- en gmcp.Char.Affects unos segundos, no hacerle caso.
+  if Petria.golpetazoFinAt and os.time() - Petria.golpetazoFinAt < 3 then
+    return false
+  end
   if Clases and Clases.tieneActivo and Clases.tieneActivo("golpetazo") then
     return true
   end

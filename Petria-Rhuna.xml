@@ -577,6 +577,28 @@ end</script>
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Recuperado del golpetazo propio: pociones otra vez</name>
+					<script>Petria.sinPocionesHasta = nil
+Petria.golpetazoFinAt = os.time()
+cecho("&lt;green&gt;Golpetazo terminado: ya puedes tomar pociones\n")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^[!\u00a1]Bash!\s*$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>PvP: golpetazo si el rival esta bajo de HP</name>
 					<script>if Petria.golpetazoPvP == false then return end
 if cd_golpetazo == 1 then return end
@@ -3384,7 +3406,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789930974
+Petria.version = 1789931318
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -3419,6 +3441,11 @@ end
 -- gmcp.Char.Affects; de respaldo, el trigger "Golpetazo recibido" marca unos
 -- segundos por si el afecto tarda en llegar.
 function Petria.sinPociones()
+  -- Recien salido del golpetazo ("!Bash!"): el afecto puede seguir apareciendo
+  -- en gmcp.Char.Affects unos segundos, no hacerle caso.
+  if Petria.golpetazoFinAt and os.time() - Petria.golpetazoFinAt &lt; 3 then
+    return false
+  end
   if Clases and Clases.tieneActivo and Clases.tieneActivo("golpetazo") then
     return true
   end
