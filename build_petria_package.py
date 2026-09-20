@@ -1697,9 +1697,15 @@ Clases.clasesConEmpalar = { guerrero = true, asesino = true, seguidores = true }
 -- confiar en que la principal se descuelgue sola: se guardan las dos
 -- explicitamente ANTES de tocar la lanza.
 function Clases.intentarEmpalar(obj)
-  if armaPrincipal and armaPrincipal ~= "" then
-    send("gua " .. armaPrincipal)
+  -- Confirmado en juego: sin armaPrincipal configurada, "bla lanza" suelta la
+  -- principal por su cuenta y despues "bla " (vacio) da "Vestir, blandir o
+  -- sostener que?" -- el resto de la pelea queda a punos. Sin saber que arma
+  -- devolver, mejor no empalar y avisar.
+  if not (armaPrincipal and armaPrincipal ~= "") then
+    cecho("<yellow>[empalar] omitido: falta configurar tu arma con 'setarma <palabra>' (y 'setsegun <palabra>' si usas secundaria); si no, quedarias sin arma.\\n")
+    return
   end
+  send("gua " .. armaPrincipal)
   if armaSecundaria and armaSecundaria ~= "" then
     send("gua " .. armaSecundaria)
   end
@@ -1707,7 +1713,7 @@ function Clases.intentarEmpalar(obj)
   send("bla lanza")
   send("empalar " .. obj)
   send("gua lanza")
-  send("bla " .. (armaPrincipal or ""))
+  send("bla " .. armaPrincipal)
   if armaSecundaria and armaSecundaria ~= "" then
     send("segun " .. armaSecundaria)
   end

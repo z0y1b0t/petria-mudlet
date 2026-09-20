@@ -3119,7 +3119,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789878852
+Petria.version = 1789880258
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -3420,9 +3420,15 @@ Clases.clasesConEmpalar = { guerrero = true, asesino = true, seguidores = true }
 -- confiar en que la principal se descuelgue sola: se guardan las dos
 -- explicitamente ANTES de tocar la lanza.
 function Clases.intentarEmpalar(obj)
-  if armaPrincipal and armaPrincipal ~= "" then
-    send("gua " .. armaPrincipal)
+  -- Confirmado en juego: sin armaPrincipal configurada, "bla lanza" suelta la
+  -- principal por su cuenta y despues "bla " (vacio) da "Vestir, blandir o
+  -- sostener que?" -- el resto de la pelea queda a punos. Sin saber que arma
+  -- devolver, mejor no empalar y avisar.
+  if not (armaPrincipal and armaPrincipal ~= "") then
+    cecho("&lt;yellow&gt;[empalar] omitido: falta configurar tu arma con 'setarma &lt;palabra&gt;' (y 'setsegun &lt;palabra&gt;' si usas secundaria); si no, quedarias sin arma.\n")
+    return
   end
+  send("gua " .. armaPrincipal)
   if armaSecundaria and armaSecundaria ~= "" then
     send("gua " .. armaSecundaria)
   end
@@ -3430,7 +3436,7 @@ function Clases.intentarEmpalar(obj)
   send("bla lanza")
   send("empalar " .. obj)
   send("gua lanza")
-  send("bla " .. (armaPrincipal or ""))
+  send("bla " .. armaPrincipal)
   if armaSecundaria and armaSecundaria ~= "" then
     send("segun " .. armaSecundaria)
   end
