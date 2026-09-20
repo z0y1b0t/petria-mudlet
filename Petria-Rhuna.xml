@@ -480,6 +480,15 @@ local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
 if not (completa and tostring(completa):lower():find("oteren", 1, true)) then return end
 local mana = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.mana)
 if mana and mana &lt; 100 then return end
+-- Con menos de 40% de mana, el rayo (20 por cast) se acaba a media pelea
+-- larga; paso a destruir maldad (10 por cast, modo PVP).
+local maxmana = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.maxmana)
+if mana and maxmana and maxmana &gt; 0 and mana &lt; maxmana * 0.4
+   and Petria.rondaHechizo == "rayo de sinceridad" then
+  Petria.rondaHechizo = "destruir maldad"
+  Petria.rondaAutoBajada = true
+  cecho("&lt;yellow&gt;Ronda: mana bajo 40%, paso a PVP (destruir maldad, 10 de mana).\n")
+end
 -- "conjurar" toma una sola palabra de objetivo: sacar una palabra clave del
 -- nombre ("El diablo ingeniero" -&gt; "diablo").
 local articulos = {el = true, la = true, los = true, las = true, un = true, una = true}
@@ -2194,6 +2203,23 @@ if obj ~= "" and clase and Clases.clasesConEmpalar[clase] and not (en_combate an
   Clases.intentarEmpalar(obj)
 end
 
+-- Oteren: dejar encendida la ronda de hechizos (modo JEFE = rayo de
+-- sinceridad, ver alias "aa"). Si ya estaba prendida con otro modo
+-- elegido a mano se respeta; si un pelea anterior la bajo sola a PVP por
+-- poco mana, vuelve a JEFE.
+local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
+if completa and tostring(completa):lower():find("oteren", 1, true) then
+  if Petria.rondaAutoBajada then
+    Petria.rondaAutoBajada = false
+    Petria.rondaHechizo = "rayo de sinceridad"
+  end
+  if not Petria.rondaActiva then
+    Petria.rondaActiva = true
+    Petria.rondaHechizo = "rayo de sinceridad"
+    cecho("&lt;cyan&gt;Ronda: JEFE, hechizo: rayo de sinceridad\n")
+  end
+end
+
 Clases.despacharAtaque(obj)</script>
 					<command />
 					<packageName />
@@ -3141,7 +3167,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789924000
+Petria.version = 1789924275
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual

@@ -351,6 +351,15 @@ local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
 if not (completa and tostring(completa):lower():find("oteren", 1, true)) then return end
 local mana = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.mana)
 if mana and mana < 100 then return end
+-- Con menos de 40% de mana, el rayo (20 por cast) se acaba a media pelea
+-- larga; paso a destruir maldad (10 por cast, modo PVP).
+local maxmana = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.maxmana)
+if mana and maxmana and maxmana > 0 and mana < maxmana * 0.4
+   and Petria.rondaHechizo == "rayo de sinceridad" then
+  Petria.rondaHechizo = "destruir maldad"
+  Petria.rondaAutoBajada = true
+  cecho("<yellow>Ronda: mana bajo 40%, paso a PVP (destruir maldad, 10 de mana).\n")
+end
 -- "conjurar" toma una sola palabra de objetivo: sacar una palabra clave del
 -- nombre ("El diablo ingeniero" -> "diablo").
 local articulos = {el = true, la = true, los = true, las = true, un = true, una = true}
@@ -820,6 +829,22 @@ make_alias(
     'pcall(enableTriggerGroup, "Pelea")\n\n'
     'if obj ~= "" and clase and Clases.clasesConEmpalar[clase] and not (en_combate and en_combate ~= 0) then\n'
     '  Clases.intentarEmpalar(obj)\n'
+    'end\n\n'
+    '-- Oteren: dejar encendida la ronda de hechizos (modo JEFE = rayo de\n'
+    '-- sinceridad, ver alias "aa"). Si ya estaba prendida con otro modo\n'
+    '-- elegido a mano se respeta; si un pelea anterior la bajo sola a PVP por\n'
+    '-- poco mana, vuelve a JEFE.\n'
+    'local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class\n'
+    'if completa and tostring(completa):lower():find("oteren", 1, true) then\n'
+    '  if Petria.rondaAutoBajada then\n'
+    '    Petria.rondaAutoBajada = false\n'
+    '    Petria.rondaHechizo = "rayo de sinceridad"\n'
+    '  end\n'
+    '  if not Petria.rondaActiva then\n'
+    '    Petria.rondaActiva = true\n'
+    '    Petria.rondaHechizo = "rayo de sinceridad"\n'
+    '    cecho("<cyan>Ronda: JEFE, hechizo: rayo de sinceridad\\n")\n'
+    '  end\n'
     'end\n\n'
     'Clases.despacharAtaque(obj)'
 )
