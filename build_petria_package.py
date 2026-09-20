@@ -110,6 +110,36 @@ Petria.enGolpetazo = letras:find("G", 1, true) ~= nil''',
     [r"mv\[\d+mv\]>\s+(.*?)\s*Lv\d+ >"],
 )
 
+# --- Resumen de pelea: dano y rondas ---
+# Requiere el prompt con "%jdps %qdmg" al final (%j = DPS del ultimo asalto, %q =
+# dano acumulado del combate). Se guardan los maximos vistos; las rondas se
+# cuentan con cada linea de estado del enemigo.
+make_trigger(
+    petria_trig_group, "Prompt: dps y dano del combate",
+    r'''local dps, dmg = tonumber(matches[2]) or 0, tonumber(matches[3]) or 0
+Petria.dpsVivo = dps
+if dps > (Petria.dpsMax or 0) then Petria.dpsMax = dps end
+if dmg > (Petria.dmgMax or 0) then Petria.dmgMax = dmg end
+if dmg == 0 and not (en_combate and en_combate ~= 0) then
+  Petria.rondasCombate, Petria.dmgMax, Petria.dpsMax = 0, 0, 0
+end''',
+    [r"(\d+)dps (\d+)dmg"],
+)
+make_trigger(
+    petria_trig_group, "Resumen de pelea",
+    r'''-- Esperar un instante: el prompt siguiente puede traer el dano de la ultima ronda.
+tempTimer(0.6, function()
+  local r = Petria.rondasCombate or 0
+  local d = Petria.dmgMax or 0
+  if r > 0 and d > 0 then
+    cecho(string.format("<cyan>[PELEA] %d rondas, %d de dano, ~%d por ronda (DPS maximo visto: %d)\n",
+      r, d, math.floor(d / r), Petria.dpsMax or 0))
+  end
+  Petria.rondasCombate, Petria.dmgMax, Petria.dpsMax = 0, 0, 0
+end)''',
+    [r"ESTA MUERTO !!$", r"Logras HUIR!"],
+)
+
 # --- Modo torneo: contadores del prompt y huidas logradas ---
 # "Poc: N Per: N Var: N" del prompt = pociones, pergaminos y varitas USADOS.
 make_trigger(
@@ -385,6 +415,7 @@ make_trigger(
 make_trigger(
     pelea_trig_group, "Estado del enemigo: en combate",
     r'''en_combate = 1
+Petria.rondasCombate = (Petria.rondasCombate or 0) + 1
 local v = gmcp and gmcp.Char and gmcp.Char.Vitals
 local mv, mvmax = v and tonumber(v.move), v and tonumber(v.maxmove)
 if mv and mvmax and mvmax > 0 and mv < mvmax * 0.25 and (not cd_mv or cd_mv == 0) then
