@@ -99,6 +99,27 @@ def make_trigger(parent, name, script, patterns):
 petria_trig_group = make_trigger_group(trig_pkg, "Petria-Rhuna")
 pelea_trig_group = make_trigger_group(petria_trig_group, "Pelea")
 
+# --- Modo torneo: contadores del prompt y huidas logradas ---
+# "Poc: N Per: N Var: N" del prompt = pociones, pergaminos y varitas USADOS.
+make_trigger(
+    petria_trig_group, "Torneo: contadores del prompt",
+    r'''Petria.poc = tonumber(matches[2]) or Petria.poc
+Petria.per = tonumber(matches[3]) or Petria.per
+Petria.var = tonumber(matches[4]) or Petria.var
+Petria.pocPend = 0
+Petria.varPend = 0
+Petria.huidasPend = 0''',
+    [r"Poc: (\d+) Per: (\d+) Var: (\d+)"],
+)
+make_trigger(
+    petria_trig_group, "Torneo: huida lograda",
+    r'''Petria.huidas = (Petria.huidas or 0) + 1
+if Petria.torneo then
+  cecho(string.format("<yellow>[TORNEO] huidas: %d/3\n", Petria.huidas))
+end''',
+    [r"Logras HUIR!"],
+)
+
 # --- Autodope: recastea buffs propios apenas se van despejando ---
 # Asociado a mano contra la lista de "spells" del personaje (seguidores_de
 # Oteren) + los mensajes de "se te pasa el efecto" que se ven en juego.
@@ -567,7 +588,7 @@ make_trigger(
     '-- que ya vimos que se pueden acabar en medio de una pelea). Se manda\n'
     '-- junto con la pocion, lo que responda primero cura.\n'
     'send("c \'curar deslumbrar\'")\n'
-    'send("traga ceguera")',
+    'Petria.traga("ceguera")',
     [r"^\.\.Has sido deslumbrado!!$"],
 )
 make_trigger(
@@ -622,6 +643,7 @@ make_trigger(
     '  idFallo = tempRegexTrigger("No conoces .* hechizo con ese nombre\\\\.", function()\n'
     '    if exists(idFallo, "trigger") == 1 then killTrigger(idFallo) end\n'
     '    if Petria.enZonaSinPociones() then\n'
+    '      if not Petria.usaVarita() then return end\n'
     '      if Petria.armaValida(armaPrincipal) then send("gua " .. armaPrincipal) end\n'
     '      if Petria.armaValida(armaSecundaria) then send("gua " .. armaSecundaria) end\n'
     '      send("get amuleto moch")\n'
@@ -631,7 +653,7 @@ make_trigger(
     '      if Petria.armaValida(armaSecundaria) then send("segun " .. armaSecundaria) end\n'
     '    else\n'
     '      send("get karma moch")\n'
-    '      send("traga karma")\n'
+    '      Petria.traga("karma")\n'
     '    end\n'
     '  end)\n'
     '  tempTimer(1, function()\n'
@@ -780,12 +802,12 @@ make_wof_trigger(
 make_wof_trigger(
     "Huida cobarde: curar y recall",
     'pcall(disableTriggerGroup, "PK")\n'
-    'send("ocu")\nsend("traga sanar")\nsend("c sanar")\nsend("c sanar")\nsend("za")\nsend("traga santu")\n'
+    'send("ocu")\nPetria.traga("sanar")\nsend("c sanar")\nsend("c sanar")\nsend("za")\nPetria.traga("santu")\n'
     'if rasOBJ and rasOBJ ~= "" then send("ras " .. rasOBJ) end',
     [r"^¡?Logras HUIR!  \.\.\.Cobardemente\.\.\."],
 )
-make_wof_trigger("Poder del oso ancestral (WoF)", 'send("espinillazo")\nsend("huir")\nsend("huir")', [r"^Ahora, caminas con el poder y la ferocidad del oso ancestral\.$"])
-make_wof_trigger("Cegados por suciedad: huir", 'send("huir")\nsend("huir")\nsend("huir")', [r"han sido cegados por la suciedad!$"])
+make_wof_trigger("Poder del oso ancestral (WoF)", 'send("espinillazo")\nPetria.huir()\nPetria.huir()', [r"^Ahora, caminas con el poder y la ferocidad del oso ancestral\.$"])
+make_wof_trigger("Cegados por suciedad: huir", 'Petria.huir()\nPetria.huir()\nPetria.huir()', [r"han sido cegados por la suciedad!$"])
 make_wof_trigger(
     "Amigo WoF justo aqui",
     'local nombre = matches[2]\n'
@@ -1105,8 +1127,8 @@ make_alias(
     'wofActivo = false\n'
     'pkActivo = false\n'
     'en_combate = 0\n'
-    'send("huir")\n'
-    'send("huir")\n'
+    'Petria.huir()\n'
+    'Petria.huir()\n'
     'send("recall")'
 )
 
@@ -1326,10 +1348,10 @@ make_alias(
 
 make_alias(
     alias_group, "fdope", r"^fdope$",
-    'send("traga trans")\nsend("traga gris")\nsend("traga azul")\nsend("traga santuario")\n'
+    'Petria.traga("trans")\nPetria.traga("gris")\nPetria.traga("azul")\nPetria.traga("santuario")\n'
     'expandAlias("dope")\nexpandAlias("dope")\nexpandAlias("dope")'
 )
-make_alias(alias_group, "ihs", r"^ihs$", 'send("traga gris")\nsend("traga trans")\nsend("traga santu")')
+make_alias(alias_group, "ihs", r"^ihs$", 'Petria.traga("gris")\nPetria.traga("trans")\nPetria.traga("santu")')
 make_alias(alias_group, "portal", r"^portal (.+)$", 'send("c compuerta " .. matches[2])')
 
 make_alias(
@@ -1496,10 +1518,32 @@ make_alias(
     '  return\n'
     'end\n'
     'Petria.enPasoTraga = true\n'
-    'send("traga " .. matches[2])\n'
+    'Petria.traga(matches[2])\n'
     'Petria.enPasoTraga = false',
 )
 make_alias(alias_group, "gp", r"^gp$", 'send("golpetazo")')
+
+# Modo torneo: 10 pociones, 10 pergaminos, 10 varitas y 3 huidas.
+make_alias(
+    alias_group, "torON", r"(?i)^toron$",
+    r'''Petria.torneo = true
+Petria.huidas = 0
+Petria.pocPend, Petria.varPend, Petria.huidasPend = 0, 0, 0
+cecho("<green>[TORNEO] ACTIVADO: maximo 10 pociones, 10 pergaminos, 10 varitas y 3 huidas.\n")
+expandAlias("tor")'''
+)
+make_alias(
+    alias_group, "torOFF", r"(?i)^torOFF$",
+    r'''Petria.torneo = false
+cecho("<yellow>[TORNEO] DESACTIVADO: sin limites de pociones, varitas ni huidas.\n")'''
+)
+make_alias(
+    alias_group, "tor (estado del torneo)", r"^tor$",
+    r'''cecho(string.format(
+  "<cyan>[TORNEO %s] pociones %d/10 | pergaminos %d/10 | varitas %d/10 | huidas %d/3\n",
+  Petria.torneo and "ON" or "OFF",
+  Petria.poc or 0, Petria.per or 0, Petria.var or 0, Petria.huidas or 0))'''
+)
 make_alias(alias_group, "toso", r"^toso$", "send(\"c 'totem animal oso'\")")
 make_alias(alias_group, "ttortu", r"^ttortu$", "send(\"c 'totem animal tortuga'\")")
 make_alias(alias_group, "canimal", r"^canimal (.+)$", "send(\"c 'control animal' \" .. matches[2])")
@@ -1521,6 +1565,7 @@ make_alias(
     '-- estes blandiendo dos armas." si ya estas dual-wield -- igual que la\n'
     '-- lanza de intentarEmpalar, hay que GUARDAR ambas armas ANTES de\n'
     '-- intentar sostener la varita, no alcanza con reequiparlas despues.\n'
+    'if not Petria.usaVarita() then return end\n'
     'if Petria.armaValida(armaPrincipal) then send("gua " .. armaPrincipal) end\n'
     'if Petria.armaValida(armaSecundaria) then send("gua " .. armaSecundaria) end\n'
     'send("get bendicion moch")\n'
@@ -1573,7 +1618,7 @@ make_alias(
     'send("ir 11864")\n'
     'send("can " .. (enemigo or ""))\n'
     'send("c debilitar " .. (enemigo or ""))\n'
-    'send("huir e"); send("huir e"); send("huir e")\n'
+    'Petria.huir("huir e"); Petria.huir("huir e"); Petria.huir("huir e")\n'
     'send("ir 11866")'
 )
 
@@ -1673,6 +1718,11 @@ function Petria.sanar()
     return
   end
   if Petria.enZonaSinPociones() then
+    -- Modo torneo: sin varitas disponibles, un Oteren cae a "c sanar".
+    if not Petria.usaVarita() then
+      if Petria.puedeSanarConHechizo() then send("c sanar") end
+      return
+    end
     -- "sos" falla si ya estas dual-wield -- guardar ambas armas antes,
     -- no alcanza con reequiparlas despues (confirmado en juego).
     if Petria.armaValida(armaPrincipal) then send("gua " .. armaPrincipal) end
@@ -1683,7 +1733,10 @@ function Petria.sanar()
     if Petria.armaValida(armaPrincipal) then send("bla " .. armaPrincipal) end
     if Petria.armaValida(armaSecundaria) then send("segun " .. armaSecundaria) end
   else
-    send("traga sana")
+    -- Modo torneo: sin pociones disponibles, un Oteren cae a "c sanar".
+    if not Petria.traga("sana") and Petria.puedeSanarConHechizo() then
+      send("c sanar")
+    end
   end
 end
 
@@ -1691,6 +1744,60 @@ end
 -- "Ronda: lanzar hechizo" en Pelea).
 if Petria.rondaActiva == nil then Petria.rondaActiva = false end
 Petria.rondaHechizo = Petria.rondaHechizo or "rayo de sinceridad"
+
+-- ================================================================
+-- Modo torneo (torON / torOFF): limites de 10 pociones, 10 pergaminos, 10
+-- varitas y 3 huidas. "Poc / Per / Var" del prompt son contadores de lo USADO
+-- (no de lo que te queda). Todo el paquete toma pociones, usa varitas y huye
+-- a traves de Petria.traga / Petria.usaVarita / Petria.huir para respetarlo.
+-- "Pend" cuenta lo enviado que el prompt aun no refleja (rafagas).
+-- ================================================================
+if Petria.torneo == nil then Petria.torneo = false end
+Petria.poc = Petria.poc or 0
+Petria.per = Petria.per or 0
+Petria.var = Petria.var or 0
+Petria.huidas = Petria.huidas or 0
+Petria.pocPend = 0
+Petria.varPend = 0
+Petria.huidasPend = 0
+
+function Petria.restantes(usadas, pend, limite)
+  if not Petria.torneo then return 999 end
+  return math.max(0, limite - (usadas or 0) - (pend or 0))
+end
+function Petria.pocionesRestantes() return Petria.restantes(Petria.poc, Petria.pocPend, 10) end
+function Petria.pergaminosRestantes() return Petria.restantes(Petria.per, 0, 10) end
+function Petria.varitasRestantes() return Petria.restantes(Petria.var, Petria.varPend, 10) end
+function Petria.huidasRestantes() return Petria.restantes(Petria.huidas, Petria.huidasPend, 3) end
+
+function Petria.traga(obj)
+  if Petria.pocionesRestantes() <= 0 then
+    cecho("<red>[TORNEO] limite de 10 pociones alcanzado (Poc: " .. tostring(Petria.poc) .. "): no tomo '" .. tostring(obj) .. "'\\n")
+    return false
+  end
+  Petria.pocPend = (Petria.pocPend or 0) + 1
+  send("traga " .. obj)
+  return true
+end
+
+function Petria.usaVarita()
+  if Petria.varitasRestantes() <= 0 then
+    cecho("<red>[TORNEO] limite de 10 varitas alcanzado (Var: " .. tostring(Petria.var) .. ")\\n")
+    return false
+  end
+  Petria.varPend = (Petria.varPend or 0) + 1
+  return true
+end
+
+function Petria.huir(cmd)
+  if Petria.huidasRestantes() <= 0 then
+    cecho("<red>[TORNEO] limite de 3 huidas alcanzado: omito '" .. tostring(cmd or "huir") .. "'\\n")
+    return false
+  end
+  Petria.huidasPend = (Petria.huidasPend or 0) + 1
+  send(cmd or "huir")
+  return true
+end
 
 -- Palabra clave de un nombre de mob para comandos de una sola palabra
 -- ("Una hormiga pretoriana" -> "hormiga"). Memoria de tipos "no malignos".
@@ -2096,7 +2203,7 @@ Clases.ranger = {
     Clases.sendSeq("s", "nore", "n", "w")
   end,
   dope = function(obj)
-    send("traga santu")
+    Petria.traga("santu")
     send("c anti bolsillo")
     send("fuego")
     send("c 'totem animal buho'")
@@ -2343,10 +2450,11 @@ function PeleaActualizarVitalsGMCP()
     elseif HPpct < 75 then n = 1 end
     if n > 0 then
       if (Petria.enZonaSinPociones and Petria.enZonaSinPociones())
-         or (Petria.sinPociones and Petria.sinPociones()) then
+         or (Petria.sinPociones and Petria.sinPociones())
+         or Petria.pocionesRestantes() <= 0 then
         Petria.sanar()
       else
-        for _ = 1, n do send("traga sana") end
+        for _ = 1, n do Petria.traga("sana") end
       end
       curando = 1
       tempTimer(3, function() curando = 0 end)
@@ -2444,15 +2552,15 @@ petria_key_group = make_key_group(key_pkg, "Petria-Rhuna")
 teclas_key_group = make_key_group(petria_key_group, "Teclas")
 make_key(teclas_key_group, "sanar", QT_KEY_INSERT, QT_KEYPAD_MODIFIER, "Petria.sanar()")
 make_key(teclas_key_group, "recall", QT_KEY_END, 0, 'send("recall")\nsend("n")\nsend("curar")')
-make_key(teclas_key_group, "Savia verde", QT_KEY_DELETE, QT_KEYPAD_MODIFIER, 'send("traga savia")')
+make_key(teclas_key_group, "Savia verde", QT_KEY_DELETE, QT_KEYPAD_MODIFIER, 'Petria.traga("savia")')
 # Teclas Mac creadas a mano en la UI de Mudlet (leidas del perfil, codigos
 # capturados). Reemplazan a MAC-Sanar / MAC-SaviaVerde, que usaban estos
 # mismos codigos (123 / 125) y ya no existen en el perfil de la Mac.
 make_key(teclas_key_group, "MAC-MejoraAlquimica", QT_KEY_BRACELEFT, 0, "send(\"c 'mejora alquimica' savia\")")
-make_key(teclas_key_group, "MAC-SUPER", QT_KEY_BRACERIGHT, 0, 'send("traga super")')
+make_key(teclas_key_group, "MAC-SUPER", QT_KEY_BRACERIGHT, 0, 'Petria.traga("super")')
 make_key(teclas_key_group, "MAC-Rayo", QT_KEY_MINUS, 0, 'if rasOBJ and rasOBJ ~= "" then send("c rayo " .. rasOBJ) end')
 make_key(teclas_key_group, "Linux-MejoraAlquimica", QT_KEY_SLASH, QT_KEYPAD_MODIFIER, "send(\"c 'mejora alquimica' savia\")")
-make_key(teclas_key_group, "Linux-Super", QT_KEY_ASTERISK, QT_KEYPAD_MODIFIER, 'send("traga super")')
+make_key(teclas_key_group, "Linux-Super", QT_KEY_ASTERISK, QT_KEYPAD_MODIFIER, 'Petria.traga("super")')
 make_key(teclas_key_group, "Linux-Rayo", QT_KEY_MINUS, QT_KEYPAD_MODIFIER, 'if rasOBJ and rasOBJ ~= "" then send("c rayo " .. rasOBJ) end')
 make_key(teclas_key_group, "MAC-Recall", QT_KEY_QUESTIONDOWN, 0, 'send("recall")\nsend("n")\nsend("curar")')
 

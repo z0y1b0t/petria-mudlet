@@ -943,7 +943,7 @@ pcall(disableTriggerGroup, "GA01")</script>
 -- que ya vimos que se pueden acabar en medio de una pelea). Se manda
 -- junto con la pocion, lo que responda primero cura.
 send("c 'curar deslumbrar'")
-send("traga ceguera")</script>
+Petria.traga("ceguera")</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -1073,6 +1073,7 @@ if not cd_veneno or cd_veneno == 0 then
   idFallo = tempRegexTrigger("No conoces .* hechizo con ese nombre\\.", function()
     if exists(idFallo, "trigger") == 1 then killTrigger(idFallo) end
     if Petria.enZonaSinPociones() then
+      if not Petria.usaVarita() then return end
       if Petria.armaValida(armaPrincipal) then send("gua " .. armaPrincipal) end
       if Petria.armaValida(armaSecundaria) then send("gua " .. armaSecundaria) end
       send("get amuleto moch")
@@ -1082,7 +1083,7 @@ if not cd_veneno or cd_veneno == 0 then
       if Petria.armaValida(armaSecundaria) then send("segun " .. armaSecundaria) end
     else
       send("get karma moch")
-      send("traga karma")
+      Petria.traga("karma")
     end
   end)
   tempTimer(1, function()
@@ -1712,11 +1713,11 @@ end</script>
 						<script>if not wofActivo then return end
 pcall(disableTriggerGroup, "PK")
 send("ocu")
-send("traga sanar")
+Petria.traga("sanar")
 send("c sanar")
 send("c sanar")
 send("za")
-send("traga santu")
+Petria.traga("santu")
 if rasOBJ and rasOBJ ~= "" then send("ras " .. rasOBJ) end</script>
 						<triggerType>0</triggerType>
 						<conditonLineDelta>0</conditonLineDelta>
@@ -1739,8 +1740,8 @@ if rasOBJ and rasOBJ ~= "" then send("ras " .. rasOBJ) end</script>
 						<name>Poder del oso ancestral (WoF)</name>
 						<script>if not wofActivo then return end
 send("espinillazo")
-send("huir")
-send("huir")</script>
+Petria.huir()
+Petria.huir()</script>
 						<triggerType>0</triggerType>
 						<conditonLineDelta>0</conditonLineDelta>
 						<mStayOpen>0</mStayOpen>
@@ -1761,9 +1762,9 @@ send("huir")</script>
 					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 						<name>Cegados por suciedad: huir</name>
 						<script>if not wofActivo then return end
-send("huir")
-send("huir")
-send("huir")</script>
+Petria.huir()
+Petria.huir()
+Petria.huir()</script>
 						<triggerType>0</triggerType>
 						<conditonLineDelta>0</conditonLineDelta>
 						<mStayOpen>0</mStayOpen>
@@ -1969,6 +1970,54 @@ end</script>
 					</Trigger>
 				</TriggerGroup>
 			</TriggerGroup>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>Torneo: contadores del prompt</name>
+				<script>Petria.poc = tonumber(matches[2]) or Petria.poc
+Petria.per = tonumber(matches[3]) or Petria.per
+Petria.var = tonumber(matches[4]) or Petria.var
+Petria.pocPend = 0
+Petria.varPend = 0
+Petria.huidasPend = 0</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand />
+				<packageName />
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile />
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>Poc: (\d+) Per: (\d+) Var: (\d+)</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>Torneo: huida lograda</name>
+				<script>Petria.huidas = (Petria.huidas or 0) + 1
+if Petria.torneo then
+  cecho(string.format("&lt;yellow&gt;[TORNEO] huidas: %d/3\n", Petria.huidas))
+end</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand />
+				<packageName />
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile />
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>Logras HUIR!</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
 			<TriggerGroup isActive="yes" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 				<name>Autodope</name>
 				<script />
@@ -2578,8 +2627,8 @@ pcall(disableTriggerGroup, "Pelea")
 wofActivo = false
 pkActivo = false
 en_combate = 0
-send("huir")
-send("huir")
+Petria.huir()
+Petria.huir()
 send("recall")</script>
 					<command />
 					<packageName />
@@ -2942,10 +2991,10 @@ send("tradi " .. matches[2])</script>
 				</Alias>
 				<Alias isActive="yes" isFolder="no">
 					<name>fdope</name>
-					<script>send("traga trans")
-send("traga gris")
-send("traga azul")
-send("traga santuario")
+					<script>Petria.traga("trans")
+Petria.traga("gris")
+Petria.traga("azul")
+Petria.traga("santuario")
 expandAlias("dope")
 expandAlias("dope")
 expandAlias("dope")</script>
@@ -2955,9 +3004,9 @@ expandAlias("dope")</script>
 				</Alias>
 				<Alias isActive="yes" isFolder="no">
 					<name>ihs</name>
-					<script>send("traga gris")
-send("traga trans")
-send("traga santu")</script>
+					<script>Petria.traga("gris")
+Petria.traga("trans")
+Petria.traga("santu")</script>
 					<command />
 					<packageName />
 					<regex>^ihs$</regex>
@@ -3182,7 +3231,7 @@ if Petria.enZonaSinPociones() then
   return
 end
 Petria.enPasoTraga = true
-send("traga " .. matches[2])
+Petria.traga(matches[2])
 Petria.enPasoTraga = false</script>
 					<command />
 					<packageName />
@@ -3194,6 +3243,35 @@ Petria.enPasoTraga = false</script>
 					<command />
 					<packageName />
 					<regex>^gp$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>torON</name>
+					<script>Petria.torneo = true
+Petria.huidas = 0
+Petria.pocPend, Petria.varPend, Petria.huidasPend = 0, 0, 0
+cecho("&lt;green&gt;[TORNEO] ACTIVADO: maximo 10 pociones, 10 pergaminos, 10 varitas y 3 huidas.\n")
+expandAlias("tor")</script>
+					<command />
+					<packageName />
+					<regex>(?i)^toron$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>torOFF</name>
+					<script>Petria.torneo = false
+cecho("&lt;yellow&gt;[TORNEO] DESACTIVADO: sin limites de pociones, varitas ni huidas.\n")</script>
+					<command />
+					<packageName />
+					<regex>(?i)^torOFF$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>tor (estado del torneo)</name>
+					<script>cecho(string.format(
+  "&lt;cyan&gt;[TORNEO %s] pociones %d/10 | pergaminos %d/10 | varitas %d/10 | huidas %d/3\n",
+  Petria.torneo and "ON" or "OFF",
+  Petria.poc or 0, Petria.per or 0, Petria.var or 0, Petria.huidas or 0))</script>
+					<command />
+					<packageName />
+					<regex>^tor$</regex>
 				</Alias>
 				<Alias isActive="yes" isFolder="no">
 					<name>toso</name>
@@ -3303,6 +3381,7 @@ send("ras Idhrall")</script>
 -- estes blandiendo dos armas." si ya estas dual-wield -- igual que la
 -- lanza de intentarEmpalar, hay que GUARDAR ambas armas ANTES de
 -- intentar sostener la varita, no alcanza con reequiparlas despues.
+if not Petria.usaVarita() then return end
 if Petria.armaValida(armaPrincipal) then send("gua " .. armaPrincipal) end
 if Petria.armaValida(armaSecundaria) then send("gua " .. armaSecundaria) end
 send("get bendicion moch")
@@ -3373,7 +3452,7 @@ end, 15)</script>
 					<script>send("ir 11864")
 send("can " .. (enemigo or ""))
 send("c debilitar " .. (enemigo or ""))
-send("huir e"); send("huir e"); send("huir e")
+Petria.huir("huir e"); Petria.huir("huir e"); Petria.huir("huir e")
 send("ir 11866")</script>
 					<command />
 					<packageName />
@@ -3406,7 +3485,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789931591
+Petria.version = 1789937925
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -3465,6 +3544,11 @@ function Petria.sanar()
     return
   end
   if Petria.enZonaSinPociones() then
+    -- Modo torneo: sin varitas disponibles, un Oteren cae a "c sanar".
+    if not Petria.usaVarita() then
+      if Petria.puedeSanarConHechizo() then send("c sanar") end
+      return
+    end
     -- "sos" falla si ya estas dual-wield -- guardar ambas armas antes,
     -- no alcanza con reequiparlas despues (confirmado en juego).
     if Petria.armaValida(armaPrincipal) then send("gua " .. armaPrincipal) end
@@ -3475,7 +3559,10 @@ function Petria.sanar()
     if Petria.armaValida(armaPrincipal) then send("bla " .. armaPrincipal) end
     if Petria.armaValida(armaSecundaria) then send("segun " .. armaSecundaria) end
   else
-    send("traga sana")
+    -- Modo torneo: sin pociones disponibles, un Oteren cae a "c sanar".
+    if not Petria.traga("sana") and Petria.puedeSanarConHechizo() then
+      send("c sanar")
+    end
   end
 end
 
@@ -3483,6 +3570,60 @@ end
 -- "Ronda: lanzar hechizo" en Pelea).
 if Petria.rondaActiva == nil then Petria.rondaActiva = false end
 Petria.rondaHechizo = Petria.rondaHechizo or "rayo de sinceridad"
+
+-- ================================================================
+-- Modo torneo (torON / torOFF): limites de 10 pociones, 10 pergaminos, 10
+-- varitas y 3 huidas. "Poc / Per / Var" del prompt son contadores de lo USADO
+-- (no de lo que te queda). Todo el paquete toma pociones, usa varitas y huye
+-- a traves de Petria.traga / Petria.usaVarita / Petria.huir para respetarlo.
+-- "Pend" cuenta lo enviado que el prompt aun no refleja (rafagas).
+-- ================================================================
+if Petria.torneo == nil then Petria.torneo = false end
+Petria.poc = Petria.poc or 0
+Petria.per = Petria.per or 0
+Petria.var = Petria.var or 0
+Petria.huidas = Petria.huidas or 0
+Petria.pocPend = 0
+Petria.varPend = 0
+Petria.huidasPend = 0
+
+function Petria.restantes(usadas, pend, limite)
+  if not Petria.torneo then return 999 end
+  return math.max(0, limite - (usadas or 0) - (pend or 0))
+end
+function Petria.pocionesRestantes() return Petria.restantes(Petria.poc, Petria.pocPend, 10) end
+function Petria.pergaminosRestantes() return Petria.restantes(Petria.per, 0, 10) end
+function Petria.varitasRestantes() return Petria.restantes(Petria.var, Petria.varPend, 10) end
+function Petria.huidasRestantes() return Petria.restantes(Petria.huidas, Petria.huidasPend, 3) end
+
+function Petria.traga(obj)
+  if Petria.pocionesRestantes() &lt;= 0 then
+    cecho("&lt;red&gt;[TORNEO] limite de 10 pociones alcanzado (Poc: " .. tostring(Petria.poc) .. "): no tomo '" .. tostring(obj) .. "'\n")
+    return false
+  end
+  Petria.pocPend = (Petria.pocPend or 0) + 1
+  send("traga " .. obj)
+  return true
+end
+
+function Petria.usaVarita()
+  if Petria.varitasRestantes() &lt;= 0 then
+    cecho("&lt;red&gt;[TORNEO] limite de 10 varitas alcanzado (Var: " .. tostring(Petria.var) .. ")\n")
+    return false
+  end
+  Petria.varPend = (Petria.varPend or 0) + 1
+  return true
+end
+
+function Petria.huir(cmd)
+  if Petria.huidasRestantes() &lt;= 0 then
+    cecho("&lt;red&gt;[TORNEO] limite de 3 huidas alcanzado: omito '" .. tostring(cmd or "huir") .. "'\n")
+    return false
+  end
+  Petria.huidasPend = (Petria.huidasPend or 0) + 1
+  send(cmd or "huir")
+  return true
+end
 
 -- Palabra clave de un nombre de mob para comandos de una sola palabra
 -- ("Una hormiga pretoriana" -&gt; "hormiga"). Memoria de tipos "no malignos".
@@ -3928,7 +4069,7 @@ Clases.ranger = {
     Clases.sendSeq("s", "nore", "n", "w")
   end,
   dope = function(obj)
-    send("traga santu")
+    Petria.traga("santu")
     send("c anti bolsillo")
     send("fuego")
     send("c 'totem animal buho'")
@@ -4210,10 +4351,11 @@ function PeleaActualizarVitalsGMCP()
     elseif HPpct &lt; 75 then n = 1 end
     if n &gt; 0 then
       if (Petria.enZonaSinPociones and Petria.enZonaSinPociones())
-         or (Petria.sinPociones and Petria.sinPociones()) then
+         or (Petria.sinPociones and Petria.sinPociones())
+         or Petria.pocionesRestantes() &lt;= 0 then
         Petria.sanar()
       else
-        for _ = 1, n do send("traga sana") end
+        for _ = 1, n do Petria.traga("sana") end
       end
       curando = 1
       tempTimer(3, function() curando = 0 end)
@@ -4285,7 +4427,7 @@ send("curar")</script>
 				<Key isActive="yes" isFolder="no">
 					<name>Savia verde</name>
 					<packageName />
-					<script>send("traga savia")</script>
+					<script>Petria.traga("savia")</script>
 					<command />
 					<keyCode>16777223</keyCode>
 					<keyModifier>536870912</keyModifier>
@@ -4301,7 +4443,7 @@ send("curar")</script>
 				<Key isActive="yes" isFolder="no">
 					<name>MAC-SUPER</name>
 					<packageName />
-					<script>send("traga super")</script>
+					<script>Petria.traga("super")</script>
 					<command />
 					<keyCode>125</keyCode>
 					<keyModifier>0</keyModifier>
@@ -4325,7 +4467,7 @@ send("curar")</script>
 				<Key isActive="yes" isFolder="no">
 					<name>Linux-Super</name>
 					<packageName />
-					<script>send("traga super")</script>
+					<script>Petria.traga("super")</script>
 					<command />
 					<keyCode>42</keyCode>
 					<keyModifier>536870912</keyModifier>
