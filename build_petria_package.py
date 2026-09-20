@@ -122,6 +122,10 @@ make_trigger(autodope_trig_group, "Luz protectora desaparece", 'Clases.reponer("
 make_trigger(autodope_trig_group, "Proteccion sagrada se desvanece", 'Clases.reponer("proteccion sagrada", "c \'proteccion sagrada\'")', [r"Tu proteccion sagrada se desvanece"])
 make_trigger(autodope_trig_group, "Acelerar termina (ritmo normal)", 'Clases.reponer("acelerar", "c acelerar")', [r"Ya vuelves a recuperar tu ritmo normal"])
 make_trigger(autodope_trig_group, "Volar termina", 'Clases.reponer("volar", "c volar")', [r"Despacito dejas de"])
+# "Ya no ves ni tres en un burro en la oscuridad." salio en el mismo bloque de
+# un cancelacion rival, entre los buffs de dope; por lo de "oscuridad" lo
+# tomo como el fin de gatovision (inferido, no confirmado aislado).
+make_trigger(autodope_trig_group, "Gatovision termina", 'Clases.reponer("gatovision", "c gatovision")', [r"Ya no ves ni tres en un burro"])
 make_trigger(autodope_trig_group, "Bendecir termina", 'Clases.reponer("bendecir", "c bendecir")', [r"La bendicion ya no tiene efecto"])
 make_trigger(
     autodope_trig_group, "Menos cansado: seguir curando hasta llenar move",
@@ -1513,12 +1517,15 @@ end
 
 -- Recastea un buff que acaba de expirar, solo si esta en el dope de la clase.
 -- No consulta GMCP a proposito: el mensaje de texto acaba de decir que se fue.
--- En combate solo se recastean los defensivos: un disipar/cancelacion saca
--- 10 buffs juntos y cada cast cuesta una ronda (PvP contra Alien: ~700 de
--- dano por ronda). Lo demas (volar, bendecir, fuerza...) queda para "dope".
+-- En combate solo se recastean los buffs clave de PvP: un disipar/cancelacion
+-- saca 10 buffs juntos y cada cast cuesta una ronda (PvP contra Alien: ~700
+-- de dano por ronda). Prioridad segun Sammer (PvP en Petria): vision
+-- (gatovision, para que la cancelacion quite santuario/acelerar del rival),
+-- santuario (reduce el dano a la mitad), acelerar (actua en defensa y en
+-- ataque) y, en segundo orden, volar (evita la zancadilla). El resto
+-- (bendecir, fuerza, protecciones, inspiracion...) queda para "dope".
 Clases.buffsDeCombate = {
-  santuario = true, ["escudo luz"] = true, ["luz protectora"] = true,
-  ["proteccion sagrada"] = true, ["proteccion infernal"] = true,
+  gatovision = true, santuario = true, acelerar = true, volar = true,
 }
 function Clases.reponer(nombreDope, comando)
   if not Clases.enDope(nombreDope) then return end
