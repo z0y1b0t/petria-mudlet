@@ -342,10 +342,29 @@ make_trigger(
 # "esta bastante herido", "esta en mal estado", "esta malherido", "nota que
 # la muerte le llama", "esta en una excelente condicion"). Si aparece otra
 # variante en algun mob, esa ronda simplemente no lanza (nunca lanza de mas).
+# La linea de estado del enemigo solo sale durante TU combate. En el log de las
+# hormigas de la Reina en_combate quedaba en 0 (lo pone en 1 solo el evento GMCP
+# Char.Enemies, y "ESTA MUERTO !!" lo baja a 0 con cada hormiga): el trigger de
+# ronda no lanzo ni un hechizo y "k" volvio a empalar en plena pelea. Aqui se
+# marca en_combate = 1 con cada linea de estado, y de paso se vigila el mv.
+make_trigger(
+    pelea_trig_group, "Estado del enemigo: en combate",
+    r'''en_combate = 1
+local v = gmcp and gmcp.Char and gmcp.Char.Vitals
+local mv, mvmax = v and tonumber(v.move), v and tonumber(v.maxmove)
+if mv and mvmax and mvmax > 0 and mv < mvmax * 0.25 and (not cd_mv or cd_mv == 0) then
+  local mana = tonumber(v.mana)
+  if not mana or mana >= 50 then
+    send("c refrescar")
+    cd_mv = 1
+    tempTimer(3, function() cd_mv = 0 end)
+  end
+end''',
+    [r"^(.+?) (?:tiene algunos cortes|est[aá] bastante herido|est[aá] en mal estado|est[aá] malherido|nota que la muerte le llama|est[aá] en una excelente condici[oó]n)"],
+)
 make_trigger(
     pelea_trig_group, "Ronda: lanzar hechizo",
     r'''if not Petria.rondaActiva then return end
-if not (en_combate and en_combate ~= 0) then return end
 if cd_ronda == 1 then return end
 local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
 if not (completa and tostring(completa):lower():find("oteren", 1, true)) then return end
@@ -827,6 +846,12 @@ make_alias(
     'rasOBJ = obj\n'
     'pcall(disableTriggerGroup, "WoF")\n'
     'pcall(enableTriggerGroup, "Pelea")\n\n'
+    '-- Igual que kk: quitar santuario/acelerar del objetivo antes de pegar\n'
+    '-- (las hormigas de la Reina traen santuario). Confirmado en juego que\n'
+    '-- "can" antes de "empalar" no rompe el requisito de vida completa.\n'
+    'if obj ~= "" and obj:lower() ~= "someone" then\n'
+    '  expandAlias("can " .. obj)\n'
+    'end\n\n'
     'if obj ~= "" and clase and Clases.clasesConEmpalar[clase] and not (en_combate and en_combate ~= 0) then\n'
     '  Clases.intentarEmpalar(obj)\n'
     'end\n\n'
@@ -1515,20 +1540,11 @@ end
 if Petria.rondaActiva == nil then Petria.rondaActiva = false end
 Petria.rondaHechizo = Petria.rondaHechizo or "rayo de sinceridad"
 
--- true si "v" sirve como palabra para gua/bla/segun. El GUI oficial pide UNA
--- palabra ("setarma llameante") y el juego solo lee la primera palabra de un
--- argumento: con una frase ("la Mandibula del fin...") "gua la" apunta a
--- cualquier cosa que empiece con "la" (ej. la lanza). Avisa una vez por valor.
+-- true si "v" tiene un nombre de arma configurado. Confirmado en juego: gua /
+-- bla / segun aceptan el nombre completo ("la Mandibula del fin de la Reina
+-- Roja"), no hace falta una sola palabra.
 function Petria.armaValida(v)
-  if not v or v == "" then return false end
-  if v:find("%s") then
-    if Petria.armaAvisada ~= v then
-      Petria.armaAvisada = v
-      cecho("<yellow>[armas] '" .. v .. "' tiene varias palabras y el juego solo lee la primera. Usa UNA palabra (ej: setarma fin, setsegun dedo). Se omite el cambio de armas.\\n")
-    end
-    return false
-  end
-  return true
+  return v ~= nil and v ~= ""
 end
 
 function Petria.esperarTexto(patron, callback, timeoutSeg)

@@ -472,9 +472,38 @@ Petria.sanar()</script>
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Estado del enemigo: en combate</name>
+					<script>en_combate = 1
+local v = gmcp and gmcp.Char and gmcp.Char.Vitals
+local mv, mvmax = v and tonumber(v.move), v and tonumber(v.maxmove)
+if mv and mvmax and mvmax &gt; 0 and mv &lt; mvmax * 0.25 and (not cd_mv or cd_mv == 0) then
+  local mana = tonumber(v.mana)
+  if not mana or mana &gt;= 50 then
+    send("c refrescar")
+    cd_mv = 1
+    tempTimer(3, function() cd_mv = 0 end)
+  end
+end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^(.+?) (?:tiene algunos cortes|est[aá] bastante herido|est[aá] en mal estado|est[aá] malherido|nota que la muerte le llama|est[aá] en una excelente condici[oó]n)</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Ronda: lanzar hechizo</name>
 					<script>if not Petria.rondaActiva then return end
-if not (en_combate and en_combate ~= 0) then return end
 if cd_ronda == 1 then return end
 local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
 if not (completa and tostring(completa):lower():find("oteren", 1, true)) then return end
@@ -2199,6 +2228,13 @@ rasOBJ = obj
 pcall(disableTriggerGroup, "WoF")
 pcall(enableTriggerGroup, "Pelea")
 
+-- Igual que kk: quitar santuario/acelerar del objetivo antes de pegar
+-- (las hormigas de la Reina traen santuario). Confirmado en juego que
+-- "can" antes de "empalar" no rompe el requisito de vida completa.
+if obj ~= "" and obj:lower() ~= "someone" then
+  expandAlias("can " .. obj)
+end
+
 if obj ~= "" and clase and Clases.clasesConEmpalar[clase] and not (en_combate and en_combate ~= 0) then
   Clases.intentarEmpalar(obj)
 end
@@ -3167,7 +3203,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789924591
+Petria.version = 1789924867
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -3218,20 +3254,11 @@ end
 if Petria.rondaActiva == nil then Petria.rondaActiva = false end
 Petria.rondaHechizo = Petria.rondaHechizo or "rayo de sinceridad"
 
--- true si "v" sirve como palabra para gua/bla/segun. El GUI oficial pide UNA
--- palabra ("setarma llameante") y el juego solo lee la primera palabra de un
--- argumento: con una frase ("la Mandibula del fin...") "gua la" apunta a
--- cualquier cosa que empiece con "la" (ej. la lanza). Avisa una vez por valor.
+-- true si "v" tiene un nombre de arma configurado. Confirmado en juego: gua /
+-- bla / segun aceptan el nombre completo ("la Mandibula del fin de la Reina
+-- Roja"), no hace falta una sola palabra.
 function Petria.armaValida(v)
-  if not v or v == "" then return false end
-  if v:find("%s") then
-    if Petria.armaAvisada ~= v then
-      Petria.armaAvisada = v
-      cecho("&lt;yellow&gt;[armas] '" .. v .. "' tiene varias palabras y el juego solo lee la primera. Usa UNA palabra (ej: setarma fin, setsegun dedo). Se omite el cambio de armas.\n")
-    end
-    return false
-  end
-  return true
+  return v ~= nil and v ~= ""
 end
 
 function Petria.esperarTexto(patron, callback, timeoutSeg)
