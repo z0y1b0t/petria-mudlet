@@ -793,6 +793,11 @@ make_alias(
     'if obj ~= "" and obj:lower() ~= "someone" then\n'
     '  expandAlias("can " .. obj)\n'
     'end\n\n'
+    '-- Hook opcional por clase: hechizo de ataque fuerte solo para "kk"\n'
+    '-- (no para "k", que se usa contra cualquier mob).\n'
+    'if clase and Clases[clase] and Clases[clase].defensa then\n'
+    '  Clases[clase].defensa(obj)\n'
+    'end\n\n'
     'Clases.despacharAtaque(obj)'
 )
 
@@ -1768,6 +1773,22 @@ Clases.dopes.seguidores = Clases.dopes.seguidores or {
 }
 
 Clases.seguidores = {
+  -- Solo para "kk". "ira divina" (helpfile en juego): ataque de Oteren, hace
+  -- mas dano que "destruir maldad", tiene EFECTO DE AREA y solo se puede
+  -- lanzar con alineamiento bueno o mas alto. Por el area no se usa en "k".
+  -- La clase GMCP "seguidores_de_Runk" tambien se reduce a "seguidores", asi
+  -- que se chequea el nombre completo para no tirarlo con un Runk.
+  defensa = function(obj)
+    local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
+    if not (completa and tostring(completa):lower():find("oteren", 1, true)) then
+      return
+    end
+    if obj ~= "" and obj:lower() ~= "someone" then
+      send("conjurar 'ira divina' " .. obj)
+    else
+      send("conjurar 'ira divina'")
+    end
+  end,
   ataque = function(obj)
     -- "empalar" ya no va suelto aca: lo dispara "k" antes de llamar a
     -- ataque() (ver Clases.intentarEmpalar en Clases_Core), con el cambio
