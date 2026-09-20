@@ -869,43 +869,49 @@ make_alias(
 )
 
 make_alias(
-    clases_alias_group, "ronda", r"^ronda(?: (\w+))?$",
-    r'''-- ronda [on|off|rayo|ira|destruir]: un hechizo de ataque de Oteren por ronda
--- de melee mientras estes en combate. Medido en juego (diablo ingeniero):
--- rayo ~350 (20 de mana), ira/destruir ~235 (10 de mana); UN cast por ronda
--- no le quita golpes al melee (dos seguidos si).
+    clases_alias_group, "aa (ronda)", r"^aa(?: (\w+))?$",
+    r'''-- "aa" (antes "ronda"): un hechizo de ataque de Oteren por ronda de melee
+-- mientras estes en combate. Medido en juego (diablo ingeniero): rayo ~350
+-- (20 de mana), ira/destruir ~235 (10 de mana); UN cast por ronda no le quita
+-- golpes al melee (dos seguidos si).
+--   aa            carrusel: OFF -> rayo -> ira -> destruir -> OFF
+--   aa on / off   prender o apagar (mantiene el hechizo elegido)
+--   aa rayo|ira|destruir   elegir hechizo y prender
+local ciclo = {"rayo de sinceridad", "ira divina", "destruir maldad"}
 local arg = (matches[2] or ""):lower()
-if arg == "on" then
+if arg == "" then
+  if not Petria.rondaActiva then
+    Petria.rondaActiva = true
+    Petria.rondaHechizo = ciclo[1]
+  else
+    local idx = 0
+    for i, h in ipairs(ciclo) do
+      if h == Petria.rondaHechizo then idx = i end
+    end
+    if idx == 0 or idx >= #ciclo then
+      Petria.rondaActiva = false
+    else
+      Petria.rondaHechizo = ciclo[idx + 1]
+    end
+  end
+elseif arg == "on" then
   Petria.rondaActiva = true
 elseif arg == "off" then
   Petria.rondaActiva = false
 elseif arg == "rayo" then
-  Petria.rondaHechizo = "rayo de sinceridad"
+  Petria.rondaHechizo = ciclo[1]
   Petria.rondaActiva = true
 elseif arg == "ira" then
-  Petria.rondaHechizo = "ira divina"
+  Petria.rondaHechizo = ciclo[2]
   Petria.rondaActiva = true
 elseif arg == "destruir" then
-  Petria.rondaHechizo = "destruir maldad"
+  Petria.rondaHechizo = ciclo[3]
   Petria.rondaActiva = true
-elseif arg ~= "" then
-  cecho("<red>Uso: ronda [on|off|rayo|ira|destruir]\n")
+else
+  cecho("<red>Uso: aa [on|off|rayo|ira|destruir]\n")
   return
 end
-cecho(string.format("<cyan>Ronda: %s, hechizo: %s\n", Petria.rondaActiva and "ON" or "OFF", Petria.rondaHechizo))'''
-)
-
-make_alias(
-    clases_alias_group, "aa (carrusel de ronda)", r"^aa$",
-    r'''-- "aa" a secas: rota el hechizo de "ronda" rayo -> ira -> destruir -> rayo.
--- No cambia si la ronda esta ON u OFF (eso es "ronda on/off").
-local ciclo = {"rayo de sinceridad", "ira divina", "destruir maldad"}
-local idx = 0
-for i, h in ipairs(ciclo) do
-  if h == Petria.rondaHechizo then idx = i end
-end
-Petria.rondaHechizo = ciclo[(idx % #ciclo) + 1]
-cecho(string.format("<cyan>Ronda: %s, hechizo: %s\n", Petria.rondaActiva and "ON" or "OFF", Petria.rondaHechizo))'''
+cecho(string.format("<cyan>aa: %s, hechizo: %s\n", Petria.rondaActiva and "ON" or "OFF", Petria.rondaHechizo))'''
 )
 
 make_alias(
