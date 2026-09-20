@@ -418,7 +418,7 @@ make_trigger(
     r'''Petria.sinPocionesHasta = nil
 Petria.golpetazoFinAt = os.time()
 cecho("<green>Golpetazo terminado: ya puedes tomar pociones\n")''',
-    [r"^[!\u00a1]Bash!\s*$"],
+    [r"^[!¡]Bash!\s*$"],
 )
 make_trigger(
     pelea_trig_group, "PvP: golpetazo si el rival esta bajo de HP",
