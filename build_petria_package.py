@@ -519,13 +519,13 @@ make_trigger(
     '  idFallo = tempRegexTrigger("No conoces .* hechizo con ese nombre\\\\.", function()\n'
     '    if exists(idFallo, "trigger") == 1 then killTrigger(idFallo) end\n'
     '    if Petria.enZonaSinPociones() then\n'
-    '      if armaPrincipal and armaPrincipal ~= "" then send("gua " .. armaPrincipal) end\n'
-    '      if armaSecundaria and armaSecundaria ~= "" then send("gua " .. armaSecundaria) end\n'
+    '      if Petria.armaValida(armaPrincipal) then send("gua " .. armaPrincipal) end\n'
+    '      if Petria.armaValida(armaSecundaria) then send("gua " .. armaSecundaria) end\n'
     '      send("get amuleto moch")\n'
     '      send("sos amuleto")\n'
     '      send("zap self")\n'
-    '      if armaPrincipal and armaPrincipal ~= "" then send("bla " .. armaPrincipal) end\n'
-    '      if armaSecundaria and armaSecundaria ~= "" then send("segun " .. armaSecundaria) end\n'
+    '      if Petria.armaValida(armaPrincipal) then send("bla " .. armaPrincipal) end\n'
+    '      if Petria.armaValida(armaSecundaria) then send("segun " .. armaSecundaria) end\n'
     '    else\n'
     '      send("get karma moch")\n'
     '      send("traga karma")\n'
@@ -1371,13 +1371,13 @@ make_alias(
     '-- estes blandiendo dos armas." si ya estas dual-wield -- igual que la\n'
     '-- lanza de intentarEmpalar, hay que GUARDAR ambas armas ANTES de\n'
     '-- intentar sostener la varita, no alcanza con reequiparlas despues.\n'
-    'if armaPrincipal and armaPrincipal ~= "" then send("gua " .. armaPrincipal) end\n'
-    'if armaSecundaria and armaSecundaria ~= "" then send("gua " .. armaSecundaria) end\n'
+    'if Petria.armaValida(armaPrincipal) then send("gua " .. armaPrincipal) end\n'
+    'if Petria.armaValida(armaSecundaria) then send("gua " .. armaSecundaria) end\n'
     'send("get bendicion moch")\n'
     'send("sos bendicion")\n'
     'send("zap self")\n'
-    'if armaPrincipal and armaPrincipal ~= "" then send("bla " .. armaPrincipal) end\n'
-    'if armaSecundaria and armaSecundaria ~= "" then send("segun " .. armaSecundaria) end',
+    'if Petria.armaValida(armaPrincipal) then send("bla " .. armaPrincipal) end\n'
+    'if Petria.armaValida(armaSecundaria) then send("segun " .. armaSecundaria) end',
 )
 
 make_alias(
@@ -1498,13 +1498,13 @@ function Petria.sanar()
   if Petria.enZonaSinPociones() then
     -- "sos" falla si ya estas dual-wield -- guardar ambas armas antes,
     -- no alcanza con reequiparlas despues (confirmado en juego).
-    if armaPrincipal and armaPrincipal ~= "" then send("gua " .. armaPrincipal) end
-    if armaSecundaria and armaSecundaria ~= "" then send("gua " .. armaSecundaria) end
+    if Petria.armaValida(armaPrincipal) then send("gua " .. armaPrincipal) end
+    if Petria.armaValida(armaSecundaria) then send("gua " .. armaSecundaria) end
     send("get bendicion moch")
     send("sos bendicion")
     send("zap self")
-    if armaPrincipal and armaPrincipal ~= "" then send("bla " .. armaPrincipal) end
-    if armaSecundaria and armaSecundaria ~= "" then send("segun " .. armaSecundaria) end
+    if Petria.armaValida(armaPrincipal) then send("bla " .. armaPrincipal) end
+    if Petria.armaValida(armaSecundaria) then send("segun " .. armaSecundaria) end
   else
     send("traga sana")
   end
@@ -1514,6 +1514,22 @@ end
 -- "Ronda: lanzar hechizo" en Pelea).
 if Petria.rondaActiva == nil then Petria.rondaActiva = false end
 Petria.rondaHechizo = Petria.rondaHechizo or "rayo de sinceridad"
+
+-- true si "v" sirve como palabra para gua/bla/segun. El GUI oficial pide UNA
+-- palabra ("setarma llameante") y el juego solo lee la primera palabra de un
+-- argumento: con una frase ("la Mandibula del fin...") "gua la" apunta a
+-- cualquier cosa que empiece con "la" (ej. la lanza). Avisa una vez por valor.
+function Petria.armaValida(v)
+  if not v or v == "" then return false end
+  if v:find("%s") then
+    if Petria.armaAvisada ~= v then
+      Petria.armaAvisada = v
+      cecho("<yellow>[armas] '" .. v .. "' tiene varias palabras y el juego solo lee la primera. Usa UNA palabra (ej: setarma fin, setsegun dedo). Se omite el cambio de armas.\\n")
+    end
+    return false
+  end
+  return true
+end
 
 function Petria.esperarTexto(patron, callback, timeoutSeg)
   local id
@@ -1763,12 +1779,12 @@ function Clases.intentarEmpalar(obj)
   -- principal por su cuenta y despues "bla " (vacio) da "Vestir, blandir o
   -- sostener que?" -- el resto de la pelea queda a punos. Sin saber que arma
   -- devolver, mejor no empalar y avisar.
-  if not (armaPrincipal and armaPrincipal ~= "") then
+  if not (Petria.armaValida(armaPrincipal)) then
     cecho("<yellow>[empalar] omitido: falta configurar tu arma con 'setarma <palabra>' (y 'setsegun <palabra>' si usas secundaria); si no, quedarias sin arma.\\n")
     return
   end
   send("gua " .. armaPrincipal)
-  if armaSecundaria and armaSecundaria ~= "" then
+  if Petria.armaValida(armaSecundaria) then
     send("gua " .. armaSecundaria)
   end
   send("get lanza moch")
@@ -1776,7 +1792,7 @@ function Clases.intentarEmpalar(obj)
   send("empalar " .. obj)
   send("gua lanza")
   send("bla " .. armaPrincipal)
-  if armaSecundaria and armaSecundaria ~= "" then
+  if Petria.armaValida(armaSecundaria) then
     send("segun " .. armaSecundaria)
   end
 end
