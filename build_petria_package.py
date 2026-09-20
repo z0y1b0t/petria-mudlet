@@ -320,8 +320,32 @@ make_trigger(
 # de una version con encoding roto de antes) NUNCA matcheaba el texto real
 # "ESTÁS" -- la cura de emergencia por sangrado nunca disparo en toda esa
 # pelea, justo cuando mas hacia falta.
-make_trigger(pelea_trig_group, "Sangrado fuerte: huir", 'send("huir")', [r"(?i)¡?¡?SANGR[aáA]S A LO BESTIA!!"])
-make_trigger(pelea_trig_group, "Perdiendo mucha sangre: curar", 'send("traga sana")', [r"(?i)¡?¡?EST[aáA]S PERDIENDO DEMASIADA SANGRE!!"])
+# Se quito el "huir" de "SANGRAS A LO BESTIA": el sangrado viene de procs de
+# armas rivales (PvP contra Alien: lanza "sangrante"), huir no lo cura, y con
+# el rival persiguiendo fallo/no sirvio. La cura usa Petria.sanar() (en la
+# Torre "traga" teletransporta al pozo) y el server manda varias lineas de
+# sangrado por ronda, asi que se deduplica a 1 cada segundo.
+make_trigger(
+    pelea_trig_group, "Perdiendo mucha sangre: curar",
+    'if cd_sangre == 1 then return end\n'
+    'cd_sangre = 1\n'
+    'tempTimer(1, function() cd_sangre = 0 end)\n'
+    'Petria.sanar()',
+    [r"(?i)¡?¡?EST[aáA]S PERDIENDO DEMASIADA SANGRE!!"],
+)
+# Confirmado en juego (PvP): sin pociones "traga sana" da "No tienes esa
+# pocion." y se gastaron 4 rondas repitiendolo a 170 HP. Cae a "c sanar".
+make_trigger(
+    pelea_trig_group, "Sin pocion: curar con hechizo",
+    'if cd_sinpocion == 1 then return end\n'
+    'local hp = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.hp)\n'
+    'local maxhp = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.maxhp)\n'
+    'if hp and maxhp and maxhp > 0 and hp >= maxhp * 0.8 then return end\n'
+    'cd_sinpocion = 1\n'
+    'tempTimer(1, function() cd_sinpocion = 0 end)\n'
+    'send("c sanar")',
+    [r"^No tienes esa pocion\.$"],
+)
 make_trigger(
     pelea_trig_group, "Demasiado cansado: refrescar",
     '-- Confirmado en juego: "c refrescar" no es un comando real -- 4 rondas\n'
@@ -1489,8 +1513,20 @@ end
 
 -- Recastea un buff que acaba de expirar, solo si esta en el dope de la clase.
 -- No consulta GMCP a proposito: el mensaje de texto acaba de decir que se fue.
+-- En combate solo se recastean los defensivos: un disipar/cancelacion saca
+-- 10 buffs juntos y cada cast cuesta una ronda (PvP contra Alien: ~700 de
+-- dano por ronda). Lo demas (volar, bendecir, fuerza...) queda para "dope".
+Clases.buffsDeCombate = {
+  santuario = true, ["escudo luz"] = true, ["luz protectora"] = true,
+  ["proteccion sagrada"] = true, ["proteccion infernal"] = true,
+}
 function Clases.reponer(nombreDope, comando)
-  if Clases.enDope(nombreDope) then send(comando) end
+  if not Clases.enDope(nombreDope) then return end
+  if en_combate and en_combate ~= 0 and not Clases.buffsDeCombate[nombreDope] then
+    cecho("<yellow>En combate: se omite recastear '" .. nombreDope .. "' (usa dope al terminar)\\n")
+    return
+  end
+  send(comando)
 end
 
 -- Lanza cada hechizo de "lista" (tabla de nombres) sobre "obj" (o sobre uno

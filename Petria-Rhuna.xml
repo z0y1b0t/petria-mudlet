@@ -449,28 +449,11 @@ if rasOBJ and rasOBJ ~= "" then send("ras " .. rasOBJ) end</script>
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
-					<name>Sangrado fuerte: huir</name>
-					<script>send("huir")</script>
-					<triggerType>0</triggerType>
-					<conditonLineDelta>0</conditonLineDelta>
-					<mStayOpen>0</mStayOpen>
-					<mCommand />
-					<packageName />
-					<mFgColor>#ff0000</mFgColor>
-					<mBgColor>#ffff00</mBgColor>
-					<mSoundFile />
-					<colorTriggerFgColor>#000000</colorTriggerFgColor>
-					<colorTriggerBgColor>#000000</colorTriggerBgColor>
-					<regexCodeList>
-						<string>(?i)¡?¡?SANGR[aáA]S A LO BESTIA!!</string>
-					</regexCodeList>
-					<regexCodePropertyList>
-						<integer>1</integer>
-					</regexCodePropertyList>
-				</Trigger>
-				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Perdiendo mucha sangre: curar</name>
-					<script>send("traga sana")</script>
+					<script>if cd_sangre == 1 then return end
+cd_sangre = 1
+tempTimer(1, function() cd_sangre = 0 end)
+Petria.sanar()</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -483,6 +466,32 @@ if rasOBJ and rasOBJ ~= "" then send("ras " .. rasOBJ) end</script>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
 						<string>(?i)¡?¡?EST[aáA]S PERDIENDO DEMASIADA SANGRE!!</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Sin pocion: curar con hechizo</name>
+					<script>if cd_sinpocion == 1 then return end
+local hp = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.hp)
+local maxhp = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.maxhp)
+if hp and maxhp and maxhp &gt; 0 and hp &gt;= maxhp * 0.8 then return end
+cd_sinpocion = 1
+tempTimer(1, function() cd_sinpocion = 0 end)
+send("c sanar")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^No tienes esa pocion\.$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -3022,7 +3031,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789873450
+Petria.version = 1789874675
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -3199,8 +3208,20 @@ end
 
 -- Recastea un buff que acaba de expirar, solo si esta en el dope de la clase.
 -- No consulta GMCP a proposito: el mensaje de texto acaba de decir que se fue.
+-- En combate solo se recastean los defensivos: un disipar/cancelacion saca
+-- 10 buffs juntos y cada cast cuesta una ronda (PvP contra Alien: ~700 de
+-- dano por ronda). Lo demas (volar, bendecir, fuerza...) queda para "dope".
+Clases.buffsDeCombate = {
+  santuario = true, ["escudo luz"] = true, ["luz protectora"] = true,
+  ["proteccion sagrada"] = true, ["proteccion infernal"] = true,
+}
 function Clases.reponer(nombreDope, comando)
-  if Clases.enDope(nombreDope) then send(comando) end
+  if not Clases.enDope(nombreDope) then return end
+  if en_combate and en_combate ~= 0 and not Clases.buffsDeCombate[nombreDope] then
+    cecho("&lt;yellow&gt;En combate: se omite recastear '" .. nombreDope .. "' (usa dope al terminar)\n")
+    return
+  end
+  send(comando)
 end
 
 -- Lanza cada hechizo de "lista" (tabla de nombres) sobre "obj" (o sobre uno
