@@ -110,33 +110,62 @@ Petria.enGolpetazo = letras:find("G", 1, true) ~= nil''',
     [r"mv\[\d+mv\]>\s+(.*?)\s*Lv\d+ >"],
 )
 
-# --- Resumen de pelea: dano y rondas ---
-# Requiere el prompt con "%jdps %qdmg" al final (%j = DPS del ultimo asalto, %q =
-# dano acumulado del combate). Se guardan los maximos vistos; las rondas se
-# cuentan con cada linea de estado del enemigo.
+# --- Resumen de pelea: dano por categoria y rondas ---
+# %jdps/%qdmg del prompt quedaron siempre en 0 en combate (confirmado en log),
+# asi que el dano se suma de las propias lineas del juego: "Tu <golpe> ... a X!
+# [123]". Categorias: hechizos (rayo/ira/destruir), coces (golpe carnicero),
+# empalar, contrataque y melee (el resto). Las rondas se cuentan con cada linea
+# de estado del enemigo. Un hechizo de ronda que pega menos de 120 marca al mob
+# como "poco efectivo" (rayo contra malignos ~350, contra no malignos ~55).
 make_trigger(
-    petria_trig_group, "Prompt: dps y dano del combate",
-    r'''local dps, dmg = tonumber(matches[2]) or 0, tonumber(matches[3]) or 0
-Petria.dpsVivo = dps
-if dps > (Petria.dpsMax or 0) then Petria.dpsMax = dps end
-if dmg > (Petria.dmgMax or 0) then Petria.dmgMax = dmg end
-if dmg == 0 and not (en_combate and en_combate ~= 0) then
-  Petria.rondasCombate, Petria.dmgMax, Petria.dpsMax = 0, 0, 0
-end''',
-    [r"(\d+)dps (\d+)dmg"],
+    petria_trig_group, "Dano propio: sumar al resumen",
+    r"""local txt = matches[2] or ""
+local n = tonumber(matches[3]) or 0
+-- pelea nueva si pasaron mas de 60 s desde el ultimo golpe
+if Petria.dmgUltimo and os.time() - Petria.dmgUltimo > 60 then
+  Petria.dmgCat, Petria.dmgTotalTxt, Petria.rondasCombate, Petria.castsHit = {}, 0, 0, 0
+end
+Petria.dmgUltimo = os.time()
+Petria.dmgCat = Petria.dmgCat or {}
+local l = txt:lower()
+local cat = "melee"
+local esHechizo = false
+if l:find("^rayo de sinceridad") or l:find("^ira divina") or l:find("^destruir maldad") then
+  cat = "hechizos"; esHechizo = true
+elseif l:find("^golpe carnicero") then cat = "coces"
+elseif l:find("^contrataque") then cat = "contra"
+elseif l:find("^empalar") then cat = "empalar"
+elseif l:find("^zancadilla") then cat = "zancadilla" end
+Petria.dmgCat[cat] = (Petria.dmgCat[cat] or 0) + n
+Petria.dmgTotalTxt = (Petria.dmgTotalTxt or 0) + n
+if esHechizo then
+  Petria.castsHit = (Petria.castsHit or 0) + 1
+  if n > 0 and n < 120 then
+    local nombre = txt:match(" a (.+)!%s*$")
+    local kw = nombre and Petria.palabraClave(nombre)
+    if kw and not Petria.noMalignos[kw] then
+      Petria.noMalignos[kw] = true
+      cecho("<yellow>Ronda: '" .. kw .. "' recibe poco dano de hechizos (" .. n .. "); dejo de lanzarle (aa limpiar para olvidar).\n")
+    end
+  end
+end""",
+    [r"^Tu (.+?) \[(\d+)\]\s*$"],
 )
 make_trigger(
     petria_trig_group, "Resumen de pelea",
-    r'''-- Esperar un instante: el prompt siguiente puede traer el dano de la ultima ronda.
+    r"""-- Esperar un instante para incluir el dano de la ultima ronda.
 tempTimer(0.6, function()
   local r = Petria.rondasCombate or 0
-  local d = Petria.dmgMax or 0
+  local d = Petria.dmgTotalTxt or 0
   if r > 0 and d > 0 then
-    cecho(string.format("<cyan>[PELEA] %d rondas, %d de dano, ~%d por ronda (DPS maximo visto: %d)\n",
-      r, d, math.floor(d / r), Petria.dpsMax or 0))
+    local c = Petria.dmgCat or {}
+    cecho(string.format(
+      "<cyan>[PELEA] %d rondas, %d de dano, ~%d por ronda | melee %d, coces %d, contra %d, empalar %d, hechizos %d (%d casts)\n",
+      r, d, math.floor(d / r), c.melee or 0, c.coces or 0, c.contra or 0,
+      c.empalar or 0, c.hechizos or 0, Petria.castsHit or 0))
   end
-  Petria.rondasCombate, Petria.dmgMax, Petria.dpsMax = 0, 0, 0
-end)''',
+  Petria.dmgCat, Petria.dmgTotalTxt, Petria.rondasCombate, Petria.castsHit = {}, 0, 0, 0
+end)""",
     [r"ESTA MUERTO !!$", r"Logras HUIR!"],
 )
 
