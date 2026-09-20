@@ -139,6 +139,7 @@ elseif l:find("^zancadilla") then cat = "zancadilla" end
 Petria.dmgCat[cat] = (Petria.dmgCat[cat] or 0) + n
 Petria.dmgTotalTxt = (Petria.dmgTotalTxt or 0) + n
 if esHechizo then
+  Petria.rondaPend = nil
   Petria.castsHit = (Petria.castsHit or 0) + 1
   if n > 0 and n < 120 then
     local nombre = txt:match(" a (.+)!%s*$")
@@ -462,7 +463,8 @@ end''',
 # Se recuerda el tipo de mob y la ronda deja de lanzarle hechizos.
 make_trigger(
     pelea_trig_group, "Objetivo no maligno: dejar de lanzar",
-    r'''local kw = Petria.palabraClave(matches[2])
+    r'''Petria.rondaPend = nil
+local kw = Petria.palabraClave(matches[2])
 if kw and not Petria.noMalignos[kw] then
   Petria.noMalignos[kw] = true
   cecho("<yellow>Ronda: '" .. kw .. "' no es maligno; los hechizos de ataque no le hacen nada, dejo de lanzarle (aa limpiar para olvidar).\n")
@@ -474,7 +476,8 @@ end''',
 # lanzando ira divina cada ronda. Se recuerda por tipo de mob y hechizo.
 make_trigger(
     pelea_trig_group, "Inmune a un hechizo de ronda: probar otro",
-    r'''local kw = Petria.palabraClave(matches[2])
+    r'''Petria.rondaPend = nil
+local kw = Petria.palabraClave(matches[2])
 local ataque = (matches[3] or ""):lower()
 if kw and (ataque == "ira divina" or ataque == "rayo de sinceridad" or ataque == "destruir maldad") then
   Petria.inmunes[kw] = Petria.inmunes[kw] or {}
@@ -530,6 +533,11 @@ end''',
     [r"^(.+?) (?:tiene algunos cortes|est[aá] bastante herido|est[aá] en mal estado|est[aá] malherido|nota que la muerte le llama|est[aá] en una excelente condici[oó]n)"],
 )
 make_trigger(
+    pelea_trig_group, "Ronda: hechizo fallado libera el cast pendiente",
+    "Petria.rondaPend = nil",
+    [r"Se te ha ido el santo al cielo al intentar lanzar (?:rayo de sinceridad|ira divina|destruir maldad)"],
+)
+make_trigger(
     pelea_trig_group, "Ronda: lanzar hechizo",
     r'''if not Petria.rondaActiva then return end
 if cd_ronda == 1 then return end
@@ -565,6 +573,11 @@ if inm[hechizo] then
   end
 end
 if not hechizo then return end
+-- Un solo cast en vuelo: mientras "k" cambia de arma, los resultados llegan
+-- varias rondas despues y se encolaban 5 casts antes de ver que el mob no era
+-- maligno. Se espera el resultado (o 4 s) antes de mandar el siguiente.
+if Petria.rondaPend and os.time() - Petria.rondaPend < 4 then return end
+Petria.rondaPend = os.time()
 cd_ronda = 1
 tempTimer(1, function() cd_ronda = 0 end)
 send("conjurar '" .. hechizo .. "' " .. kw)''',

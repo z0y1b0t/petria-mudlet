@@ -504,7 +504,8 @@ end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Objetivo no maligno: dejar de lanzar</name>
-					<script>local kw = Petria.palabraClave(matches[2])
+					<script>Petria.rondaPend = nil
+local kw = Petria.palabraClave(matches[2])
 if kw and not Petria.noMalignos[kw] then
   Petria.noMalignos[kw] = true
   cecho("&lt;yellow&gt;Ronda: '" .. kw .. "' no es maligno; los hechizos de ataque no le hacen nada, dejo de lanzarle (aa limpiar para olvidar).\n")
@@ -528,7 +529,8 @@ end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Inmune a un hechizo de ronda: probar otro</name>
-					<script>local kw = Petria.palabraClave(matches[2])
+					<script>Petria.rondaPend = nil
+local kw = Petria.palabraClave(matches[2])
 local ataque = (matches[3] or ""):lower()
 if kw and (ataque == "ira divina" or ataque == "rayo de sinceridad" or ataque == "destruir maldad") then
   Petria.inmunes[kw] = Petria.inmunes[kw] or {}
@@ -632,6 +634,26 @@ end</script>
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Ronda: hechizo fallado libera el cast pendiente</name>
+					<script>Petria.rondaPend = nil</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>Se te ha ido el santo al cielo al intentar lanzar (?:rayo de sinceridad|ira divina|destruir maldad)</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Ronda: lanzar hechizo</name>
 					<script>if not Petria.rondaActiva then return end
 if cd_ronda == 1 then return end
@@ -667,6 +689,11 @@ if inm[hechizo] then
   end
 end
 if not hechizo then return end
+-- Un solo cast en vuelo: mientras "k" cambia de arma, los resultados llegan
+-- varias rondas despues y se encolaban 5 casts antes de ver que el mob no era
+-- maligno. Se espera el resultado (o 4 s) antes de mandar el siguiente.
+if Petria.rondaPend and os.time() - Petria.rondaPend &lt; 4 then return end
+Petria.rondaPend = os.time()
 cd_ronda = 1
 tempTimer(1, function() cd_ronda = 0 end)
 send("conjurar '" .. hechizo .. "' " .. kw)</script>
@@ -2017,6 +2044,7 @@ elseif l:find("^zancadilla") then cat = "zancadilla" end
 Petria.dmgCat[cat] = (Petria.dmgCat[cat] or 0) + n
 Petria.dmgTotalTxt = (Petria.dmgTotalTxt or 0) + n
 if esHechizo then
+  Petria.rondaPend = nil
   Petria.castsHit = (Petria.castsHit or 0) + 1
   if n &gt; 0 and n &lt; 120 then
     local nombre = txt:match(" a (.+)!%s*$")
@@ -3593,7 +3621,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789940397
+Petria.version = 1789941058
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
