@@ -2046,12 +2046,14 @@ Clases.buffsDeCombate = {
 function Clases.reponer(nombreDope, comando)
   if not Clases.enDope(nombreDope) then return end
   -- Confirmado en juego: un Oteren peleando recibe "No alcanzas la
-  -- concentracion necesaria." al lanzar santuario (solo el Mago puede). Gasta
-  -- un cast y mana para nada.
+  -- concentracion necesaria." al lanzar santuario (solo el Mago puede).
   if nombreDope == "santuario" and en_combate and en_combate ~= 0 then
     local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
     if completa and tostring(completa):lower():find("oteren", 1, true) then
-      cecho("<yellow>En combate: Oteren no puede lanzar santuario, se omite.\\n")
+      -- Las pociones no piden concentracion: la de santuario SI se puede
+      -- tomar peleando (cuenta para el limite de pociones del torneo).
+      cecho("<yellow>En combate: Oteren no puede lanzar santuario; tomo la pocion.\\n")
+      Petria.traga("santu")
       return
     end
   end
