@@ -870,48 +870,54 @@ make_alias(
 
 make_alias(
     clases_alias_group, "aa (ronda)", r"^aa(?: (\w+))?$",
-    r'''-- "aa" (antes "ronda"): un hechizo de ataque de Oteren por ronda de melee
--- mientras estes en combate. Medido en juego (diablo ingeniero): rayo ~350
--- (20 de mana), ira/destruir ~235 (10 de mana); UN cast por ronda no le quita
--- golpes al melee (dos seguidos si).
---   aa            carrusel: OFF -> rayo -> ira -> destruir -> OFF
---   aa on / off   prender o apagar (mantiene el hechizo elegido)
---   aa rayo|ira|destruir   elegir hechizo y prender
-local ciclo = {"rayo de sinceridad", "ira divina", "destruir maldad"}
+    r'''-- "aa": un hechizo de ataque de Oteren por ronda de melee mientras estes en
+-- combate. Medido en juego (diablo ingeniero): rayo ~350 (20 de mana),
+-- ira/destruir ~235 (10 de mana); UN cast por ronda no le quita golpes al
+-- melee (dos seguidos si).
+--   aa                  carrusel: OFF -> JEFE -> AREA -> PVP -> OFF
+--   aa on / off         prender o apagar (mantiene el modo elegido)
+--   aa jefe|area|pvp    elegir modo y prender (tambien: rayo|ira|destruir)
+-- JEFE = rayo de sinceridad (un objetivo, deslumbra); AREA = ira divina
+-- (pega a todos los malignos de la sala); PVP = destruir maldad.
+local modos = {
+  {"JEFE", "rayo de sinceridad"},
+  {"AREA", "ira divina"},
+  {"PVP", "destruir maldad"},
+}
+local function indiceActual()
+  for i, m in ipairs(modos) do
+    if m[2] == Petria.rondaHechizo then return i end
+  end
+  return 0
+end
+local elegir = {jefe = 1, rayo = 1, area = 2, ira = 2, pvp = 3, destruir = 3}
 local arg = (matches[2] or ""):lower()
 if arg == "" then
   if not Petria.rondaActiva then
     Petria.rondaActiva = true
-    Petria.rondaHechizo = ciclo[1]
+    Petria.rondaHechizo = modos[1][2]
   else
-    local idx = 0
-    for i, h in ipairs(ciclo) do
-      if h == Petria.rondaHechizo then idx = i end
-    end
-    if idx == 0 or idx >= #ciclo then
+    local idx = indiceActual()
+    if idx == 0 or idx >= #modos then
       Petria.rondaActiva = false
     else
-      Petria.rondaHechizo = ciclo[idx + 1]
+      Petria.rondaHechizo = modos[idx + 1][2]
     end
   end
 elseif arg == "on" then
   Petria.rondaActiva = true
 elseif arg == "off" then
   Petria.rondaActiva = false
-elseif arg == "rayo" then
-  Petria.rondaHechizo = ciclo[1]
-  Petria.rondaActiva = true
-elseif arg == "ira" then
-  Petria.rondaHechizo = ciclo[2]
-  Petria.rondaActiva = true
-elseif arg == "destruir" then
-  Petria.rondaHechizo = ciclo[3]
+elseif elegir[arg] then
+  Petria.rondaHechizo = modos[elegir[arg]][2]
   Petria.rondaActiva = true
 else
-  cecho("<red>Uso: aa [on|off|rayo|ira|destruir]\n")
+  cecho("<red>Uso: aa [on|off|jefe|area|pvp]\n")
   return
 end
-cecho(string.format("<cyan>aa: %s, hechizo: %s\n", Petria.rondaActiva and "ON" or "OFF", Petria.rondaHechizo))'''
+local idx = indiceActual()
+local etiqueta = Petria.rondaActiva and (idx > 0 and modos[idx][1] or "ON") or "OFF"
+cecho(string.format("<cyan>Ronda: %s, hechizo: %s\n", etiqueta, Petria.rondaHechizo))'''
 )
 
 make_alias(
