@@ -502,6 +502,30 @@ end</script>
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Objetivo no maligno: dejar de lanzar</name>
+					<script>local kw = Petria.palabraClave(matches[2])
+if kw and not Petria.noMalignos[kw] then
+  Petria.noMalignos[kw] = true
+  cecho("&lt;yellow&gt;Ronda: '" .. kw .. "' no es maligno; los hechizos de ataque no le hacen nada, dejo de lanzarle (aa limpiar para olvidar).\n")
+end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^(.+?) no es ning[uú]n ser maligno</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Ronda: lanzar hechizo</name>
 					<script>if not Petria.rondaActiva then return end
 if cd_ronda == 1 then return end
@@ -520,12 +544,11 @@ if mana and maxmana and maxmana &gt; 0 and mana &lt; maxmana * 0.4
 end
 -- "conjurar" toma una sola palabra de objetivo: sacar una palabra clave del
 -- nombre ("El diablo ingeniero" -&gt; "diablo").
-local articulos = {el = true, la = true, los = true, las = true, un = true, una = true}
-local kw
-for w in (matches[2] or ""):lower():gmatch("%S+") do
-  if not articulos[w] and #w &gt; 2 then kw = w; break end
-end
+local kw = Petria.palabraClave(matches[2])
 if not kw then return end
+-- Los hechizos de ataque de Oteren solo dan a seres malignos: si el juego ya
+-- dijo "no es ningun ser maligno" de este tipo de mob, no gastar mana.
+if Petria.noMalignos[kw] then return end
 cd_ronda = 1
 tempTimer(1, function() cd_ronda = 0 end)
 send("conjurar '" .. Petria.rondaHechizo .. "' " .. kw)</script>
@@ -2365,6 +2388,10 @@ if arg == "" then
       Petria.rondaHechizo = modos[idx + 1][2]
     end
   end
+elseif arg == "limpiar" then
+  Petria.noMalignos = {}
+  cecho("&lt;cyan&gt;aa: olvidados los mobs marcados como no malignos\n")
+  return
 elseif arg == "on" then
   Petria.rondaActiva = true
 elseif arg == "off" then
@@ -3233,7 +3260,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789925273
+Petria.version = 1789925821
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -3283,6 +3310,17 @@ end
 -- "Ronda: lanzar hechizo" en Pelea).
 if Petria.rondaActiva == nil then Petria.rondaActiva = false end
 Petria.rondaHechizo = Petria.rondaHechizo or "rayo de sinceridad"
+
+-- Palabra clave de un nombre de mob para comandos de una sola palabra
+-- ("Una hormiga pretoriana" -&gt; "hormiga"). Memoria de tipos "no malignos".
+Petria.articulos = {el = true, la = true, los = true, las = true, un = true, una = true}
+Petria.noMalignos = Petria.noMalignos or {}
+function Petria.palabraClave(nombre)
+  for w in (nombre or ""):lower():gmatch("%S+") do
+    if not Petria.articulos[w] and #w &gt; 2 then return w end
+  end
+  return nil
+end
 
 -- true si "v" tiene un nombre de arma configurado. Confirmado en juego: gua /
 -- bla / segun aceptan el nombre completo ("la Mandibula del fin de la Reina

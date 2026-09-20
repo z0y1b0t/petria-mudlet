@@ -365,6 +365,18 @@ if mv and mvmax and mvmax > 0 and mv < mvmax * 0.25 and (not cd_mv or cd_mv == 0
 end''',
     [r"^(.+?) (?:tiene algunos cortes|est[aá] bastante herido|est[aá] en mal estado|est[aá] malherido|nota que la muerte le llama|est[aá] en una excelente condici[oó]n)"],
 )
+# Confirmado en juego (hormigas de la Reina): ira divina contra un mob no
+# maligno responde "X no es ningun ser maligno...." y gasta mana y una ronda.
+# Se recuerda el tipo de mob y la ronda deja de lanzarle hechizos.
+make_trigger(
+    pelea_trig_group, "Objetivo no maligno: dejar de lanzar",
+    r'''local kw = Petria.palabraClave(matches[2])
+if kw and not Petria.noMalignos[kw] then
+  Petria.noMalignos[kw] = true
+  cecho("<yellow>Ronda: '" .. kw .. "' no es maligno; los hechizos de ataque no le hacen nada, dejo de lanzarle (aa limpiar para olvidar).\n")
+end''',
+    [r"^(.+?) no es ning[uú]n ser maligno"],
+)
 make_trigger(
     pelea_trig_group, "Ronda: lanzar hechizo",
     r'''if not Petria.rondaActiva then return end
@@ -384,12 +396,11 @@ if mana and maxmana and maxmana > 0 and mana < maxmana * 0.4
 end
 -- "conjurar" toma una sola palabra de objetivo: sacar una palabra clave del
 -- nombre ("El diablo ingeniero" -> "diablo").
-local articulos = {el = true, la = true, los = true, las = true, un = true, una = true}
-local kw
-for w in (matches[2] or ""):lower():gmatch("%S+") do
-  if not articulos[w] and #w > 2 then kw = w; break end
-end
+local kw = Petria.palabraClave(matches[2])
 if not kw then return end
+-- Los hechizos de ataque de Oteren solo dan a seres malignos: si el juego ya
+-- dijo "no es ningun ser maligno" de este tipo de mob, no gastar mana.
+if Petria.noMalignos[kw] then return end
 cd_ronda = 1
 tempTimer(1, function() cd_ronda = 0 end)
 send("conjurar '" .. Petria.rondaHechizo .. "' " .. kw)''',
@@ -957,6 +968,10 @@ if arg == "" then
       Petria.rondaHechizo = modos[idx + 1][2]
     end
   end
+elseif arg == "limpiar" then
+  Petria.noMalignos = {}
+  cecho("<cyan>aa: olvidados los mobs marcados como no malignos\n")
+  return
 elseif arg == "on" then
   Petria.rondaActiva = true
 elseif arg == "off" then
@@ -1552,6 +1567,17 @@ end
 -- "Ronda: lanzar hechizo" en Pelea).
 if Petria.rondaActiva == nil then Petria.rondaActiva = false end
 Petria.rondaHechizo = Petria.rondaHechizo or "rayo de sinceridad"
+
+-- Palabra clave de un nombre de mob para comandos de una sola palabra
+-- ("Una hormiga pretoriana" -> "hormiga"). Memoria de tipos "no malignos".
+Petria.articulos = {{el = true, la = true, los = true, las = true, un = true, una = true}}
+Petria.noMalignos = Petria.noMalignos or {{}}
+function Petria.palabraClave(nombre)
+  for w in (nombre or ""):lower():gmatch("%S+") do
+    if not Petria.articulos[w] and #w > 2 then return w end
+  end
+  return nil
+end
 
 -- true si "v" tiene un nombre de arma configurado. Confirmado en juego: gua /
 -- bla / segun aceptan el nombre completo ("la Mandibula del fin de la Reina
