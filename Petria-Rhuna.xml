@@ -3131,7 +3131,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789921464
+Petria.version = 1789923341
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -3838,6 +3838,26 @@ function PeleaActualizarVitalsGMCP()
   HPmax = tonumber(v.maxhp)
   if not HPcur or not HPmax or HPmax &lt;= 0 then return end
   HPpct = math.floor((HPcur * 100) / HPmax)
+
+  -- Movimiento bajo EN COMBATE: pelear contra un enjambre (Reina Roja) gasta
+  -- 20-35 de mv por ronda esquivando; al llegar a 0 dejo de esquivar y las
+  -- mordidas pasaron de ~50-100 a ~180-260 por ronda (log en juego). Con mv
+  -- en 0 el server no manda ningun mensaje, asi que el trigger de "demasiado
+  -- cansado" nunca arranco. "c refrescar" confirmado en juego: +222 de mv.
+  -- Solo clases con el hechizo (helpfile): Oteren y las listadas abajo.
+  local mv, mvmax = tonumber(v.move), tonumber(v.maxmove)
+  if mv and mvmax and mvmax &gt; 0 and en_combate and en_combate ~= 0
+     and mv &lt; mvmax * 0.25 and (not cd_mv or cd_mv == 0) then
+    local completa = gmcp.Char.Base and gmcp.Char.Base.class
+    local nombre = completa and tostring(completa):lower() or ""
+    local sinRefrescar = {seguidores_de_runk = true, druida = true, ladron = true}
+    local mana = tonumber(v.mana)
+    if nombre ~= "" and not sinRefrescar[nombre] and (not mana or mana &gt;= 50) then
+      send("c refrescar")
+      cd_mv = 1
+      tempTimer(3, function() cd_mv = 0 end)
+    end
+  end
 
   if not curando or curando == 0 then
     if HPpct &lt; 35 then

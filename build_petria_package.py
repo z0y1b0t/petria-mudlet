@@ -2060,6 +2060,26 @@ function PeleaActualizarVitalsGMCP()
   if not HPcur or not HPmax or HPmax <= 0 then return end
   HPpct = math.floor((HPcur * 100) / HPmax)
 
+  -- Movimiento bajo EN COMBATE: pelear contra un enjambre (Reina Roja) gasta
+  -- 20-35 de mv por ronda esquivando; al llegar a 0 dejo de esquivar y las
+  -- mordidas pasaron de ~50-100 a ~180-260 por ronda (log en juego). Con mv
+  -- en 0 el server no manda ningun mensaje, asi que el trigger de "demasiado
+  -- cansado" nunca arranco. "c refrescar" confirmado en juego: +222 de mv.
+  -- Solo clases con el hechizo (helpfile): Oteren y las listadas abajo.
+  local mv, mvmax = tonumber(v.move), tonumber(v.maxmove)
+  if mv and mvmax and mvmax > 0 and en_combate and en_combate ~= 0
+     and mv < mvmax * 0.25 and (not cd_mv or cd_mv == 0) then
+    local completa = gmcp.Char.Base and gmcp.Char.Base.class
+    local nombre = completa and tostring(completa):lower() or ""
+    local sinRefrescar = {seguidores_de_runk = true, druida = true, ladron = true}
+    local mana = tonumber(v.mana)
+    if nombre ~= "" and not sinRefrescar[nombre] and (not mana or mana >= 50) then
+      send("c refrescar")
+      cd_mv = 1
+      tempTimer(3, function() cd_mv = 0 end)
+    end
+  end
+
   if not curando or curando == 0 then
     if HPpct < 35 then
       send("traga sa"); send("traga sa"); send("traga sa")
