@@ -377,6 +377,22 @@ if kw and not Petria.noMalignos[kw] then
 end''',
     [r"^(.+?) no es ning[uú]n ser maligno"],
 )
+# Confirmado en juego (un "equipaje"): "El equipaje es inmune a tu ira divina!"
+# (tambien a empalar, relampago luminoso y rafaga gelida). La ronda seguia
+# lanzando ira divina cada ronda. Se recuerda por tipo de mob y hechizo.
+make_trigger(
+    pelea_trig_group, "Inmune a un hechizo de ronda: probar otro",
+    r'''local kw = Petria.palabraClave(matches[2])
+local ataque = (matches[3] or ""):lower()
+if kw and (ataque == "ira divina" or ataque == "rayo de sinceridad" or ataque == "destruir maldad") then
+  Petria.inmunes[kw] = Petria.inmunes[kw] or {}
+  if not Petria.inmunes[kw][ataque] then
+    Petria.inmunes[kw][ataque] = true
+    cecho("<yellow>Ronda: '" .. kw .. "' es inmune a " .. ataque .. "; pruebo con otro hechizo (aa limpiar para olvidar).\n")
+  end
+end''',
+    [r"^(.+?) es inmune a tu (.+)!\s*$"],
+)
 make_trigger(
     pelea_trig_group, "Ronda: lanzar hechizo",
     r'''if not Petria.rondaActiva then return end
@@ -401,9 +417,21 @@ if not kw then return end
 -- Los hechizos de ataque de Oteren solo dan a seres malignos: si el juego ya
 -- dijo "no es ningun ser maligno" de este tipo de mob, no gastar mana.
 if Petria.noMalignos[kw] then return end
+-- Si el mob es inmune al hechizo elegido, probar los otros dos (el juego dice
+-- "X es inmune a tu ira divina!"); si es inmune a los tres, no lanzar.
+local ciclo = {"rayo de sinceridad", "ira divina", "destruir maldad"}
+local inm = Petria.inmunes[kw] or {}
+local hechizo = Petria.rondaHechizo
+if inm[hechizo] then
+  hechizo = nil
+  for _, h in ipairs(ciclo) do
+    if not inm[h] then hechizo = h; break end
+  end
+end
+if not hechizo then return end
 cd_ronda = 1
 tempTimer(1, function() cd_ronda = 0 end)
-send("conjurar '" .. Petria.rondaHechizo .. "' " .. kw)''',
+send("conjurar '" .. hechizo .. "' " .. kw)''',
     [r"^(.+?) (?:tiene algunos cortes|est[aá] bastante herido|est[aá] en mal estado|est[aá] malherido|nota que la muerte le llama|est[aá] en una excelente condici[oó]n)"],
 )
 # Confirmado en juego (PvP): sin pociones "traga sana" da "No tienes esa
@@ -970,7 +998,8 @@ if arg == "" then
   end
 elseif arg == "limpiar" then
   Petria.noMalignos = {}
-  cecho("<cyan>aa: olvidados los mobs marcados como no malignos\n")
+  Petria.inmunes = {}
+  cecho("<cyan>aa: olvidados los mobs marcados como no malignos o inmunes\n")
   return
 elseif arg == "on" then
   Petria.rondaActiva = true
@@ -1572,6 +1601,7 @@ Petria.rondaHechizo = Petria.rondaHechizo or "rayo de sinceridad"
 -- ("Una hormiga pretoriana" -> "hormiga"). Memoria de tipos "no malignos".
 Petria.articulos = {{el = true, la = true, los = true, las = true, un = true, una = true}}
 Petria.noMalignos = Petria.noMalignos or {{}}
+Petria.inmunes = Petria.inmunes or {{}}
 function Petria.palabraClave(nombre)
   for w in (nombre or ""):lower():gmatch("%S+") do
     if not Petria.articulos[w] and #w > 2 then return w end

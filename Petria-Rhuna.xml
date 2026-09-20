@@ -526,6 +526,34 @@ end</script>
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Inmune a un hechizo de ronda: probar otro</name>
+					<script>local kw = Petria.palabraClave(matches[2])
+local ataque = (matches[3] or ""):lower()
+if kw and (ataque == "ira divina" or ataque == "rayo de sinceridad" or ataque == "destruir maldad") then
+  Petria.inmunes[kw] = Petria.inmunes[kw] or {}
+  if not Petria.inmunes[kw][ataque] then
+    Petria.inmunes[kw][ataque] = true
+    cecho("&lt;yellow&gt;Ronda: '" .. kw .. "' es inmune a " .. ataque .. "; pruebo con otro hechizo (aa limpiar para olvidar).\n")
+  end
+end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^(.+?) es inmune a tu (.+)!\s*$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Ronda: lanzar hechizo</name>
 					<script>if not Petria.rondaActiva then return end
 if cd_ronda == 1 then return end
@@ -549,9 +577,21 @@ if not kw then return end
 -- Los hechizos de ataque de Oteren solo dan a seres malignos: si el juego ya
 -- dijo "no es ningun ser maligno" de este tipo de mob, no gastar mana.
 if Petria.noMalignos[kw] then return end
+-- Si el mob es inmune al hechizo elegido, probar los otros dos (el juego dice
+-- "X es inmune a tu ira divina!"); si es inmune a los tres, no lanzar.
+local ciclo = {"rayo de sinceridad", "ira divina", "destruir maldad"}
+local inm = Petria.inmunes[kw] or {}
+local hechizo = Petria.rondaHechizo
+if inm[hechizo] then
+  hechizo = nil
+  for _, h in ipairs(ciclo) do
+    if not inm[h] then hechizo = h; break end
+  end
+end
+if not hechizo then return end
 cd_ronda = 1
 tempTimer(1, function() cd_ronda = 0 end)
-send("conjurar '" .. Petria.rondaHechizo .. "' " .. kw)</script>
+send("conjurar '" .. hechizo .. "' " .. kw)</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -2390,7 +2430,8 @@ if arg == "" then
   end
 elseif arg == "limpiar" then
   Petria.noMalignos = {}
-  cecho("&lt;cyan&gt;aa: olvidados los mobs marcados como no malignos\n")
+  Petria.inmunes = {}
+  cecho("&lt;cyan&gt;aa: olvidados los mobs marcados como no malignos o inmunes\n")
   return
 elseif arg == "on" then
   Petria.rondaActiva = true
@@ -3260,7 +3301,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789925821
+Petria.version = 1789928739
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -3315,6 +3356,7 @@ Petria.rondaHechizo = Petria.rondaHechizo or "rayo de sinceridad"
 -- ("Una hormiga pretoriana" -&gt; "hormiga"). Memoria de tipos "no malignos".
 Petria.articulos = {el = true, la = true, los = true, las = true, un = true, una = true}
 Petria.noMalignos = Petria.noMalignos or {}
+Petria.inmunes = Petria.inmunes or {}
 function Petria.palabraClave(nombre)
   for w in (nombre or ""):lower():gmatch("%S+") do
     if not Petria.articulos[w] and #w &gt; 2 then return w end
