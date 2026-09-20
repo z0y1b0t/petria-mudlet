@@ -2220,7 +2220,9 @@ send("c 'curar deslumbrar'")
 if not Clases.tieneActivo("gatovision") then
   send("c gatovision")
 end
-if not Clases.tieneActivo("vision verdadera") then
+-- "vision verdadera" solo la tiene el dope del Mago: confirmado en juego
+-- que un Oteren recibe "No conoces ningun hechizo con ese nombre."
+if Clases.enDope("vision verdadera") and not Clases.tieneActivo("vision verdadera") then
   send("conjurar 'vision verdadera'")
 end
 
@@ -2747,7 +2749,10 @@ local function intentar()
       cecho(string.format("&lt;red&gt;Cancelacion fallida tras %d intentos.\n", intentosMax))
     end
   end
-  idExito = tempRegexTrigger("se desvanece\\.", function()
+  -- Ademas de "se desvanece." (santuario), quitar acelerar da "X ya no va
+  -- a toda velocidad. Ok." (confirmado en juego): sin esto el alias lo
+  -- tomaba por fallo y reintentaba, gastando casts de mas.
+  idExito = tempRegexTrigger("(?:se desvanece|ya no va a toda velocidad)\\.", function()
     if terminado then return end
     terminado = true
     limpiar()
@@ -3114,7 +3119,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789878466
+Petria.version = 1789878852
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
