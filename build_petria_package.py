@@ -399,6 +399,18 @@ end''',
 # contra JUGADORES: su nombre sale de una palabra y sin articulo ("Needle"),
 # los mobs traen articulo o varias palabras. El trigger ya existente
 # "Recuperado de golpetazo" lo reaplica cuando se le acaba el efecto.
+# Mensaje confirmado en juego cuando TE aplican golpetazo: "!X te hace ver las
+# estrellas con un poderoso golpetazo!". El golpetazo impide tomar pociones
+# (dato del jugador); se marca 10 s (duracion sin confirmar) y la autocura pasa
+# a "c sanar" si eres Oteren.
+make_trigger(
+    pelea_trig_group, "Golpetazo recibido: sin pociones, curar con hechizo",
+    r'''Petria.sinPocionesHasta = os.time() + 10
+if Petria.puedeSanarConHechizo() then
+  cecho("<yellow>Golpetazo: sin pociones unos segundos, me curo con c sanar\n")
+end''',
+    [r"te hace ver las estrellas con un poderoso golpetazo"],
+)
 make_trigger(
     pelea_trig_group, "PvP: golpetazo si el rival esta bajo de HP",
     r'''if Petria.golpetazoPvP == false then return end
@@ -1623,7 +1635,24 @@ end
 -- Torre (sala #5805), se agarra de paso subiendo. Usa "zap", no "traga",
 -- asi que no entra en el bloqueo. Usado por las teclas sanar/MAC-Sanar
 -- en vez de repetir la logica en cada una.
+-- true mientras dura (estimado) el golpetazo que te dejo sin pociones. Lo marca
+-- el trigger "Golpetazo recibido". Duracion desconocida: 10 s por defecto.
+function Petria.sinPociones()
+  return Petria.sinPocionesHasta ~= nil and os.time() < Petria.sinPocionesHasta
+end
+
+-- Solo el Oteren tiene "sanar" entre las clases que uso; el Mago no puede
+-- curarse de otra forma cuando le aplican golpetazo.
+function Petria.puedeSanarConHechizo()
+  local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
+  return completa ~= nil and tostring(completa):lower():find("oteren", 1, true) ~= nil
+end
+
 function Petria.sanar()
+  if Petria.sinPociones() and Petria.puedeSanarConHechizo() then
+    send("c sanar")
+    return
+  end
   if Petria.enZonaSinPociones() then
     -- "sos" falla si ya estas dual-wield -- guardar ambas armas antes,
     -- no alcanza con reequiparlas despues (confirmado en juego).
@@ -2294,7 +2323,8 @@ function PeleaActualizarVitalsGMCP()
     elseif HPpct < 55 then n = 2
     elseif HPpct < 75 then n = 1 end
     if n > 0 then
-      if Petria.enZonaSinPociones and Petria.enZonaSinPociones() then
+      if (Petria.enZonaSinPociones and Petria.enZonaSinPociones())
+         or (Petria.sinPociones and Petria.sinPociones()) then
         Petria.sanar()
       else
         for _ = 1, n do send("traga sana") end

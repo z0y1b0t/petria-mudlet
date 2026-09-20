@@ -554,6 +554,29 @@ end</script>
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Golpetazo recibido: sin pociones, curar con hechizo</name>
+					<script>Petria.sinPocionesHasta = os.time() + 10
+if Petria.puedeSanarConHechizo() then
+  cecho("&lt;yellow&gt;Golpetazo: sin pociones unos segundos, me curo con c sanar\n")
+end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>te hace ver las estrellas con un poderoso golpetazo</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>PvP: golpetazo si el rival esta bajo de HP</name>
 					<script>if Petria.golpetazoPvP == false then return end
 if cd_golpetazo == 1 then return end
@@ -3361,7 +3384,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789930110
+Petria.version = 1789930871
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -3391,7 +3414,24 @@ end
 -- Torre (sala #5805), se agarra de paso subiendo. Usa "zap", no "traga",
 -- asi que no entra en el bloqueo. Usado por las teclas sanar/MAC-Sanar
 -- en vez de repetir la logica en cada una.
+-- true mientras dura (estimado) el golpetazo que te dejo sin pociones. Lo marca
+-- el trigger "Golpetazo recibido". Duracion desconocida: 10 s por defecto.
+function Petria.sinPociones()
+  return Petria.sinPocionesHasta ~= nil and os.time() &lt; Petria.sinPocionesHasta
+end
+
+-- Solo el Oteren tiene "sanar" entre las clases que uso; el Mago no puede
+-- curarse de otra forma cuando le aplican golpetazo.
+function Petria.puedeSanarConHechizo()
+  local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
+  return completa ~= nil and tostring(completa):lower():find("oteren", 1, true) ~= nil
+end
+
 function Petria.sanar()
+  if Petria.sinPociones() and Petria.puedeSanarConHechizo() then
+    send("c sanar")
+    return
+  end
   if Petria.enZonaSinPociones() then
     -- "sos" falla si ya estas dual-wield -- guardar ambas armas antes,
     -- no alcanza con reequiparlas despues (confirmado en juego).
@@ -4137,7 +4177,8 @@ function PeleaActualizarVitalsGMCP()
     elseif HPpct &lt; 55 then n = 2
     elseif HPpct &lt; 75 then n = 1 end
     if n &gt; 0 then
-      if Petria.enZonaSinPociones and Petria.enZonaSinPociones() then
+      if (Petria.enZonaSinPociones and Petria.enZonaSinPociones())
+         or (Petria.sinPociones and Petria.sinPociones()) then
         Petria.sanar()
       else
         for _ = 1, n do send("traga sana") end
