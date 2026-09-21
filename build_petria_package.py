@@ -586,6 +586,17 @@ end''',
     [r"^(.+?) (?:tiene algunos cortes|est[aá] bastante herido|est[aá] en mal estado|est[aá] malherido|nota que la muerte le llama|est[aá] en una excelente condici[oó]n)"],
 )
 make_trigger(
+    pelea_trig_group, "Astral contra NPC: apagar ronda (quema el mana)",
+    r'''-- Confirmado en juego (Slime, forma astral): contra NPC el rayo de luna pega
+-- ~30 y quema ~90 de mana por cast (452 -> 0 en 5 casts).
+if Petria.rondaActiva then
+  Petria.rondaActiva = false
+  Petria.rondaPend = nil
+  cecho("<red>Ronda apagada: en forma astral los NPC te queman el mana (30 de dano por ~90 de mana). Astral es solo para PvP: forma_druida para volver.\n")
+end''',
+    [r"no est[aá] en sinton[ií]a con tu poder astral y quema tu man[aá]"],
+)
+make_trigger(
     pelea_trig_group, "Ronda: hechizo desconocido (otra forma o nivel), apagar",
     r'''if Petria.rondaActiva and Petria.rondaPend and os.time() - Petria.rondaPend < 4 then
   Petria.rondaActiva = false
@@ -616,7 +627,9 @@ if esDruida then
   Petria.rondaPend = os.time()
   cd_ronda = 1
   tempTimer(1, function() cd_ronda = 0 end)
-  send("conjurar 'rayo de luna'")
+  local sp = Petria.rondaHechizo
+  if sp ~= "lluvia de estrellas" then sp = "rayo de luna" end
+  send("conjurar '" .. sp .. "'")
   return
 end
 if mana and mana < 100 then return end
@@ -1202,12 +1215,22 @@ make_alias(
 -- JEFE = rayo de sinceridad (un objetivo, deslumbra); AREA = ira divina
 -- (pega a todos los malignos de la sala); PVP = destruir maldad.
 if clase == "druida" then
+  -- Carrusel: OFF -> rayo de luna (un objetivo) -> lluvia de estrellas (toda
+  -- la sala, sin objetivo; en astral no daña a tu grupo) -> OFF.
   local arg = (matches[2] or ""):lower()
   if arg == "off" then Petria.rondaActiva = false
-  elseif arg == "on" then Petria.rondaActiva = true
-  else Petria.rondaActiva = not Petria.rondaActiva end
-  Petria.rondaHechizo = "rayo de luna"
-  cecho(Petria.rondaActiva and "<cyan>Ronda: rayo de luna\n" or "<cyan>Ronda: OFF\n")
+  elseif arg == "on" or arg == "rayo" or arg == "luna" then
+    Petria.rondaActiva = true; Petria.rondaHechizo = "rayo de luna"
+  elseif arg == "lluvia" or arg == "area" or arg == "estrellas" then
+    Petria.rondaActiva = true; Petria.rondaHechizo = "lluvia de estrellas"
+  elseif not Petria.rondaActiva then
+    Petria.rondaActiva = true; Petria.rondaHechizo = "rayo de luna"
+  elseif Petria.rondaHechizo ~= "lluvia de estrellas" then
+    Petria.rondaHechizo = "lluvia de estrellas"
+  else
+    Petria.rondaActiva = false
+  end
+  cecho(Petria.rondaActiva and ("<cyan>Ronda: " .. Petria.rondaHechizo .. "\n") or "<cyan>Ronda: OFF\n")
   return
 end
 local modos = {
@@ -2200,9 +2223,9 @@ Clases.buffsDeCombate = {
 function Clases.reponer(nombreDope, comando)
   if not Clases.enDope(nombreDope) then return end
   -- El druida recibe santuario a nivel 30: antes de eso lo renueva la pocion
-  -- de fabada ("q fabada", confirmado por el jugador), tambien en combate.
+  -- de fabada ("traga fabada"), tambien en combate.
   if nombreDope == "santuario" and clase == "druida" then
-    Petria.traga("fabada", "q")
+    Petria.traga("fabada")
     return
   end
   -- Confirmado en juego: un Oteren peleando recibe "No alcanzas la
@@ -2241,8 +2264,8 @@ function Clases.dopar(lista, obj)
       if Clases.tieneActivo(hechizo) then
         cecho("<gray>Ya activo, salteado: " .. hechizo .. "\\n")
       elseif hechizo == "santuario" and clase == "druida" then
-        cecho("<cyan>Dopando: santuario (q fabada)\\n")
-        Petria.traga("fabada", "q")
+        cecho("<cyan>Dopando: santuario (traga fabada)\\n")
+        Petria.traga("fabada")
       else
         cecho("<cyan>Dopando: " .. hechizo .. "\\n")
         send("cast '" .. hechizo .. "'")
