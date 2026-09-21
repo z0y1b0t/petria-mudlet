@@ -859,9 +859,7 @@ if rasOBJ and rasOBJ ~= "" then send("c 'debilidad acida' " .. rasOBJ) end</scri
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Cooldown golpe acido</name>
-					<script>Pelea.programarSiEnCombate(4, function()
-  if not qcomm or qcomm &lt;= 2 then send("c golpe") end
-end)</script>
+					<script>Pelea.pedirBase()</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -922,14 +920,8 @@ send("bebe")</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Inmune a golpe acido</name>
-					<script>-- "GA01" no existe como trigger group real en este paquete (resto
--- vestigial de CMUD, el pcall solo evita que tire error). No hace
--- falta mandar nada mas aca: el golpe acido ya no se reintenta solo
--- porque su propio loop de cooldown esta atado a su mensaje de EXITO
--- (que nunca llega si es inmune), y "aliento tormentoso" (rayo) sigue
--- pegando solo via su propio loop independiente ("Cooldown aliento
--- tormentoso"), sin depender de este trigger -- confirmado en juego.
-pcall(disableTriggerGroup, "GA01")</script>
+					<script>Pelea.acidoInmune = true
+Pelea.pedirBase()</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -948,8 +940,28 @@ pcall(disableTriggerGroup, "GA01")</script>
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Hechizo base fallado: reintentar</name>
+					<script>Pelea.pedirBase()</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Has fallado\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Cooldown aliento tormentoso</name>
-					<script>Pelea.programarSiEnCombate(5, function() send("c 'aliento tormentoso'") end)</script>
+					<script>Pelea.pedirBase()</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -1486,7 +1498,7 @@ tempTimer(3, function() send("espi") end)</script>
 					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 						<name>Vulnerable al Rayo</name>
 						<script>rayo_ok = 1
-send("c 'aliento tormentoso'")</script>
+Pelea.pedirBase()</script>
 						<triggerType>0</triggerType>
 						<conditonLineDelta>0</conditonLineDelta>
 						<mStayOpen>0</mStayOpen>
@@ -1532,7 +1544,7 @@ send("c 'aliento tormentoso'")</script>
 -- la pelea. "c \"golpe acido\"" (con comillas y la palabra de mas) no
 -- es el comando real, quedaba sin usarse.
 acido_ok = 1
-send("c golpe")</script>
+Pelea.pedirBase()</script>
 						<triggerType>0</triggerType>
 						<conditonLineDelta>0</conditonLineDelta>
 						<mStayOpen>0</mStayOpen>
@@ -3718,7 +3730,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789947141
+Petria.version = 1789954932
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -4577,7 +4589,42 @@ function Pelea.cancelarTimersPendientes()
   Pelea.timersPendientes = {}
 end
 
+-- Ataque base del mago: UNA sola cola entre aliento tormentoso y golpe acido.
+-- Datos de log (Reina Roja, 92 rondas): aliento ~490-600, golpe acido ~160-175
+-- (478 solo si el blanco es vulnerable al acido). Se elige aliento salvo que
+-- el blanco sea vulnerable al acido y no al rayo, o que aliento no aplique.
+-- Solo se envia con el lag del prompt (qcomm, el [N] antes de la G) &lt;= 1 y
+-- nunca antes de 2 s del ultimo envio, para no acumular comandos.
+Pelea.acidoInmune = Pelea.acidoInmune or false
+Pelea.basePend = false
+Pelea.baseUlt = 0
+
+function Pelea.elegirBase()
+  if acido_ok == 1 and rayo_ok ~= 1 and not Pelea.acidoInmune then
+    return "c golpe"
+  end
+  return "c 'aliento tormentoso'"
+end
+
+function Pelea.pedirBase()
+  if Pelea.basePend then return end
+  Pelea.basePend = true
+  local function tick(n)
+    if not en_combate or en_combate == 0 then Pelea.basePend = false return end
+    local espera = 2 - (os.time() - Pelea.baseUlt)
+    if ((qcomm or 0) &gt; 1 or espera &gt; 0) and n &lt; 8 then
+      tempTimer(0.7, function() tick(n + 1) end)
+      return
+    end
+    Pelea.basePend = false
+    Pelea.baseUlt = os.time()
+    send(Pelea.elegirBase())
+  end
+  tempTimer(0.7, function() tick(0) end)
+end
+
 function ResetAliento()
+  Pelea.acidoInmune = false
   rayo_ok = 0
   fuego_ok = 0
   acido_ok = 0

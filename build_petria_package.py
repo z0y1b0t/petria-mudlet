@@ -682,9 +682,7 @@ make_trigger(
 )
 make_trigger(
     pelea_trig_group, "Cooldown golpe acido",
-    'Pelea.programarSiEnCombate(4, function()\n'
-    '  if not qcomm or qcomm <= 2 then send("c golpe") end\n'
-    'end)',
+    'Pelea.pedirBase()',
     [r"^Tu golpe acido hace"],
 )
 make_trigger(
@@ -699,19 +697,17 @@ make_trigger(
 )
 make_trigger(
     pelea_trig_group, "Inmune a golpe acido",
-    '-- "GA01" no existe como trigger group real en este paquete (resto\n'
-    '-- vestigial de CMUD, el pcall solo evita que tire error). No hace\n'
-    '-- falta mandar nada mas aca: el golpe acido ya no se reintenta solo\n'
-    '-- porque su propio loop de cooldown esta atado a su mensaje de EXITO\n'
-    '-- (que nunca llega si es inmune), y "aliento tormentoso" (rayo) sigue\n'
-    '-- pegando solo via su propio loop independiente ("Cooldown aliento\n'
-    '-- tormentoso"), sin depender de este trigger -- confirmado en juego.\n'
-    'pcall(disableTriggerGroup, "GA01")',
+    'Pelea.acidoInmune = true\nPelea.pedirBase()',
     [r"es inmune a tu golpe acido!"],
 )
 make_trigger(
+    pelea_trig_group, "Hechizo base fallado: reintentar",
+    'Pelea.pedirBase()',
+    [r"^Has fallado\.$"],
+)
+make_trigger(
     pelea_trig_group, "Cooldown aliento tormentoso",
-    'Pelea.programarSiEnCombate(5, function() send("c \'aliento tormentoso\'") end)',
+    'Pelea.pedirBase()',
     [r"^Escupes un tremendo rayo"],
 )
 make_trigger(
@@ -865,7 +861,7 @@ make_trigger(pelea_trig_group, "Astucia gnoma se disipa (racial, no de clase)", 
 
 # --- Subcarpeta ATAQUES ---
 ataques_group = make_trigger_group(pelea_trig_group, "ATAQUES")
-make_trigger(ataques_group, "Vulnerable al Rayo", 'rayo_ok = 1\nsend("c \'aliento tormentoso\'")', [r"vulnerable al Rayo\."])
+make_trigger(ataques_group, "Vulnerable al Rayo", 'rayo_ok = 1\nPelea.pedirBase()', [r"vulnerable al Rayo\."])
 make_trigger(ataques_group, "Vulnerable al Fuego", "fuego_ok = 1", [r"vulnerable al Fuego\."])
 make_trigger(
     ataques_group, "Vulnerable al Acido",
@@ -875,7 +871,7 @@ make_trigger(
     '-- la pelea. "c \\"golpe acido\\"" (con comillas y la palabra de mas) no\n'
     '-- es el comando real, quedaba sin usarse.\n'
     'acido_ok = 1\n'
-    'send("c golpe")',
+    'Pelea.pedirBase()',
     [r"vulnerable al acido\."],
 )
 
@@ -2587,7 +2583,42 @@ function Pelea.cancelarTimersPendientes()
   Pelea.timersPendientes = {}
 end
 
+-- Ataque base del mago: UNA sola cola entre aliento tormentoso y golpe acido.
+-- Datos de log (Reina Roja, 92 rondas): aliento ~490-600, golpe acido ~160-175
+-- (478 solo si el blanco es vulnerable al acido). Se elige aliento salvo que
+-- el blanco sea vulnerable al acido y no al rayo, o que aliento no aplique.
+-- Solo se envia con el lag del prompt (qcomm, el [N] antes de la G) <= 1 y
+-- nunca antes de 2 s del ultimo envio, para no acumular comandos.
+Pelea.acidoInmune = Pelea.acidoInmune or false
+Pelea.basePend = false
+Pelea.baseUlt = 0
+
+function Pelea.elegirBase()
+  if acido_ok == 1 and rayo_ok ~= 1 and not Pelea.acidoInmune then
+    return "c golpe"
+  end
+  return "c 'aliento tormentoso'"
+end
+
+function Pelea.pedirBase()
+  if Pelea.basePend then return end
+  Pelea.basePend = true
+  local function tick(n)
+    if not en_combate or en_combate == 0 then Pelea.basePend = false return end
+    local espera = 2 - (os.time() - Pelea.baseUlt)
+    if ((qcomm or 0) > 1 or espera > 0) and n < 8 then
+      tempTimer(0.7, function() tick(n + 1) end)
+      return
+    end
+    Pelea.basePend = false
+    Pelea.baseUlt = os.time()
+    send(Pelea.elegirBase())
+  end
+  tempTimer(0.7, function() tick(0) end)
+end
+
 function ResetAliento()
+  Pelea.acidoInmune = false
   rayo_ok = 0
   fuego_ok = 0
   acido_ok = 0
