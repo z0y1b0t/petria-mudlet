@@ -792,7 +792,9 @@ local maxhp = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vit
 if hp and maxhp and maxhp &gt; 0 and hp &gt;= maxhp * 0.8 then return end
 cd_sinpocion = 1
 tempTimer(1, function() cd_sinpocion = 0 end)
-send("c sanar")</script>
+local h = Petria.hechizoCura and Petria.hechizoCura()
+if not h then return end
+send(h)</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -805,6 +807,48 @@ send("c sanar")</script>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
 						<string>^No tienes esa pocion\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Sin pociones de sana: recordarlo un minuto</name>
+					<script>if Petria.ultPocion == "sana" and Petria.ultPocionAt and os.time() - Petria.ultPocionAt &lt;= 3 then
+  Petria.sinSanaHasta = os.time() + 60
+end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^No tienes esa pocion\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Pocion de sana tomada: hay stock</name>
+					<script>Petria.sinSanaHasta = nil</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Te tragas una Pocion de sanar\.</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -3848,7 +3892,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1790011290
+Petria.version = 1790012582
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -3900,20 +3944,29 @@ end
 
 -- Solo el Oteren tiene "sanar" entre las clases que uso; el Mago no puede
 -- curarse de otra forma cuando le aplican golpetazo.
-function Petria.puedeSanarConHechizo()
+-- Hechizo de cura propio de la clase: Oteren "sanar"; Druida "curar serio"
+-- (confirmado en juego: ~38-46 de HP por cast). Otras clases: ninguno.
+function Petria.hechizoCura()
   local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
-  return completa ~= nil and tostring(completa):lower():find("oteren", 1, true) ~= nil
+  local c = completa and tostring(completa):lower() or ""
+  if c:find("oteren", 1, true) then return "c sanar" end
+  if c == "druida" then return "c 'curar serio'" end
+  return nil
+end
+
+function Petria.puedeSanarConHechizo()
+  return Petria.hechizoCura() ~= nil
 end
 
 function Petria.sanar()
   if Petria.sinPociones() and Petria.puedeSanarConHechizo() then
-    send("c sanar")
+    send(Petria.hechizoCura())
     return
   end
   if Petria.enZonaSinPociones() then
     -- Modo torneo: sin varitas disponibles, un Oteren cae a "c sanar".
     if not Petria.usaVarita() then
-      if Petria.puedeSanarConHechizo() then send("c sanar") end
+      if Petria.puedeSanarConHechizo() then send(Petria.hechizoCura()) end
       return
     end
     -- "sos" falla si ya estas dual-wield -- guardar ambas armas antes,
@@ -3927,8 +3980,11 @@ function Petria.sanar()
     if Petria.armaValida(armaSecundaria) then send("segun " .. armaSecundaria) end
   else
     -- Modo torneo: sin pociones disponibles, un Oteren cae a "c sanar".
-    if not Petria.traga("sana") and Petria.puedeSanarConHechizo() then
-      send("c sanar")
+    -- Sin pociones de sana (el juego dijo "No tienes esa pocion" hace poco): ir
+    -- directo al hechizo de la clase en vez de repetir "traga sana" cada ronda.
+    local sinSana = Petria.sinSanaHasta and os.time() &lt; Petria.sinSanaHasta
+    if sinSana or not Petria.traga("sana") then
+      if Petria.puedeSanarConHechizo() then send(Petria.hechizoCura()) end
     end
   end
 end
@@ -3969,6 +4025,7 @@ function Petria.traga(obj, verbo)
     return false
   end
   Petria.pocPend = (Petria.pocPend or 0) + 1
+  Petria.ultPocion, Petria.ultPocionAt = obj, os.time()
   send((verbo or "traga") .. " " .. obj)
   return true
 end
@@ -4025,7 +4082,7 @@ function Petria.pvpRecuperar()
         HPpct or 0, Petria.pvpAtacante or ""))
       return
     end
-    if Petria.puedeSanarConHechizo() then send("c sanar") else Petria.sanar() end
+    if Petria.puedeSanarConHechizo() then send(Petria.hechizoCura()) else Petria.sanar() end
     tempTimer(2, curar)
   end
   tempTimer(3, curar)
@@ -4823,6 +4880,7 @@ function PeleaActualizarVitalsGMCP()
     if n &gt; 0 then
       if (Petria.enZonaSinPociones and Petria.enZonaSinPociones())
          or (Petria.sinPociones and Petria.sinPociones())
+         or (Petria.sinSanaHasta and os.time() &lt; Petria.sinSanaHasta)
          or Petria.pocionesRestantes() &lt;= 0 then
         Petria.sanar()
       else

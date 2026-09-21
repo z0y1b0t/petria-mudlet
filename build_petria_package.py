@@ -681,8 +681,22 @@ make_trigger(
     'if hp and maxhp and maxhp > 0 and hp >= maxhp * 0.8 then return end\n'
     'cd_sinpocion = 1\n'
     'tempTimer(1, function() cd_sinpocion = 0 end)\n'
-    'send("c sanar")',
+    'local h = Petria.hechizoCura and Petria.hechizoCura()\n'
+    'if not h then return end\n'
+    'send(h)',
     [r"^No tienes esa pocion\.$"],
+)
+make_trigger(
+    pelea_trig_group, "Sin pociones de sana: recordarlo un minuto",
+    'if Petria.ultPocion == "sana" and Petria.ultPocionAt and os.time() - Petria.ultPocionAt <= 3 then\n'
+    '  Petria.sinSanaHasta = os.time() + 60\n'
+    'end',
+    [r"^No tienes esa pocion\.$"],
+)
+make_trigger(
+    pelea_trig_group, "Pocion de sana tomada: hay stock",
+    'Petria.sinSanaHasta = nil',
+    [r"^Te tragas una Pocion de sanar\."],
 )
 make_trigger(
     pelea_trig_group, "Demasiado cansado: refrescar",
@@ -1935,20 +1949,29 @@ end
 
 -- Solo el Oteren tiene "sanar" entre las clases que uso; el Mago no puede
 -- curarse de otra forma cuando le aplican golpetazo.
-function Petria.puedeSanarConHechizo()
+-- Hechizo de cura propio de la clase: Oteren "sanar"; Druida "curar serio"
+-- (confirmado en juego: ~38-46 de HP por cast). Otras clases: ninguno.
+function Petria.hechizoCura()
   local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
-  return completa ~= nil and tostring(completa):lower():find("oteren", 1, true) ~= nil
+  local c = completa and tostring(completa):lower() or ""
+  if c:find("oteren", 1, true) then return "c sanar" end
+  if c == "druida" then return "c 'curar serio'" end
+  return nil
+end
+
+function Petria.puedeSanarConHechizo()
+  return Petria.hechizoCura() ~= nil
 end
 
 function Petria.sanar()
   if Petria.sinPociones() and Petria.puedeSanarConHechizo() then
-    send("c sanar")
+    send(Petria.hechizoCura())
     return
   end
   if Petria.enZonaSinPociones() then
     -- Modo torneo: sin varitas disponibles, un Oteren cae a "c sanar".
     if not Petria.usaVarita() then
-      if Petria.puedeSanarConHechizo() then send("c sanar") end
+      if Petria.puedeSanarConHechizo() then send(Petria.hechizoCura()) end
       return
     end
     -- "sos" falla si ya estas dual-wield -- guardar ambas armas antes,
@@ -1962,8 +1985,11 @@ function Petria.sanar()
     if Petria.armaValida(armaSecundaria) then send("segun " .. armaSecundaria) end
   else
     -- Modo torneo: sin pociones disponibles, un Oteren cae a "c sanar".
-    if not Petria.traga("sana") and Petria.puedeSanarConHechizo() then
-      send("c sanar")
+    -- Sin pociones de sana (el juego dijo "No tienes esa pocion" hace poco): ir
+    -- directo al hechizo de la clase en vez de repetir "traga sana" cada ronda.
+    local sinSana = Petria.sinSanaHasta and os.time() < Petria.sinSanaHasta
+    if sinSana or not Petria.traga("sana") then
+      if Petria.puedeSanarConHechizo() then send(Petria.hechizoCura()) end
     end
   end
 end
@@ -2004,6 +2030,7 @@ function Petria.traga(obj, verbo)
     return false
   end
   Petria.pocPend = (Petria.pocPend or 0) + 1
+  Petria.ultPocion, Petria.ultPocionAt = obj, os.time()
   send((verbo or "traga") .. " " .. obj)
   return true
 end
@@ -2060,7 +2087,7 @@ function Petria.pvpRecuperar()
         HPpct or 0, Petria.pvpAtacante or ""))
       return
     end
-    if Petria.puedeSanarConHechizo() then send("c sanar") else Petria.sanar() end
+    if Petria.puedeSanarConHechizo() then send(Petria.hechizoCura()) else Petria.sanar() end
     tempTimer(2, curar)
   end
   tempTimer(3, curar)
@@ -2783,6 +2810,7 @@ function PeleaActualizarVitalsGMCP()
     if n > 0 then
       if (Petria.enZonaSinPociones and Petria.enZonaSinPociones())
          or (Petria.sinPociones and Petria.sinPociones())
+         or (Petria.sinSanaHasta and os.time() < Petria.sinSanaHasta)
          or Petria.pocionesRestantes() <= 0 then
         Petria.sanar()
       else
