@@ -69,7 +69,7 @@ local function PetriaRhunaVerificar(intento)
     -- update, sin que haga falta acordarse a mano. pcall porque puede
     -- no existir si el GUI oficial no esta instalado.
     pcall(disableKey, "DirectionKeyGroup")
-    cecho("&lt;green&gt;[Petria-Rhuna] Reinstalado.\n")
+    cecho(string.format("&lt;green&gt;[Petria-Rhuna] Reinstalado. Build: %s\n", tostring(Petria and Petria.version or "?")))
   elseif intento &lt; 2 then
     cecho(string.format("&lt;yellow&gt;[Petria-Rhuna] Intento %d fallo, reintentando...\n", intento))
     installPackage("https://raw.githack.com/z0y1b0t/petria-mudlet/main/Petria-Rhuna.xml")

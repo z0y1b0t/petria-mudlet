@@ -2894,7 +2894,7 @@ make_alias(
     '    -- update, sin que haga falta acordarse a mano. pcall porque puede\n'
     '    -- no existir si el GUI oficial no esta instalado.\n'
     '    pcall(disableKey, "DirectionKeyGroup")\n'
-    '    cecho("<green>[Petria-Rhuna] Reinstalado.\\n")\n'
+    '    cecho(string.format("<green>[Petria-Rhuna] Reinstalado. Build: %s\\n", tostring(Petria and Petria.version or "?")))\n'
     '  elseif intento < 2 then\n'
     '    cecho(string.format("<yellow>[Petria-Rhuna] Intento %d fallo, reintentando...\\n", intento))\n'
     f'    installPackage("{JSDELIVR_URL}")\n'
