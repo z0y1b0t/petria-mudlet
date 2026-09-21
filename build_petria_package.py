@@ -281,7 +281,17 @@ make_trigger(
     'local move = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.move)\n'
     'local maxmove = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.maxmove)\n'
     'if not move or not maxmove or move < maxmove then\n'
-    '  send("curar refre")\n'
+    '  local mana = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.mana)\n'
+    '  local maxmana = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.maxmana)\n'
+    '  if Petria.tieneRefrescar and Petria.tieneRefrescar() then\n'
+    '    -- Hechizo propio: solo fuera de combate y con mana de sobra (da poco mv\n'
+    '    -- por cast a nivel bajo; en combate el mana es para atacar).\n'
+    '    if not (en_combate and en_combate ~= 0) and mana and maxmana and mana >= maxmana * 0.5 then\n'
+    '      send("c refrescar")\n'
+    '    end\n'
+    '  else\n'
+    '    send("curar refre")\n'
+    '  end\n'
     'end',
     [r"Te sientes menos cansado\."],
 )
@@ -708,9 +718,17 @@ make_trigger(
     '-- mensaje se repite solo en cada prompt mientras el mv siga en 0, asi\n'
     '-- que ademas se agrega un cooldown para no pedir de nuevo cada vez\n'
     '-- que se repite el mismo mensaje.\n'
+    '-- Clases con el hechizo "refrescar" (ej. druida) lo lanzan ellas mismas; el\n'
+    '-- resto pide al curandero.\n'
     'if not cd_cansado or cd_cansado == 0 then\n'
-    '  send("curar refre")\n'
-    '  send("curar refre")\n'
+    '  local mana = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.mana)\n'
+    '  if Petria.tieneRefrescar and Petria.tieneRefrescar() and mana and mana >= 40 then\n'
+    '    send("c refrescar")\n'
+    '    send("c refrescar")\n'
+    '  else\n'
+    '    send("curar refre")\n'
+    '    send("curar refre")\n'
+    '  end\n'
     '  cd_cansado = 1\n'
     '  tempTimer(6, function() cd_cansado = 0 end)\n'
     'end',
@@ -1977,6 +1995,16 @@ function Petria.hechizoCura()
   return nil
 end
 
+-- Clases con el hechizo "refrescar" (mv). El druida SI lo tiene (nivel 10,
+-- confirmado en juego: "c refrescar" da ~27 de mv a nivel 18); no lo tienen
+-- Seguidores de Runk ni el Ladron.
+function Petria.tieneRefrescar()
+  local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
+  local c = completa and tostring(completa):lower() or ""
+  if c == "" then return false end
+  return not (c == "seguidores_de_runk" or c == "ladron")
+end
+
 function Petria.puedeSanarConHechizo()
   return Petria.hechizoCura() ~= nil
 end
@@ -2795,7 +2823,7 @@ function PeleaActualizarVitalsGMCP()
      and mv < mvmax * 0.25 and (not cd_mv or cd_mv == 0) then
     local completa = gmcp.Char.Base and gmcp.Char.Base.class
     local nombre = completa and tostring(completa):lower() or ""
-    local sinRefrescar = {seguidores_de_runk = true, druida = true, ladron = true}
+    local sinRefrescar = {seguidores_de_runk = true, ladron = true}
     local mana = tonumber(v.mana)
     if nombre ~= "" and not sinRefrescar[nombre] and (not mana or mana >= 50) then
       send("c refrescar")
