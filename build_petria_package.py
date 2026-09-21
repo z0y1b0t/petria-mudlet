@@ -407,6 +407,8 @@ make_trigger(
     '-- No insistir con recall si ya sabemos que esta bloqueado en esta zona\n'
     '-- (ver trigger "Recall fallido: los dioses te han olvidado").\n'
     'if recallBloqueado then return end\n'
+    '-- Druida: antes de irse, convertir mv en mana ("c mana") o comer un melon.\n'
+    'if Petria.recuperarMana and Petria.recuperarMana() then return end\n'
     'send("recall")\n'
     'tempTimer(1, function() send("n") end)',
     [r"No tienes suficiente mana\.$"],
@@ -649,6 +651,15 @@ if esDruida then
   -- Druida: un "rayo de luna" por ronda (~65-80 de dano por 7 de mana, contra
   -- ~13 por ronda del melee en el log del Slime). Sin objetivo: pega al
   -- enemigo actual. Un cast en vuelo, igual que Oteren.
+  -- Poco mana: convertir mv en mana ("c mana") en vez de quedarse sin rayos.
+  local maxmana = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.maxmana)
+  if mana and maxmana and maxmana > 0 and mana < maxmana * 0.15 then
+    if Petria.recuperarMana() then
+      cd_ronda = 1
+      tempTimer(1, function() cd_ronda = 0 end)
+      return
+    end
+  end
   if mana and mana < 20 then return end
   if Petria.rondaPend and os.time() - Petria.rondaPend < 4 then return end
   Petria.rondaPend = os.time()
@@ -2048,6 +2059,25 @@ function Petria.melon()
     end
   end)
   return true
+end
+
+-- Recuperar mana (druida, no en astral): "c mana" convierte mv en mana (+72
+-- de mana por ~48 de mv, cuesta ~4 de mana; confirmado en juego a nivel 20).
+-- Sin mv suficiente, un melon lo repone. Un intento cada 4 s: si no alcanza el
+-- minimo de mana del hechizo, el llamador cae al recall.
+function Petria.recuperarMana()
+  local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
+  if not (completa and tostring(completa):lower() == "druida") or Petria.formaAstral then return false end
+  if Petria.manaIntentoAt and os.time() - Petria.manaIntentoAt < 4 then return false end
+  local v = gmcp and gmcp.Char and gmcp.Char.Vitals
+  local mv = v and tonumber(v.move)
+  if mv and mv >= 60 then
+    Petria.manaIntentoAt = os.time()
+    send("c mana")
+    return true
+  end
+  Petria.manaIntentoAt = os.time()
+  return Petria.melon()
 end
 
 -- Recuperar movimiento: melon (druida) y si no, el hechizo refrescar de la clase.
