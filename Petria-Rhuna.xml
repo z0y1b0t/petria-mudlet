@@ -639,6 +639,51 @@ end</script>
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Entrar en forma astral</name>
+					<script>Petria.formaAstral = true</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>te conviertes en un avatar astral</string>
+						<string>no est[aá] en sinton[ií]a con tu poder astral</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Volver a forma druida: olvidar que faltan hechizos</name>
+					<script>-- En astral no existe "cancelacion": el alias "can" lo recordaba 10 min y
+-- seguia omitiendolo ya en forma normal.
+Petria.formaAstral = false
+Petria.sinCancelacionHasta = nil</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>regresas a tu forma druidica</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Astral contra NPC: apagar ronda (quema el mana)</name>
 					<script>-- Confirmado en juego (Slime, forma astral): contra NPC el rayo de luna pega
 -- ~30 y quema ~90 de mana por cast (452 -&gt; 0 en 5 casts).
@@ -2334,6 +2379,7 @@ send("curar refrescar")</script>
 				<script>Petria.poc = tonumber(matches[2]) or Petria.poc
 Petria.per = tonumber(matches[3]) or Petria.per
 Petria.var = tonumber(matches[4]) or Petria.var
+Petria.formaAstral = Petria.formaAstral or false
 Petria.pocPend = 0
 Petria.varPend = 0
 Petria.huidasPend = 0</script>
@@ -3987,7 +4033,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1790015803
+Petria.version = 1790016259
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -4045,7 +4091,9 @@ function Petria.hechizoCura()
   local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
   local c = completa and tostring(completa):lower() or ""
   if c:find("oteren", 1, true) then return "c sanar" end
-  if c == "druida" then return "c 'curar serio'" end
+  -- En forma astral el druida solo tiene rayo de luna, lluvia de estrellas,
+  -- antifuego y clarividencia (confirmado en juego): no hay hechizo de cura.
+  if c == "druida" and not Petria.formaAstral then return "c 'curar serio'" end
   return nil
 end
 
@@ -4055,7 +4103,7 @@ end
 function Petria.tieneRefrescar()
   local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
   local c = completa and tostring(completa):lower() or ""
-  if c == "" then return false end
+  if c == "" or Petria.formaAstral then return false end
   return not (c == "seguidores_de_runk" or c == "ladron")
 end
 

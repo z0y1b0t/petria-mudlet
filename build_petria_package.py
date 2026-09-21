@@ -227,6 +227,7 @@ make_trigger(
     r'''Petria.poc = tonumber(matches[2]) or Petria.poc
 Petria.per = tonumber(matches[3]) or Petria.per
 Petria.var = tonumber(matches[4]) or Petria.var
+Petria.formaAstral = Petria.formaAstral or false
 Petria.pocPend = 0
 Petria.varPend = 0
 Petria.huidasPend = 0''',
@@ -594,6 +595,19 @@ if l:find("bastante herido", 1, true) or l:find("mal estado", 1, true)
   send("golpetazo")
 end''',
     [r"^(.+?) (?:tiene algunos cortes|est[aá] bastante herido|est[aá] en mal estado|est[aá] malherido|nota que la muerte le llama|est[aá] en una excelente condici[oó]n)"],
+)
+make_trigger(
+    pelea_trig_group, "Entrar en forma astral",
+    'Petria.formaAstral = true',
+    [r"te conviertes en un avatar astral", r"no est[aá] en sinton[ií]a con tu poder astral"],
+)
+make_trigger(
+    pelea_trig_group, "Volver a forma druida: olvidar que faltan hechizos",
+    '-- En astral no existe "cancelacion": el alias "can" lo recordaba 10 min y\n'
+    '-- seguia omitiendolo ya en forma normal.\n'
+    'Petria.formaAstral = false\n'
+    'Petria.sinCancelacionHasta = nil',
+    [r"regresas a tu forma druidica"],
 )
 make_trigger(
     pelea_trig_group, "Astral contra NPC: apagar ronda (quema el mana)",
@@ -1991,7 +2005,9 @@ function Petria.hechizoCura()
   local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
   local c = completa and tostring(completa):lower() or ""
   if c:find("oteren", 1, true) then return "c sanar" end
-  if c == "druida" then return "c 'curar serio'" end
+  -- En forma astral el druida solo tiene rayo de luna, lluvia de estrellas,
+  -- antifuego y clarividencia (confirmado en juego): no hay hechizo de cura.
+  if c == "druida" and not Petria.formaAstral then return "c 'curar serio'" end
   return nil
 end
 
@@ -2001,7 +2017,7 @@ end
 function Petria.tieneRefrescar()
   local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
   local c = completa and tostring(completa):lower() or ""
-  if c == "" then return false end
+  if c == "" or Petria.formaAstral then return false end
   return not (c == "seguidores_de_runk" or c == "ladron")
 end
 
