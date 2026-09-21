@@ -2885,7 +2885,10 @@ pcall(enableTriggerGroup, "Pelea")
 -- Igual que kk: quitar santuario/acelerar del objetivo antes de pegar
 -- (las hormigas de la Reina traen santuario). Confirmado en juego que
 -- "can" antes de "empalar" no rompe el requisito de vida completa.
-if obj ~= "" and obj:lower() ~= "someone" then
+-- Druida: con cancelacion poco practicada casi siempre falla o no hay nada
+-- que cancelar (16 de mana por intento, log de Ix): no se lanza en "k"; queda
+-- en "kk" y a mano ("can &lt;objetivo&gt;") para mobs con (Santuario).
+if obj ~= "" and obj:lower() ~= "someone" and clase ~= "druida" then
   expandAlias("can " .. obj)
 end
 
@@ -3065,18 +3068,29 @@ cecho(string.format("&lt;cyan&gt;golpetazo PvP: %s\n", Petria.golpetazoPvP ~= fa
 				</Alias>
 				<Alias isActive="yes" isFolder="no">
 					<name>autocura</name>
-					<script>-- autocura on|off: curacion automatica por %HP en combate (75% -&gt; 1 pocion,
--- 55% -&gt; 2, 35% -&gt; 3, con enfriamiento de 3 s). Sin argumento muestra el estado.
+					<script>-- autocura on|off: curacion automatica por %HP en combate (por defecto 65% -&gt;
+-- 1 pocion, 45% -&gt; 2, 30% -&gt; 3, con enfriamiento de 3 s).
+-- autocura A B C: cambia los umbrales (ej. "autocura 60 40 25").
+-- Sin argumento muestra el estado.
 local arg = matches[2]
 if arg == "on" then
   Petria.autoCurar = true
 elseif arg == "off" then
   Petria.autoCurar = false
+elseif arg then
+  local a, b, c = arg:match("(%d+) (%d+) (%d+)")
+  a, b, c = tonumber(a), tonumber(b), tonumber(c)
+  if a and b and c and a &gt; b and b &gt; c and c &gt; 0 and a &lt;= 100 then
+    Petria.autoCurarUmbrales = {a, b, c}
+  else
+    cecho("&lt;red&gt;autocura A B C: deben ir de mayor a menor (ej. 65 45 30)\n")
+  end
 end
-cecho(string.format("&lt;cyan&gt;Autocura: %s\n", Petria.autoCurar ~= false and "ON" or "OFF"))</script>
+local u = Petria.autoCurarUmbrales or {65, 45, 30}
+cecho(string.format("&lt;cyan&gt;Autocura: %s (umbrales %d/%d/%d%%)\n", Petria.autoCurar ~= false and "ON" or "OFF", u[1], u[2], u[3]))</script>
 					<command />
 					<packageName />
-					<regex>^autocura(?: (on|off))?$</regex>
+					<regex>^autocura(?: (on|off|\d+ \d+ \d+))?$</regex>
 				</Alias>
 				<Alias isActive="yes" isFolder="no">
 					<name>engancha</name>
@@ -4065,7 +4079,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1790019276
+Petria.version = 1790020986
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -5108,10 +5122,11 @@ function PeleaActualizarVitalsGMCP()
   -- "traga" teletransporta al pozo. "autocura off" la apaga.
   if Petria.autoCurar ~= false and en_combate and en_combate ~= 0
      and (not curando or curando == 0) then
+    local u = Petria.autoCurarUmbrales or {65, 45, 30}
     local n = 0
-    if HPpct &lt; 35 then n = 3
-    elseif HPpct &lt; 55 then n = 2
-    elseif HPpct &lt; 75 then n = 1 end
+    if HPpct &lt; u[3] then n = 3
+    elseif HPpct &lt; u[2] then n = 2
+    elseif HPpct &lt; u[1] then n = 1 end
     if n &gt; 0 then
       if (Petria.enZonaSinPociones and Petria.enZonaSinPociones())
          or (Petria.sinPociones and Petria.sinPociones())

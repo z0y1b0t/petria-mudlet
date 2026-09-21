@@ -1190,7 +1190,10 @@ make_alias(
     '-- Igual que kk: quitar santuario/acelerar del objetivo antes de pegar\n'
     '-- (las hormigas de la Reina traen santuario). Confirmado en juego que\n'
     '-- "can" antes de "empalar" no rompe el requisito de vida completa.\n'
-    'if obj ~= "" and obj:lower() ~= "someone" then\n'
+    '-- Druida: con cancelacion poco practicada casi siempre falla o no hay nada\n'
+    '-- que cancelar (16 de mana por intento, log de Ix): no se lanza en "k"; queda\n'
+    '-- en "kk" y a mano ("can <objetivo>") para mobs con (Santuario).\n'
+    'if obj ~= "" and obj:lower() ~= "someone" and clase ~= "druida" then\n'
     '  expandAlias("can " .. obj)\n'
     'end\n\n'
     'if obj ~= "" and clase and Clases.clasesConEmpalar[clase] and not (en_combate and en_combate ~= 0) then\n'
@@ -1355,16 +1358,27 @@ cecho(string.format("<cyan>golpetazo PvP: %s\n", Petria.golpetazoPvP ~= false an
 )
 
 make_alias(
-    clases_alias_group, "autocura", r"^autocura(?: (on|off))?$",
-    r'''-- autocura on|off: curacion automatica por %HP en combate (75% -> 1 pocion,
--- 55% -> 2, 35% -> 3, con enfriamiento de 3 s). Sin argumento muestra el estado.
+    clases_alias_group, "autocura", r"^autocura(?: (on|off|\d+ \d+ \d+))?$",
+    r'''-- autocura on|off: curacion automatica por %HP en combate (por defecto 65% ->
+-- 1 pocion, 45% -> 2, 30% -> 3, con enfriamiento de 3 s).
+-- autocura A B C: cambia los umbrales (ej. "autocura 60 40 25").
+-- Sin argumento muestra el estado.
 local arg = matches[2]
 if arg == "on" then
   Petria.autoCurar = true
 elseif arg == "off" then
   Petria.autoCurar = false
+elseif arg then
+  local a, b, c = arg:match("(%d+) (%d+) (%d+)")
+  a, b, c = tonumber(a), tonumber(b), tonumber(c)
+  if a and b and c and a > b and b > c and c > 0 and a <= 100 then
+    Petria.autoCurarUmbrales = {a, b, c}
+  else
+    cecho("<red>autocura A B C: deben ir de mayor a menor (ej. 65 45 30)\n")
+  end
 end
-cecho(string.format("<cyan>Autocura: %s\n", Petria.autoCurar ~= false and "ON" or "OFF"))'''
+local u = Petria.autoCurarUmbrales or {65, 45, 30}
+cecho(string.format("<cyan>Autocura: %s (umbrales %d/%d/%d%%)\n", Petria.autoCurar ~= false and "ON" or "OFF", u[1], u[2], u[3]))'''
 )
 
 make_alias(
@@ -2931,10 +2945,11 @@ function PeleaActualizarVitalsGMCP()
   -- "traga" teletransporta al pozo. "autocura off" la apaga.
   if Petria.autoCurar ~= false and en_combate and en_combate ~= 0
      and (not curando or curando == 0) then
+    local u = Petria.autoCurarUmbrales or {65, 45, 30}
     local n = 0
-    if HPpct < 35 then n = 3
-    elseif HPpct < 55 then n = 2
-    elseif HPpct < 75 then n = 1 end
+    if HPpct < u[3] then n = 3
+    elseif HPpct < u[2] then n = 2
+    elseif HPpct < u[1] then n = 1 end
     if n > 0 then
       if (Petria.enZonaSinPociones and Petria.enZonaSinPociones())
          or (Petria.sinPociones and Petria.sinPociones())
