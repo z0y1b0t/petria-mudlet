@@ -322,7 +322,9 @@ make_trigger(
 )
 make_trigger(
     pelea_trig_group, "Post-kill: loot y reset de aliento",
-    'send("GET ALEA")\n'
+    '-- Ya no se manda "GET ALEA": recogia todo objeto aleatorio del cadaver y\n'
+    '-- llenaba el inventario de basura (equipo en gris). Solo se recoge lo\n'
+    '-- (LEGENDARIO), via el trigger "Objeto legendario en cadaver".\n'
     'send("exam cu")\n'
     'send("lo")\n'
     'ResetAliento()\n'

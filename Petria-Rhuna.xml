@@ -138,7 +138,9 @@ end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Post-kill: loot y reset de aliento</name>
-					<script>send("GET ALEA")
+					<script>-- Ya no se manda "GET ALEA": recogia todo objeto aleatorio del cadaver y
+-- llenaba el inventario de basura (equipo en gris). Solo se recoge lo
+-- (LEGENDARIO), via el trigger "Objeto legendario en cadaver".
 send("exam cu")
 send("lo")
 ResetAliento()
@@ -3802,7 +3804,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789998764
+Petria.version = 1790001245
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
