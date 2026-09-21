@@ -157,6 +157,11 @@ end""",
     [r"^Tu (.+?) \[(\d+)\]\s*$"],
 )
 make_trigger(
+    petria_trig_group, "Melon comido: hay stock",
+    'Petria.melonOkAt = os.time()\nPetria.sinMelonHasta = nil',
+    [r"Comes un jugoso mel[oó]n"],
+)
+make_trigger(
     petria_trig_group, "Resumen de pelea",
     r"""-- Esperar un instante para incluir el dano de la ultima ronda.
 tempTimer(0.6, function()
@@ -513,9 +518,7 @@ Petria.rondasCombate = (Petria.rondasCombate or 0) + 1
 local v = gmcp and gmcp.Char and gmcp.Char.Vitals
 local mv, mvmax = v and tonumber(v.move), v and tonumber(v.maxmove)
 if mv and mvmax and mvmax > 0 and mv < mvmax * 0.25 and (not cd_mv or cd_mv == 0) then
-  local mana = tonumber(v.mana)
-  if not mana or mana >= 50 then
-    send("c refrescar")
+  if Petria.recuperarMv() then
     cd_mv = 1
     tempTimer(3, function() cd_mv = 0 end)
   end
@@ -736,7 +739,9 @@ make_trigger(
     '-- resto pide al curandero.\n'
     'if not cd_cansado or cd_cansado == 0 then\n'
     '  local mana = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.mana)\n'
-    '  if Petria.tieneRefrescar and Petria.tieneRefrescar() and mana and mana >= 40 then\n'
+    '  if Petria.melon and Petria.melon() then\n'
+    '    -- melon: recupera todo el mv de una vez (druida)\n'
+    '  elseif Petria.tieneRefrescar and Petria.tieneRefrescar() and mana and mana >= 40 then\n'
     '    send("c refrescar")\n'
     '    send("c refrescar")\n'
     '  else\n'
@@ -2021,6 +2026,42 @@ function Petria.tieneRefrescar()
   return not (c == "seguidores_de_runk" or c == "ladron")
 end
 
+-- Melon (druida): "get melo moch" + "comer melon" recupera TODO el mv y algo de
+-- HP (confirmado en juego: 44 -> 145 de mv, +39 hp) y cuenta en Poc. Si no hay
+-- melon, no se insiste 2 minutos.
+function Petria.melon()
+  local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
+  if not (completa and tostring(completa):lower() == "druida") then return false end
+  if Petria.melonEnCurso then return true end
+  if Petria.sinMelonHasta and os.time() < Petria.sinMelonHasta then return false end
+  if Petria.pocionesRestantes() <= 0 then return false end
+  Petria.melonEnCurso = true
+  Petria.pocPend = (Petria.pocPend or 0) + 1
+  local t0 = os.time()
+  send("get melo moch")
+  send("comer melon")
+  tempTimer(4, function()
+    Petria.melonEnCurso = false
+    if not (Petria.melonOkAt and Petria.melonOkAt >= t0) then
+      Petria.sinMelonHasta = os.time() + 120
+      Petria.pocPend = math.max(0, (Petria.pocPend or 1) - 1)
+    end
+  end)
+  return true
+end
+
+-- Recuperar movimiento: melon (druida) y si no, el hechizo refrescar de la clase.
+function Petria.recuperarMv()
+  if Petria.melon() then return true end
+  local v = gmcp and gmcp.Char and gmcp.Char.Vitals
+  local mana = v and tonumber(v.mana)
+  if Petria.tieneRefrescar() and (not mana or mana >= 50) then
+    send("c refrescar")
+    return true
+  end
+  return false
+end
+
 function Petria.puedeSanarConHechizo()
   return Petria.hechizoCura() ~= nil
 end
@@ -2837,12 +2878,7 @@ function PeleaActualizarVitalsGMCP()
   local mv, mvmax = tonumber(v.move), tonumber(v.maxmove)
   if mv and mvmax and mvmax > 0 and en_combate and en_combate ~= 0
      and mv < mvmax * 0.25 and (not cd_mv or cd_mv == 0) then
-    local completa = gmcp.Char.Base and gmcp.Char.Base.class
-    local nombre = completa and tostring(completa):lower() or ""
-    local sinRefrescar = {seguidores_de_runk = true, ladron = true}
-    local mana = tonumber(v.mana)
-    if nombre ~= "" and not sinRefrescar[nombre] and (not mana or mana >= 50) then
-      send("c refrescar")
+    if Petria.recuperarMv() then
       cd_mv = 1
       tempTimer(3, function() cd_mv = 0 end)
     end

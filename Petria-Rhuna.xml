@@ -483,9 +483,7 @@ Petria.rondasCombate = (Petria.rondasCombate or 0) + 1
 local v = gmcp and gmcp.Char and gmcp.Char.Vitals
 local mv, mvmax = v and tonumber(v.move), v and tonumber(v.maxmove)
 if mv and mvmax and mvmax &gt; 0 and mv &lt; mvmax * 0.25 and (not cd_mv or cd_mv == 0) then
-  local mana = tonumber(v.mana)
-  if not mana or mana &gt;= 50 then
-    send("c refrescar")
+  if Petria.recuperarMv() then
     cd_mv = 1
     tempTimer(3, function() cd_mv = 0 end)
   end
@@ -913,7 +911,9 @@ end</script>
 -- resto pide al curandero.
 if not cd_cansado or cd_cansado == 0 then
   local mana = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.mana)
-  if Petria.tieneRefrescar and Petria.tieneRefrescar() and mana and mana &gt;= 40 then
+  if Petria.melon and Petria.melon() then
+    -- melon: recupera todo el mv de una vez (druida)
+  elseif Petria.tieneRefrescar and Petria.tieneRefrescar() and mana and mana &gt;= 40 then
     send("c refrescar")
     send("c refrescar")
   else
@@ -2253,6 +2253,27 @@ end</script>
 				<colorTriggerBgColor>#000000</colorTriggerBgColor>
 				<regexCodeList>
 					<string>^Tu (.+?) \[(\d+)\]\s*$</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>Melon comido: hay stock</name>
+				<script>Petria.melonOkAt = os.time()
+Petria.sinMelonHasta = nil</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand />
+				<packageName />
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile />
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>Comes un jugoso mel[oó]n</string>
 				</regexCodeList>
 				<regexCodePropertyList>
 					<integer>1</integer>
@@ -4033,7 +4054,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1790016259
+Petria.version = 1790016590
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -4105,6 +4126,42 @@ function Petria.tieneRefrescar()
   local c = completa and tostring(completa):lower() or ""
   if c == "" or Petria.formaAstral then return false end
   return not (c == "seguidores_de_runk" or c == "ladron")
+end
+
+-- Melon (druida): "get melo moch" + "comer melon" recupera TODO el mv y algo de
+-- HP (confirmado en juego: 44 -&gt; 145 de mv, +39 hp) y cuenta en Poc. Si no hay
+-- melon, no se insiste 2 minutos.
+function Petria.melon()
+  local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
+  if not (completa and tostring(completa):lower() == "druida") then return false end
+  if Petria.melonEnCurso then return true end
+  if Petria.sinMelonHasta and os.time() &lt; Petria.sinMelonHasta then return false end
+  if Petria.pocionesRestantes() &lt;= 0 then return false end
+  Petria.melonEnCurso = true
+  Petria.pocPend = (Petria.pocPend or 0) + 1
+  local t0 = os.time()
+  send("get melo moch")
+  send("comer melon")
+  tempTimer(4, function()
+    Petria.melonEnCurso = false
+    if not (Petria.melonOkAt and Petria.melonOkAt &gt;= t0) then
+      Petria.sinMelonHasta = os.time() + 120
+      Petria.pocPend = math.max(0, (Petria.pocPend or 1) - 1)
+    end
+  end)
+  return true
+end
+
+-- Recuperar movimiento: melon (druida) y si no, el hechizo refrescar de la clase.
+function Petria.recuperarMv()
+  if Petria.melon() then return true end
+  local v = gmcp and gmcp.Char and gmcp.Char.Vitals
+  local mana = v and tonumber(v.mana)
+  if Petria.tieneRefrescar() and (not mana or mana &gt;= 50) then
+    send("c refrescar")
+    return true
+  end
+  return false
 end
 
 function Petria.puedeSanarConHechizo()
@@ -4998,12 +5055,7 @@ function PeleaActualizarVitalsGMCP()
   local mv, mvmax = tonumber(v.move), tonumber(v.maxmove)
   if mv and mvmax and mvmax &gt; 0 and en_combate and en_combate ~= 0
      and mv &lt; mvmax * 0.25 and (not cd_mv or cd_mv == 0) then
-    local completa = gmcp.Char.Base and gmcp.Char.Base.class
-    local nombre = completa and tostring(completa):lower() or ""
-    local sinRefrescar = {seguidores_de_runk = true, ladron = true}
-    local mana = tonumber(v.mana)
-    if nombre ~= "" and not sinRefrescar[nombre] and (not mana or mana &gt;= 50) then
-      send("c refrescar")
+    if Petria.recuperarMv() then
       cd_mv = 1
       tempTimer(3, function() cd_mv = 0 end)
     end
