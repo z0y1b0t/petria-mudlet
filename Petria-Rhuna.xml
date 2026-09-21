@@ -3781,6 +3781,83 @@ send("ras Idhrall")</script>
 					<regex>^fabada$</regex>
 				</Alias>
 				<Alias isActive="yes" isFolder="no">
+					<name>dnormal</name>
+					<script>send("forma_druida")</script>
+					<command />
+					<packageName />
+					<regex>^dnormal$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>dastral</name>
+					<script>send("forma_astral")</script>
+					<command />
+					<packageName />
+					<regex>^dastral$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>daraña</name>
+					<script>send("forma_aracnida")</script>
+					<command />
+					<packageName />
+					<regex>^dara(?:ñ|n)a$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>dfelina</name>
+					<script>send("forma_felina")</script>
+					<command />
+					<packageName />
+					<regex>^dfelina$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>dursina</name>
+					<script>send("forma_ursina")</script>
+					<command />
+					<packageName />
+					<regex>^dursina$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>dlupina</name>
+					<script>send("forma_lupina")</script>
+					<command />
+					<packageName />
+					<regex>^dlupina$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>dhalcon</name>
+					<script>send("forma_halcon")</script>
+					<command />
+					<packageName />
+					<regex>^dhalc[oó]n$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>droedor</name>
+					<script>send("forma_roedor")</script>
+					<command />
+					<packageName />
+					<regex>^droedor$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>dent</name>
+					<script>send("forma_ent")</script>
+					<command />
+					<packageName />
+					<regex>^dent$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>ddesplazadora</name>
+					<script>send("forma_desplazadora")</script>
+					<command />
+					<packageName />
+					<regex>^ddesplazadora$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>dquimera</name>
+					<script>send("forma_quimera")</script>
+					<command />
+					<packageName />
+					<regex>^dquimera$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
 					<name>za</name>
 					<script>-- Cambiado de "puntero" (nivel 21, muy bajo) a "bendicion" (la varita
 -- de Don Puchito, hechizo sanar nivel 108). Confirmado en juego:
@@ -3892,7 +3969,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1790012582
+Petria.version = 1790015392
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual

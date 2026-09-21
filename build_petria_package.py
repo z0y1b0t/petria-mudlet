@@ -1795,6 +1795,24 @@ make_alias(alias_group, "co", r"^co (.+)$", 'local t = matches[2]\nsend("contrag
 make_alias(alias_group, "cc", r"^cc (.+)$", "local t = matches[2]\nsend(\"c 'curar deslumbrar' \" .. t)\nsend(\"c 'curar critico' \" .. t)")
 make_alias(alias_group, "asa", r"^asa (.+)$", 'local t = matches[2]\nexpandAlias("can " .. t)\nsend("c rai " .. t)\nsend("hui n")')
 make_alias(alias_group, "fabada", r"^fabada$", 'send("creg")\nsend("ras Idhrall")')
+
+# Formas del druida: d<forma> manda el comando exacto del juego (ayuda DRU-49).
+# Astral gasta las 3 transformaciones del ciclo; volver a druida es gratis.
+_formas_druida = [
+    ("dnormal", r"^dnormal$", "forma_druida"),
+    ("dastral", r"^dastral$", "forma_astral"),
+    ("daraña", r"^dara(?:ñ|n)a$", "forma_aracnida"),
+    ("dfelina", r"^dfelina$", "forma_felina"),
+    ("dursina", r"^dursina$", "forma_ursina"),
+    ("dlupina", r"^dlupina$", "forma_lupina"),
+    ("dhalcon", r"^dhalc[oó]n$", "forma_halcon"),
+    ("droedor", r"^droedor$", "forma_roedor"),
+    ("dent", r"^dent$", "forma_ent"),
+    ("ddesplazadora", r"^ddesplazadora$", "forma_desplazadora"),
+    ("dquimera", r"^dquimera$", "forma_quimera"),
+]
+for _n, _rx, _cmd in _formas_druida:
+    make_alias(alias_group, _n, _rx, 'send("' + _cmd + '")')
 make_alias(
     alias_group, "za", r"^za$",
     '-- Cambiado de "puntero" (nivel 21, muy bajo) a "bendicion" (la varita\n'
