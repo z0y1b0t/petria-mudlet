@@ -634,6 +634,30 @@ end</script>
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Ronda: hechizo desconocido (otra forma o nivel), apagar</name>
+					<script>if Petria.rondaActiva and Petria.rondaPend and os.time() - Petria.rondaPend &lt; 4 then
+  Petria.rondaActiva = false
+  Petria.rondaPend = nil
+  cecho("&lt;yellow&gt;Ronda apagada: 'No conoces ningun hechizo' (otra forma, o aun no lo tienes). 'aa' para volver a prenderla.\n")
+end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^No conoces ning[uú]n hechizo con ese nombre\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Ronda: hechizo fallado libera el cast pendiente</name>
 					<script>Petria.rondaPend = nil</script>
 					<triggerType>0</triggerType>
@@ -658,8 +682,21 @@ end</script>
 					<script>if not Petria.rondaActiva then return end
 if cd_ronda == 1 then return end
 local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
-if not (completa and tostring(completa):lower():find("oteren", 1, true)) then return end
+local esDruida = clase == "druida"
+if not esDruida and not (completa and tostring(completa):lower():find("oteren", 1, true)) then return end
 local mana = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.mana)
+if esDruida then
+  -- Druida: un "rayo de luna" por ronda (~65-80 de dano por 7 de mana, contra
+  -- ~13 por ronda del melee en el log del Slime). Sin objetivo: pega al
+  -- enemigo actual. Un cast en vuelo, igual que Oteren.
+  if mana and mana &lt; 20 then return end
+  if Petria.rondaPend and os.time() - Petria.rondaPend &lt; 4 then return end
+  Petria.rondaPend = os.time()
+  cd_ronda = 1
+  tempTimer(1, function() cd_ronda = 0 end)
+  send("conjurar 'rayo de luna'")
+  return
+end
 if mana and mana &lt; 100 then return end
 -- Con menos de 40% de mana, el rayo (20 por cast) se acaba a media pelea
 -- larga; paso a destruir maldad (10 por cast, modo PVP).
@@ -2047,7 +2084,11 @@ Petria.dmgCat = Petria.dmgCat or {}
 local l = txt:lower()
 local cat = "melee"
 local esHechizo = false
-if l:find("^rayo de sinceridad") or l:find("^ira divina") or l:find("^destruir maldad") then
+local esOteren = l:find("^rayo de sinceridad") or l:find("^ira divina") or l:find("^destruir maldad")
+-- Hechizos de Mago y Druida (lineas reales: "Tu resplandor lunar *** ... *** a X! [63]").
+local esOtroHechizo = l:find("^resplandor lunar") or l:find("^golpe luminoso") or l:find("^golpe acido")
+  or l:find("^resplandeciente rayo") or l:find("^explosion de colores")
+if esOteren or esOtroHechizo then
   cat = "hechizos"; esHechizo = true
 elseif l:find("^golpe carnicero") then cat = "coces"
 elseif l:find("^contrataque") then cat = "contra"
@@ -2058,7 +2099,7 @@ Petria.dmgTotalTxt = (Petria.dmgTotalTxt or 0) + n
 if esHechizo then
   Petria.rondaPend = nil
   Petria.castsHit = (Petria.castsHit or 0) + 1
-  if n &gt; 0 and n &lt; 120 then
+  if esOteren and n &gt; 0 and n &lt; 120 then
     local nombre = txt:match(" a (.+)!%s*$")
     local kw = nombre and Petria.palabraClave(nombre)
     if kw and not Petria.noMalignos[kw] then
@@ -2693,6 +2734,13 @@ if completa and tostring(completa):lower():find("oteren", 1, true) then
   end
 end
 
+-- Druida: dejar encendida la ronda de rayo de luna (ver alias "aa").
+if clase == "druida" and not Petria.rondaActiva then
+  Petria.rondaActiva = true
+  Petria.rondaHechizo = "rayo de luna"
+  cecho("&lt;cyan&gt;Ronda: rayo de luna\n")
+end
+
 Clases.despacharAtaque(obj)</script>
 					<command />
 					<packageName />
@@ -2757,6 +2805,15 @@ Clases.despacharAtaque(obj)</script>
 --   aa jefe|area|pvp    elegir modo y prender (tambien: rayo|ira|destruir)
 -- JEFE = rayo de sinceridad (un objetivo, deslumbra); AREA = ira divina
 -- (pega a todos los malignos de la sala); PVP = destruir maldad.
+if clase == "druida" then
+  local arg = (matches[2] or ""):lower()
+  if arg == "off" then Petria.rondaActiva = false
+  elseif arg == "on" then Petria.rondaActiva = true
+  else Petria.rondaActiva = not Petria.rondaActiva end
+  Petria.rondaHechizo = "rayo de luna"
+  cecho(Petria.rondaActiva and "&lt;cyan&gt;Ronda: rayo de luna\n" or "&lt;cyan&gt;Ronda: OFF\n")
+  return
+end
 local modos = {
   {"JEFE", "rayo de sinceridad"},
   {"AREA", "ira divina"},
@@ -3292,6 +3349,13 @@ if vencimiento and os.time() &lt; vencimiento then
   return
 end
 
+-- Clases que aun no aprenden cancelacion (el druida la recibe a nivel 20):
+-- el server contesta "No conoces ningun hechizo" y antes se reintentaba 6
+-- veces. Se recuerda 10 minutos para no insistir en cada "k".
+if Petria.sinCancelacionHasta and os.time() &lt; Petria.sinCancelacionHasta then
+  return
+end
+
 local intentos = 0
 local intentosMax = 6
 local terminado = false
@@ -3299,12 +3363,13 @@ local terminado = false
 local function intentar()
   intentos = intentos + 1
   send("c 'cancelacion' " .. tarjet)
-  local idExito, idNada, idFallo, idTimeout
+  local idExito, idNada, idFallo, idTimeout, idDesc
   local function limpiar()
     if exists(idExito, "trigger") == 1 then killTrigger(idExito) end
     if exists(idNada, "trigger") == 1 then killTrigger(idNada) end
     if exists(idFallo, "trigger") == 1 then killTrigger(idFallo) end
     if exists(idTimeout, "timer") == 1 then killTimer(idTimeout) end
+    if exists(idDesc, "trigger") == 1 then killTrigger(idDesc) end
   end
   -- Confirmado en juego (con codigo verificado, instalacion limpia sin
   -- duplicados): igual salian los 6 intentos en rafaga. Sospecha: crear
@@ -3338,6 +3403,13 @@ local function intentar()
     limpiar()
     Petria.canNadaHasta[tarjetKey] = os.time() + 8
     cecho("&lt;gray&gt;Nada que cancelar en el objetivo.\n")
+  end)
+  idDesc = tempRegexTrigger("No conoces .* hechizo con ese nombre\\.", function()
+    if terminado then return end
+    terminado = true
+    limpiar()
+    Petria.sinCancelacionHasta = os.time() + 600
+    cecho("&lt;gray&gt;[can] aun no tienes cancelacion: se omite (10 min).\n")
   end)
   idFallo = tempRegexTrigger("Hechizo fallado\\.", function()
     if terminado then return end
@@ -3730,7 +3802,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789996299
+Petria.version = 1789996880
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual

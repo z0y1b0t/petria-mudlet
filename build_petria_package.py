@@ -130,7 +130,11 @@ Petria.dmgCat = Petria.dmgCat or {}
 local l = txt:lower()
 local cat = "melee"
 local esHechizo = false
-if l:find("^rayo de sinceridad") or l:find("^ira divina") or l:find("^destruir maldad") then
+local esOteren = l:find("^rayo de sinceridad") or l:find("^ira divina") or l:find("^destruir maldad")
+-- Hechizos de Mago y Druida (lineas reales: "Tu resplandor lunar *** ... *** a X! [63]").
+local esOtroHechizo = l:find("^resplandor lunar") or l:find("^golpe luminoso") or l:find("^golpe acido")
+  or l:find("^resplandeciente rayo") or l:find("^explosion de colores")
+if esOteren or esOtroHechizo then
   cat = "hechizos"; esHechizo = true
 elseif l:find("^golpe carnicero") then cat = "coces"
 elseif l:find("^contrataque") then cat = "contra"
@@ -141,7 +145,7 @@ Petria.dmgTotalTxt = (Petria.dmgTotalTxt or 0) + n
 if esHechizo then
   Petria.rondaPend = nil
   Petria.castsHit = (Petria.castsHit or 0) + 1
-  if n > 0 and n < 120 then
+  if esOteren and n > 0 and n < 120 then
     local nombre = txt:match(" a (.+)!%s*$")
     local kw = nombre and Petria.palabraClave(nombre)
     if kw and not Petria.noMalignos[kw] then
@@ -579,6 +583,15 @@ end''',
     [r"^(.+?) (?:tiene algunos cortes|est[aá] bastante herido|est[aá] en mal estado|est[aá] malherido|nota que la muerte le llama|est[aá] en una excelente condici[oó]n)"],
 )
 make_trigger(
+    pelea_trig_group, "Ronda: hechizo desconocido (otra forma o nivel), apagar",
+    r'''if Petria.rondaActiva and Petria.rondaPend and os.time() - Petria.rondaPend < 4 then
+  Petria.rondaActiva = false
+  Petria.rondaPend = nil
+  cecho("<yellow>Ronda apagada: 'No conoces ningun hechizo' (otra forma, o aun no lo tienes). 'aa' para volver a prenderla.\n")
+end''',
+    [r"^No conoces ning[uú]n hechizo con ese nombre\.$"],
+)
+make_trigger(
     pelea_trig_group, "Ronda: hechizo fallado libera el cast pendiente",
     "Petria.rondaPend = nil",
     [r"Se te ha ido el santo al cielo al intentar lanzar (?:rayo de sinceridad|ira divina|destruir maldad)"],
@@ -588,8 +601,21 @@ make_trigger(
     r'''if not Petria.rondaActiva then return end
 if cd_ronda == 1 then return end
 local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
-if not (completa and tostring(completa):lower():find("oteren", 1, true)) then return end
+local esDruida = clase == "druida"
+if not esDruida and not (completa and tostring(completa):lower():find("oteren", 1, true)) then return end
 local mana = gmcp and gmcp.Char and gmcp.Char.Vitals and tonumber(gmcp.Char.Vitals.mana)
+if esDruida then
+  -- Druida: un "rayo de luna" por ronda (~65-80 de dano por 7 de mana, contra
+  -- ~13 por ronda del melee en el log del Slime). Sin objetivo: pega al
+  -- enemigo actual. Un cast en vuelo, igual que Oteren.
+  if mana and mana < 20 then return end
+  if Petria.rondaPend and os.time() - Petria.rondaPend < 4 then return end
+  Petria.rondaPend = os.time()
+  cd_ronda = 1
+  tempTimer(1, function() cd_ronda = 0 end)
+  send("conjurar 'rayo de luna'")
+  return
+end
 if mana and mana < 100 then return end
 -- Con menos de 40% de mana, el rayo (20 por cast) se acaba a media pelea
 -- larga; paso a destruir maldad (10 por cast, modo PVP).
@@ -1105,6 +1131,12 @@ make_alias(
     '    cecho("<cyan>Ronda: JEFE, hechizo: rayo de sinceridad\\n")\n'
     '  end\n'
     'end\n\n'
+    '-- Druida: dejar encendida la ronda de rayo de luna (ver alias "aa").\n'
+    'if clase == "druida" and not Petria.rondaActiva then\n'
+    '  Petria.rondaActiva = true\n'
+    '  Petria.rondaHechizo = "rayo de luna"\n'
+    '  cecho("<cyan>Ronda: rayo de luna\\n")\n'
+    'end\n\n'
     'Clases.despacharAtaque(obj)'
 )
 
@@ -1163,6 +1195,15 @@ make_alias(
 --   aa jefe|area|pvp    elegir modo y prender (tambien: rayo|ira|destruir)
 -- JEFE = rayo de sinceridad (un objetivo, deslumbra); AREA = ira divina
 -- (pega a todos los malignos de la sala); PVP = destruir maldad.
+if clase == "druida" then
+  local arg = (matches[2] or ""):lower()
+  if arg == "off" then Petria.rondaActiva = false
+  elseif arg == "on" then Petria.rondaActiva = true
+  else Petria.rondaActiva = not Petria.rondaActiva end
+  Petria.rondaHechizo = "rayo de luna"
+  cecho(Petria.rondaActiva and "<cyan>Ronda: rayo de luna\n" or "<cyan>Ronda: OFF\n")
+  return
+end
 local modos = {
   {"JEFE", "rayo de sinceridad"},
   {"AREA", "ira divina"},
@@ -1525,18 +1566,25 @@ make_alias(
     '  cecho(string.format("<gray>[can] %s ya dijo \\"Nada que cancelar.\\" hace poco, no reintento.\\n", tarjet))\n'
     '  return\n'
     'end\n\n'
+    '-- Clases que aun no aprenden cancelacion (el druida la recibe a nivel 20):\n'
+    '-- el server contesta "No conoces ningun hechizo" y antes se reintentaba 6\n'
+    '-- veces. Se recuerda 10 minutos para no insistir en cada "k".\n'
+    'if Petria.sinCancelacionHasta and os.time() < Petria.sinCancelacionHasta then\n'
+    '  return\n'
+    'end\n\n'
     'local intentos = 0\n'
     'local intentosMax = 6\n'
     'local terminado = false\n\n'
     'local function intentar()\n'
     '  intentos = intentos + 1\n'
     '  send("c \'cancelacion\' " .. tarjet)\n'
-    '  local idExito, idNada, idFallo, idTimeout\n'
+    '  local idExito, idNada, idFallo, idTimeout, idDesc\n'
     '  local function limpiar()\n'
     '    if exists(idExito, "trigger") == 1 then killTrigger(idExito) end\n'
     '    if exists(idNada, "trigger") == 1 then killTrigger(idNada) end\n'
     '    if exists(idFallo, "trigger") == 1 then killTrigger(idFallo) end\n'
     '    if exists(idTimeout, "timer") == 1 then killTimer(idTimeout) end\n'
+    '    if exists(idDesc, "trigger") == 1 then killTrigger(idDesc) end\n'
     '  end\n'
     '  -- Confirmado en juego (con codigo verificado, instalacion limpia sin\n'
     '  -- duplicados): igual salian los 6 intentos en rafaga. Sospecha: crear\n'
@@ -1570,6 +1618,13 @@ make_alias(
     '    limpiar()\n'
     '    Petria.canNadaHasta[tarjetKey] = os.time() + 8\n'
     '    cecho("<gray>Nada que cancelar en el objetivo.\\n")\n'
+    '  end)\n'
+    '  idDesc = tempRegexTrigger("No conoces .* hechizo con ese nombre\\\\.", function()\n'
+    '    if terminado then return end\n'
+    '    terminado = true\n'
+    '    limpiar()\n'
+    '    Petria.sinCancelacionHasta = os.time() + 600\n'
+    '    cecho("<gray>[can] aun no tienes cancelacion: se omite (10 min).\\n")\n'
     '  end)\n'
     '  idFallo = tempRegexTrigger("Hechizo fallado\\\\.", function()\n'
     '    if terminado then return end\n'
