@@ -35,6 +35,7 @@
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Fin de combate: enemigo muerto</name>
 					<script>en_combate = 0
+Petria.combateUlt = nil
 pcall(function() Pelea.cancelarTimersPendientes() end)</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
@@ -56,6 +57,7 @@ pcall(function() Pelea.cancelarTimersPendientes() end)</script>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Fin de combate: huida</name>
 					<script>en_combate = 0
+Petria.combateUlt = nil
 pcall(function() Pelea.cancelarTimersPendientes() end)</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
@@ -476,6 +478,7 @@ Petria.sanar()</script>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Estado del enemigo: en combate</name>
 					<script>en_combate = 1
+Petria.combateUlt = os.time()
 Petria.rondasCombate = (Petria.rondasCombate or 0) + 1
 local v = gmcp and gmcp.Char and gmcp.Char.Vitals
 local mv, mvmax = v and tonumber(v.move), v and tonumber(v.maxmove)
@@ -1271,7 +1274,10 @@ end</script>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Enemigo huye: perseguir y reatacar</name>
 					<script>local nombreCompleto, direccion = matches[2], matches[3]
-if en_combate and en_combate ~= 0 and rasOBJ and rasOBJ ~= "" and nombreCompleto:lower():find(rasOBJ:lower(), 1, true) then
+-- Al huir el mob, GMCP Char.Enemies queda vacio y en_combate baja a 0 antes
+-- de esta linea: se acepta tambien "hubo combate hace menos de 6 s".
+local enPelea = (en_combate and en_combate ~= 0) or (Petria.combateUlt and os.time() - Petria.combateUlt &lt;= 6)
+if enPelea and rasOBJ and rasOBJ ~= "" and nombreCompleto:lower():find(rasOBJ:lower(), 1, true) then
   send(direccion)
   send("k " .. rasOBJ)
 end</script>
@@ -3804,7 +3810,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1790001245
+Petria.version = 1790001556
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -4800,6 +4806,7 @@ function PeleaActualizarEnemigoGMCP()
   end
   local e = gmcp.Char.Enemies[1][1]
   en_combate = 1
+  Petria.combateUlt = os.time()
   enemigoNombre = e.name
   enemigoNivel = tonumber(e.level)
   local ehp, emax = tonumber(e.hp), tonumber(e.maxhp)

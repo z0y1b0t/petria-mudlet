@@ -294,12 +294,12 @@ make_trigger(
 # confiable que parsear el prompt.
 make_trigger(
     pelea_trig_group, "Fin de combate: enemigo muerto",
-    'en_combate = 0\npcall(function() Pelea.cancelarTimersPendientes() end)',
+    'en_combate = 0\nPetria.combateUlt = nil\npcall(function() Pelea.cancelarTimersPendientes() end)',
     [r"ESTA MUERTO !!$"],
 )
 make_trigger(
     pelea_trig_group, "Fin de combate: huida",
-    'en_combate = 0\npcall(function() Pelea.cancelarTimersPendientes() end)',
+    'en_combate = 0\nPetria.combateUlt = nil\npcall(function() Pelea.cancelarTimersPendientes() end)',
     [r"Logras HUIR!"],
 )
 
@@ -497,6 +497,7 @@ make_trigger(
 make_trigger(
     pelea_trig_group, "Estado del enemigo: en combate",
     r'''en_combate = 1
+Petria.combateUlt = os.time()
 Petria.rondasCombate = (Petria.rondasCombate or 0) + 1
 local v = gmcp and gmcp.Char and gmcp.Char.Vitals
 local mv, mvmax = v and tonumber(v.move), v and tonumber(v.maxmove)
@@ -842,7 +843,10 @@ make_trigger(pelea_trig_group, "Deslumbrado: curar ya", 'send("c \'curar deslumb
 make_trigger(
     pelea_trig_group, "Enemigo huye: perseguir y reatacar",
     'local nombreCompleto, direccion = matches[2], matches[3]\n'
-    'if en_combate and en_combate ~= 0 and rasOBJ and rasOBJ ~= "" and nombreCompleto:lower():find(rasOBJ:lower(), 1, true) then\n'
+    '-- Al huir el mob, GMCP Char.Enemies queda vacio y en_combate baja a 0 antes\n'
+    '-- de esta linea: se acepta tambien "hubo combate hace menos de 6 s".\n'
+    'local enPelea = (en_combate and en_combate ~= 0) or (Petria.combateUlt and os.time() - Petria.combateUlt <= 6)\n'
+    'if enPelea and rasOBJ and rasOBJ ~= "" and nombreCompleto:lower():find(rasOBJ:lower(), 1, true) then\n'
     '  send(direccion)\n'
     '  send("k " .. rasOBJ)\n'
     'end',
@@ -2777,6 +2781,7 @@ function PeleaActualizarEnemigoGMCP()
   end
   local e = gmcp.Char.Enemies[1][1]
   en_combate = 1
+  Petria.combateUlt = os.time()
   enemigoNombre = e.name
   enemigoNivel = tonumber(e.level)
   local ehp, emax = tonumber(e.hp), tonumber(e.maxhp)
