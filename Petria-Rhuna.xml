@@ -1005,7 +1005,7 @@ Petria.traga("ceguera")</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Tracker de qcomm (linea de estado)</name>
-					<script>qcomm = tonumber(matches[3])</script>
+					<script>qcomm = tonumber(matches[3]) or 0</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -1017,7 +1017,7 @@ Petria.traga("ceguera")</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^\|(.*)\[(\d+)\]\s*(.*)G</string>
+						<string>^\|(.*)\[(\d*)\]\s*(.*)G</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -3730,7 +3730,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789994422
+Petria.version = 1789996299
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -4075,6 +4075,12 @@ Clases.buffsDeCombate = {
 }
 function Clases.reponer(nombreDope, comando)
   if not Clases.enDope(nombreDope) then return end
+  -- El druida recibe santuario a nivel 30: antes de eso solo lo tiene por
+  -- pocion, asi que se repone con "traga santu" (tambien en combate).
+  if nombreDope == "santuario" and clase == "druida" then
+    Petria.traga("santu")
+    return
+  end
   -- Confirmado en juego: un Oteren peleando recibe "No alcanzas la
   -- concentracion necesaria." al lanzar santuario (solo el Mago puede).
   if nombreDope == "santuario" and en_combate and en_combate ~= 0 then
@@ -4110,6 +4116,9 @@ function Clases.dopar(lista, obj)
     for _, hechizo in ipairs(lista) do
       if Clases.tieneActivo(hechizo) then
         cecho("&lt;gray&gt;Ya activo, salteado: " .. hechizo .. "\n")
+      elseif hechizo == "santuario" and clase == "druida" then
+        cecho("&lt;cyan&gt;Dopando: santuario (pocion)\n")
+        Petria.traga("santu")
       else
         cecho("&lt;cyan&gt;Dopando: " .. hechizo .. "\n")
         send("cast '" .. hechizo .. "'")
@@ -4405,7 +4414,16 @@ Clases.ranger = {
 					<Script isActive="yes" isFolder="no">
 						<name>Druida</name>
 						<packageName />
-						<script>Clases.druida = {
+						<script>-- Lista de fabrica del druida normal (buffs de "slist druida"). Los que aun
+-- no tienes por nivel dan "No conoces ningun hechizo" y se ignoran; se puede
+-- ajustar con los alias de dope como en las otras clases.
+Clases.dopes.druida = Clases.dopes.druida or {
+  "proteccion", "buen aura", "bendecir", "detectar invisibilidad",
+  "antifuego", "gatovision", "piel de corteza", "volar", "fuerza colosal",
+  "proteccion divina", "acelerar", "santuario",
+}
+
+Clases.druida = {
   ataque = function(obj)
     send("mata " .. obj)
     send("c rayo")

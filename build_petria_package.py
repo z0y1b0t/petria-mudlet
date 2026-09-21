@@ -721,8 +721,8 @@ make_trigger(
 )
 make_trigger(
     pelea_trig_group, "Tracker de qcomm (linea de estado)",
-    "qcomm = tonumber(matches[3])",
-    [r"^\|(.*)\[(\d+)\]\s*(.*)G"],
+    "qcomm = tonumber(matches[3]) or 0",
+    [r"^\|(.*)\[(\d*)\]\s*(.*)G"],
 )
 # Heredado de CMUD ("ha sido deslumbrado!!" -> c 'curar deslumbrar', sin
 # objetivo = sobre uno mismo). Con "rayo de sinceridad" deslumbras al ENEMIGO
@@ -2138,6 +2138,12 @@ Clases.buffsDeCombate = {
 }
 function Clases.reponer(nombreDope, comando)
   if not Clases.enDope(nombreDope) then return end
+  -- El druida recibe santuario a nivel 30: antes de eso solo lo tiene por
+  -- pocion, asi que se repone con "traga santu" (tambien en combate).
+  if nombreDope == "santuario" and clase == "druida" then
+    Petria.traga("santu")
+    return
+  end
   -- Confirmado en juego: un Oteren peleando recibe "No alcanzas la
   -- concentracion necesaria." al lanzar santuario (solo el Mago puede).
   if nombreDope == "santuario" and en_combate and en_combate ~= 0 then
@@ -2173,6 +2179,9 @@ function Clases.dopar(lista, obj)
     for _, hechizo in ipairs(lista) do
       if Clases.tieneActivo(hechizo) then
         cecho("<gray>Ya activo, salteado: " .. hechizo .. "\\n")
+      elseif hechizo == "santuario" and clase == "druida" then
+        cecho("<cyan>Dopando: santuario (pocion)\\n")
+        Petria.traga("santu")
       else
         cecho("<cyan>Dopando: " .. hechizo .. "\\n")
         send("cast '" .. hechizo .. "'")
@@ -2416,7 +2425,16 @@ make_script(asesino_group, "Asesino", '''Clases.asesino = {
 }''')
 
 druida_group = make_script_group(clases_group, "Druida")
-make_script(druida_group, "Druida", '''Clases.druida = {
+make_script(druida_group, "Druida", '''-- Lista de fabrica del druida normal (buffs de "slist druida"). Los que aun
+-- no tienes por nivel dan "No conoces ningun hechizo" y se ignoran; se puede
+-- ajustar con los alias de dope como en las otras clases.
+Clases.dopes.druida = Clases.dopes.druida or {
+  "proteccion", "buen aura", "bendecir", "detectar invisibilidad",
+  "antifuego", "gatovision", "piel de corteza", "volar", "fuerza colosal",
+  "proteccion divina", "acelerar", "santuario",
+}
+
+Clases.druida = {
   ataque = function(obj)
     send("mata " .. obj)
     send("c rayo")
