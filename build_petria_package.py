@@ -2716,6 +2716,59 @@ PeleaActualizarVitalsGMCP()
 PeleaActualizarEnemigoGMCP()
 '''
 make_script(pelea_script_group, "Pelea_Core", pelea_core_script)
+make_script(pelea_script_group, "Botones_Canales", r'''-- Botones extra sobre la barra "CANALES" del GUI oficial: recall, rclan y
+-- CLS. Son hijos de channelCon.adjLabel (la barra del titulo), asi se mueven
+-- y se ocultan junto con la ventana. El GUI oficial se carga aparte: si
+-- channelCon aun no existe se reintenta unos segundos.
+Petria = Petria or {}
+
+function Petria.crearBotonesCanales(intento)
+  intento = intento or 0
+  local host = channelCon and channelCon.adjLabel
+  if not host then
+    if intento < 10 then
+      tempTimer(2, function() Petria.crearBotonesCanales(intento + 1) end)
+    end
+    return
+  end
+
+  local defs = {
+    { id = "recall", texto = "recall", tip = "recall + n",
+      accion = function() send("recall") send("n") end },
+    { id = "rclan", texto = "rclan", tip = "alma",
+      accion = function() send("alma") end },
+    { id = "cls", texto = "CLS", tip = "Limpia el historial de la ventana canales",
+      accion = function()
+        for _, n in ipairs({"All", "Tells", "Clan", "Local"}) do
+          pcall(clearWindow, "channelConsole." .. n)
+        end
+      end },
+  }
+  local ancho, sep = 54, 3
+  for i, d in ipairs(defs) do
+    local nombre = "PetriaBtnCanales_" .. d.id
+    pcall(deleteLabel, nombre)
+    local x = -((#defs - i + 1) * (ancho + sep) + 4)
+    local b = Geyser.Label:new({
+      name = nombre,
+      x = tostring(x) .. "px", y = "10%",
+      width = ancho, height = "80%",
+    }, host)
+    b:setStyleSheet([[
+      background-color: rgb(21,21,21);
+      color: white;
+      border: 1px solid rgb(29,111,47);
+      border-radius: 4px;
+      font-weight: bold;
+    ]])
+    b:echo("<center>" .. d.texto .. "</center>")
+    b:setToolTip(d.tip)
+    b:setClickCallback(d.accion)
+  end
+end
+
+tempTimer(2, function() Petria.crearBotonesCanales(0) end)
+''')
 
 # ---------- KeyPackage ----------
 # El primer intento (punto del numerico -> traga sabia, keyCode 46) no
