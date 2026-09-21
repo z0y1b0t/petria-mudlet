@@ -3802,7 +3802,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1789996880
+Petria.version = 1789998764
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -3917,13 +3917,13 @@ function Petria.pergaminosRestantes() return Petria.restantes(Petria.per, 0, 10)
 function Petria.varitasRestantes() return Petria.restantes(Petria.var, Petria.varPend, 10) end
 function Petria.huidasRestantes() return Petria.restantes(Petria.huidas, Petria.huidasPend, 3) end
 
-function Petria.traga(obj)
+function Petria.traga(obj, verbo)
   if Petria.pocionesRestantes() &lt;= 0 then
     cecho("&lt;red&gt;[TORNEO] limite de 10 pociones alcanzado (Poc: " .. tostring(Petria.poc) .. "): no tomo '" .. tostring(obj) .. "'\n")
     return false
   end
   Petria.pocPend = (Petria.pocPend or 0) + 1
-  send("traga " .. obj)
+  send((verbo or "traga") .. " " .. obj)
   return true
 end
 
@@ -4147,10 +4147,10 @@ Clases.buffsDeCombate = {
 }
 function Clases.reponer(nombreDope, comando)
   if not Clases.enDope(nombreDope) then return end
-  -- El druida recibe santuario a nivel 30: antes de eso solo lo tiene por
-  -- pocion, asi que se repone con "traga santu" (tambien en combate).
+  -- El druida recibe santuario a nivel 30: antes de eso lo renueva la pocion
+  -- de fabada ("q fabada", confirmado por el jugador), tambien en combate.
   if nombreDope == "santuario" and clase == "druida" then
-    Petria.traga("santu")
+    Petria.traga("fabada", "q")
     return
   end
   -- Confirmado en juego: un Oteren peleando recibe "No alcanzas la
@@ -4189,8 +4189,8 @@ function Clases.dopar(lista, obj)
       if Clases.tieneActivo(hechizo) then
         cecho("&lt;gray&gt;Ya activo, salteado: " .. hechizo .. "\n")
       elseif hechizo == "santuario" and clase == "druida" then
-        cecho("&lt;cyan&gt;Dopando: santuario (pocion)\n")
-        Petria.traga("santu")
+        cecho("&lt;cyan&gt;Dopando: santuario (q fabada)\n")
+        Petria.traga("fabada", "q")
       else
         cecho("&lt;cyan&gt;Dopando: " .. hechizo .. "\n")
         send("cast '" .. hechizo .. "'")

@@ -1969,13 +1969,13 @@ function Petria.pergaminosRestantes() return Petria.restantes(Petria.per, 0, 10)
 function Petria.varitasRestantes() return Petria.restantes(Petria.var, Petria.varPend, 10) end
 function Petria.huidasRestantes() return Petria.restantes(Petria.huidas, Petria.huidasPend, 3) end
 
-function Petria.traga(obj)
+function Petria.traga(obj, verbo)
   if Petria.pocionesRestantes() <= 0 then
     cecho("<red>[TORNEO] limite de 10 pociones alcanzado (Poc: " .. tostring(Petria.poc) .. "): no tomo '" .. tostring(obj) .. "'\\n")
     return false
   end
   Petria.pocPend = (Petria.pocPend or 0) + 1
-  send("traga " .. obj)
+  send((verbo or "traga") .. " " .. obj)
   return true
 end
 
@@ -2193,10 +2193,10 @@ Clases.buffsDeCombate = {
 }
 function Clases.reponer(nombreDope, comando)
   if not Clases.enDope(nombreDope) then return end
-  -- El druida recibe santuario a nivel 30: antes de eso solo lo tiene por
-  -- pocion, asi que se repone con "traga santu" (tambien en combate).
+  -- El druida recibe santuario a nivel 30: antes de eso lo renueva la pocion
+  -- de fabada ("q fabada", confirmado por el jugador), tambien en combate.
   if nombreDope == "santuario" and clase == "druida" then
-    Petria.traga("santu")
+    Petria.traga("fabada", "q")
     return
   end
   -- Confirmado en juego: un Oteren peleando recibe "No alcanzas la
@@ -2235,8 +2235,8 @@ function Clases.dopar(lista, obj)
       if Clases.tieneActivo(hechizo) then
         cecho("<gray>Ya activo, salteado: " .. hechizo .. "\\n")
       elseif hechizo == "santuario" and clase == "druida" then
-        cecho("<cyan>Dopando: santuario (pocion)\\n")
-        Petria.traga("santu")
+        cecho("<cyan>Dopando: santuario (q fabada)\\n")
+        Petria.traga("fabada", "q")
       else
         cecho("<cyan>Dopando: " .. hechizo .. "\\n")
         send("cast '" .. hechizo .. "'")
