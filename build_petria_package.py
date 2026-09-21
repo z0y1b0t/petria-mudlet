@@ -2724,7 +2724,15 @@ Petria = Petria or {}
 
 function Petria.crearBotonesCanales(intento)
   intento = intento or 0
-  local host = channelCon and channelCon.adjLabel
+  -- La barra "CANALES" es la etiqueta (adjLabel) de la pestana de
+  -- channelCon en el dock que la contenga; channelCon.adjLabel es toda la ventana, no la barra.
+  local host
+  pcall(function()
+    for _, dock in pairs(PetriaRowsStable.docks) do
+      local tab = dock["channelCon"]
+      if type(tab) == "table" and tab.adjLabel then host = tab.adjLabel break end
+    end
+  end)
   if not host then
     if intento < 10 then
       tempTimer(2, function() Petria.crearBotonesCanales(intento + 1) end)
@@ -2744,15 +2752,15 @@ function Petria.crearBotonesCanales(intento)
         end
       end },
   }
-  local ancho, sep = 54, 3
+  local ancho, sep = 46, 3
   for i, d in ipairs(defs) do
     local nombre = "PetriaBtnCanales_" .. d.id
     pcall(deleteLabel, nombre)
     local x = -((#defs - i + 1) * (ancho + sep) + 4)
     local b = Geyser.Label:new({
       name = nombre,
-      x = tostring(x) .. "px", y = "10%",
-      width = ancho, height = "80%",
+      x = tostring(x) .. "px", y = "8%",
+      width = ancho, height = "84%",
     }, host)
     b:setStyleSheet([[
       background-color: rgb(21,21,21);
@@ -2760,6 +2768,7 @@ function Petria.crearBotonesCanales(intento)
       border: 1px solid rgb(29,111,47);
       border-radius: 4px;
       font-weight: bold;
+      font-size: 9px;
     ]])
     b:echo("<center>" .. d.texto .. "</center>")
     b:setToolTip(d.tip)
