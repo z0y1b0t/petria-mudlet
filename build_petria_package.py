@@ -1561,6 +1561,13 @@ alias_group = make_alias_group(petria_alias_group, "Alias")
 # vez de un solo comando diagonal, para no arriesgar la letra exacta (evitar
 # apostar entre "sw" ingles vs "so" español para suroeste, etc.).
 make_alias(alias_group, "donas", r"^donas$", 'send("recall")\nClases.sendSeq("s", "w", "s", "w", "s", "w", "s", "w")')
+make_alias(
+    alias_group, "quest-experto", r"^quest-experto$",
+    '-- Ruta a donde empieza la quest "experto" (dato del jugador, sin\n'
+    '-- confirmar en helpfile todavia).\n'
+    'send("recall")\n'
+    'Clases.sendSeq("n", "n", "n", "n", "n", "e", "e", "s", "o", "s")'
+)
 make_alias(alias_group, "mm", r"^mm (.+)$", 'send("c \'misil magico\' " .. matches[2])')
 make_alias(alias_group, "pan", r"^pan$", 'Clases.sendSeq("s", "s", "w", "n")')
 make_alias(alias_group, "bc", r"^bc$", 'Clases.sendSeq("s", "e", "s", "e", "s", "e", "s", "e", "s", "e")')
