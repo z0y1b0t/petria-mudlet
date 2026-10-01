@@ -737,6 +737,19 @@ make_trigger(
     [r"^Te tragas una Pocion de sanar\."],
 )
 make_trigger(
+    pelea_trig_group, "Carrusel de pociones: sin stock, recordarlo",
+    'local p = Petria.ultPocion\n'
+    'if p and Petria.ultPocionAt and os.time() - Petria.ultPocionAt <= 3 then\n'
+    '  for _, cp in ipairs(Petria.carruselPociones or {}) do\n'
+    '    if cp == p then\n'
+    '      Petria.carruselSinStockHasta[p] = os.time() + 60\n'
+    '      if Petria.carruselUltimaOk == p then Petria.carruselUltimaOk = nil end\n'
+    '    end\n'
+    '  end\n'
+    'end',
+    [r"^No tienes esa pocion\.$"],
+)
+make_trigger(
     pelea_trig_group, "Demasiado cansado: refrescar",
     '-- Confirmado en juego: "c refrescar" no es un comando real -- 4 rondas\n'
     '-- de 3 intentos gastaron mana sin mover el mv de 0 ni una vez. El que\n'
@@ -2208,50 +2221,29 @@ function Petria.huir(cmd)
   return true
 end
 
--- Carrusel de pociones de combate (cualquier clase): "q sana", si no hay
--- "q batalla", si tampoco "q super". Recuerda cual funciono la ultima vez
--- (Petria.carruselUltimaOk) y la prueba primero la proxima vez, en vez de
--- repetir siempre desde "sana".
+-- Carrusel de pociones de combate (cualquier clase): "traga sana", si no hay
+-- "traga batalla", si tampoco "traga super". Recuerda cual funciono la ultima
+-- vez (Petria.carruselUltimaOk) y la prueba primero la proxima vez, en vez de
+-- repetir siempre desde "sana". Sin espera/bloqueo entre pulsaciones: manda
+-- la pocion al toque y solo recuerda el "sin stock" cuando el juego lo dice
+-- (trigger de abajo), igual que Petria.sinSanaHasta.
 Petria.carruselPociones = {{"sana", "batalla", "super"}}
-Petria.pocionCarruselEnCurso = false
+Petria.carruselSinStockHasta = Petria.carruselSinStockHasta or {{}}
 
 function Petria.pocionCombate()
-  if Petria.pocionCarruselEnCurso then return end
   local orden = {{}}
   if Petria.carruselUltimaOk then table.insert(orden, Petria.carruselUltimaOk) end
   for _, p in ipairs(Petria.carruselPociones) do
     if p ~= Petria.carruselUltimaOk then table.insert(orden, p) end
   end
-  Petria.pocionCarruselEnCurso = true
-  local i = 0
-  local function siguiente()
-    i = i + 1
-    local p = orden[i]
-    if not p then
-      Petria.pocionCarruselEnCurso = false
-      cecho("<red>Carrusel de pociones: sin stock de sana/batalla/super.\\n")
+  for _, p in ipairs(orden) do
+    local sinStock = Petria.carruselSinStockHasta[p] and os.time() < Petria.carruselSinStockHasta[p]
+    if not sinStock then
+      if Petria.traga(p) then Petria.carruselUltimaOk = p end
       return
     end
-    if not Petria.traga(p, "q") then
-      Petria.pocionCarruselEnCurso = false
-      return
-    end
-    local idFallo, idTimeout
-    local function limpiar()
-      if exists(idFallo, "trigger") == 1 then killTrigger(idFallo) end
-      if exists(idTimeout, "timer") == 1 then killTimer(idTimeout) end
-    end
-    idFallo = tempRegexTrigger("No tienes esa pocion\\\\.", function()
-      limpiar()
-      siguiente()
-    end)
-    idTimeout = tempTimer(2, function()
-      limpiar()
-      Petria.carruselUltimaOk = p
-      Petria.pocionCarruselEnCurso = false
-    end)
   end
-  siguiente()
+  cecho("<red>Carrusel de pociones: sin stock de sana/batalla/super.\\n")
 end
 
 -- ================================================================

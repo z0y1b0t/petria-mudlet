@@ -909,6 +909,34 @@ end</script>
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>Carrusel de pociones: sin stock, recordarlo</name>
+					<script>local p = Petria.ultPocion
+if p and Petria.ultPocionAt and os.time() - Petria.ultPocionAt &lt;= 3 then
+  for _, cp in ipairs(Petria.carruselPociones or {}) do
+    if cp == p then
+      Petria.carruselSinStockHasta[p] = os.time() + 60
+      if Petria.carruselUltimaOk == p then Petria.carruselUltimaOk = nil end
+    end
+  end
+end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^No tienes esa pocion\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Demasiado cansado: refrescar</name>
 					<script>-- Confirmado en juego: "c refrescar" no es un comando real -- 4 rondas
 -- de 3 intentos gastaron mana sin mover el mv de 0 ni una vez. El que
@@ -4089,7 +4117,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1790875726
+Petria.version = 1790876160
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -4313,50 +4341,29 @@ function Petria.huir(cmd)
   return true
 end
 
--- Carrusel de pociones de combate (cualquier clase): "q sana", si no hay
--- "q batalla", si tampoco "q super". Recuerda cual funciono la ultima vez
--- (Petria.carruselUltimaOk) y la prueba primero la proxima vez, en vez de
--- repetir siempre desde "sana".
+-- Carrusel de pociones de combate (cualquier clase): "traga sana", si no hay
+-- "traga batalla", si tampoco "traga super". Recuerda cual funciono la ultima
+-- vez (Petria.carruselUltimaOk) y la prueba primero la proxima vez, en vez de
+-- repetir siempre desde "sana". Sin espera/bloqueo entre pulsaciones: manda
+-- la pocion al toque y solo recuerda el "sin stock" cuando el juego lo dice
+-- (trigger de abajo), igual que Petria.sinSanaHasta.
 Petria.carruselPociones = {"sana", "batalla", "super"}
-Petria.pocionCarruselEnCurso = false
+Petria.carruselSinStockHasta = Petria.carruselSinStockHasta or {}
 
 function Petria.pocionCombate()
-  if Petria.pocionCarruselEnCurso then return end
   local orden = {}
   if Petria.carruselUltimaOk then table.insert(orden, Petria.carruselUltimaOk) end
   for _, p in ipairs(Petria.carruselPociones) do
     if p ~= Petria.carruselUltimaOk then table.insert(orden, p) end
   end
-  Petria.pocionCarruselEnCurso = true
-  local i = 0
-  local function siguiente()
-    i = i + 1
-    local p = orden[i]
-    if not p then
-      Petria.pocionCarruselEnCurso = false
-      cecho("&lt;red&gt;Carrusel de pociones: sin stock de sana/batalla/super.\n")
+  for _, p in ipairs(orden) do
+    local sinStock = Petria.carruselSinStockHasta[p] and os.time() &lt; Petria.carruselSinStockHasta[p]
+    if not sinStock then
+      if Petria.traga(p) then Petria.carruselUltimaOk = p end
       return
     end
-    if not Petria.traga(p, "q") then
-      Petria.pocionCarruselEnCurso = false
-      return
-    end
-    local idFallo, idTimeout
-    local function limpiar()
-      if exists(idFallo, "trigger") == 1 then killTrigger(idFallo) end
-      if exists(idTimeout, "timer") == 1 then killTimer(idTimeout) end
-    end
-    idFallo = tempRegexTrigger("No tienes esa pocion\\.", function()
-      limpiar()
-      siguiente()
-    end)
-    idTimeout = tempTimer(2, function()
-      limpiar()
-      Petria.carruselUltimaOk = p
-      Petria.pocionCarruselEnCurso = false
-    end)
   end
-  siguiente()
+  cecho("&lt;red&gt;Carrusel de pociones: sin stock de sana/batalla/super.\n")
 end
 
 -- ================================================================
