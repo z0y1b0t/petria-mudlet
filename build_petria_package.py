@@ -1764,6 +1764,44 @@ make_alias(
     'intentar()'
 )
 
+make_alias(
+    alias_group, "recu", r"^(?:recu|recupera)$",
+    '-- Confirmado en juego: "c mana" cuesta mov y llena mana ("Tu poder\n'
+    '-- magico esta al maximo!" cuando ya esta full); "c refrescar" cuesta\n'
+    '-- mana y llena mov ("Ya estas descansado." cuando ya esta full), mucho\n'
+    '-- mas barato en mana de lo que "c mana" cuesta en mov -- alternando se\n'
+    '-- termina llenando los dos. 2s entre pasos (va por GMCP, no por texto)\n'
+    '-- y tope de intentos por si la clase no tiene alguno de los dos.\n'
+    'local intentos = 0\n'
+    'local function paso()\n'
+    '  intentos = intentos + 1\n'
+    '  local v = gmcp and gmcp.Char and gmcp.Char.Vitals\n'
+    '  local mana = v and tonumber(v.mana)\n'
+    '  local maxmana = v and tonumber(v.maxmana)\n'
+    '  local move = v and tonumber(v.move)\n'
+    '  local maxmove = v and tonumber(v.maxmove)\n'
+    '  if not (mana and maxmana and move and maxmove) then return end\n'
+    '  if mana >= maxmana and move >= maxmove then\n'
+    '    cecho("<green>Recu: mana y mov al maximo.\\n")\n'
+    '    return\n'
+    '  end\n'
+    '  if intentos > 20 then\n'
+    '    cecho(string.format("<yellow>Recu: me detengo tras 20 intentos (mana %d/%d, mov %d/%d).\\n", mana, maxmana, move, maxmove))\n'
+    '    return\n'
+    '  end\n'
+    '  if mana < maxmana and move >= 60 then\n'
+    '    send("c mana")\n'
+    '  elseif move < maxmove and mana >= 10 then\n'
+    '    send("c refrescar")\n'
+    '  else\n'
+    '    cecho(string.format("<yellow>Recu: sin margen para seguir convirtiendo (mana %d/%d, mov %d/%d).\\n", mana, maxmana, move, maxmove))\n'
+    '    return\n'
+    '  end\n'
+    '  tempTimer(2, paso)\n'
+    'end\n'
+    'paso()'
+)
+
 make_alias(alias_group, "pb", r"^pb$", "send(\"c 'proteccion divina'\")")
 make_alias(alias_group, "pm", r"^pm$", "send(\"c 'proteccion infernal'\")")
 make_alias(alias_group, "rp", r"^rp (.+)$", "send(\"conjurar 'rayo poderoso' \" .. matches[2])")
@@ -2748,6 +2786,8 @@ Clases.druida = {
     Clases.sendSeq("s", "suro")
   end,
   dope = function(obj)
+    send("c anti bolsillo")
+    send("c bende equipo")
     Clases.dopar(Clases.dopes.druida, obj)
   end,
 }''')

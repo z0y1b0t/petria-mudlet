@@ -3666,6 +3666,46 @@ intentar()</script>
 					<regex>^can (.+)$</regex>
 				</Alias>
 				<Alias isActive="yes" isFolder="no">
+					<name>recu</name>
+					<script>-- Confirmado en juego: "c mana" cuesta mov y llena mana ("Tu poder
+-- magico esta al maximo!" cuando ya esta full); "c refrescar" cuesta
+-- mana y llena mov ("Ya estas descansado." cuando ya esta full), mucho
+-- mas barato en mana de lo que "c mana" cuesta en mov -- alternando se
+-- termina llenando los dos. 2s entre pasos (va por GMCP, no por texto)
+-- y tope de intentos por si la clase no tiene alguno de los dos.
+local intentos = 0
+local function paso()
+  intentos = intentos + 1
+  local v = gmcp and gmcp.Char and gmcp.Char.Vitals
+  local mana = v and tonumber(v.mana)
+  local maxmana = v and tonumber(v.maxmana)
+  local move = v and tonumber(v.move)
+  local maxmove = v and tonumber(v.maxmove)
+  if not (mana and maxmana and move and maxmove) then return end
+  if mana &gt;= maxmana and move &gt;= maxmove then
+    cecho("&lt;green&gt;Recu: mana y mov al maximo.\n")
+    return
+  end
+  if intentos &gt; 20 then
+    cecho(string.format("&lt;yellow&gt;Recu: me detengo tras 20 intentos (mana %d/%d, mov %d/%d).\n", mana, maxmana, move, maxmove))
+    return
+  end
+  if mana &lt; maxmana and move &gt;= 60 then
+    send("c mana")
+  elseif move &lt; maxmove and mana &gt;= 10 then
+    send("c refrescar")
+  else
+    cecho(string.format("&lt;yellow&gt;Recu: sin margen para seguir convirtiendo (mana %d/%d, mov %d/%d).\n", mana, maxmana, move, maxmove))
+    return
+  end
+  tempTimer(2, paso)
+end
+paso()</script>
+					<command />
+					<packageName />
+					<regex>^(?:recu|recupera)$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
 					<name>pb</name>
 					<script>send("c 'proteccion divina'")</script>
 					<command />
@@ -4117,7 +4157,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1790877204
+Petria.version = 1790877697
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -4926,6 +4966,8 @@ Clases.druida = {
     Clases.sendSeq("s", "suro")
   end,
   dope = function(obj)
+    send("c anti bolsillo")
+    send("c bende equipo")
     Clases.dopar(Clases.dopes.druida, obj)
   end,
 }</script>
