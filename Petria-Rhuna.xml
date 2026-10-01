@@ -4089,7 +4089,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1790038332
+Petria.version = 1790875726
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -4313,6 +4313,52 @@ function Petria.huir(cmd)
   return true
 end
 
+-- Carrusel de pociones de combate (cualquier clase): "q sana", si no hay
+-- "q batalla", si tampoco "q super". Recuerda cual funciono la ultima vez
+-- (Petria.carruselUltimaOk) y la prueba primero la proxima vez, en vez de
+-- repetir siempre desde "sana".
+Petria.carruselPociones = {"sana", "batalla", "super"}
+Petria.pocionCarruselEnCurso = false
+
+function Petria.pocionCombate()
+  if Petria.pocionCarruselEnCurso then return end
+  local orden = {}
+  if Petria.carruselUltimaOk then table.insert(orden, Petria.carruselUltimaOk) end
+  for _, p in ipairs(Petria.carruselPociones) do
+    if p ~= Petria.carruselUltimaOk then table.insert(orden, p) end
+  end
+  Petria.pocionCarruselEnCurso = true
+  local i = 0
+  local function siguiente()
+    i = i + 1
+    local p = orden[i]
+    if not p then
+      Petria.pocionCarruselEnCurso = false
+      cecho("&lt;red&gt;Carrusel de pociones: sin stock de sana/batalla/super.\n")
+      return
+    end
+    if not Petria.traga(p, "q") then
+      Petria.pocionCarruselEnCurso = false
+      return
+    end
+    local idFallo, idTimeout
+    local function limpiar()
+      if exists(idFallo, "trigger") == 1 then killTrigger(idFallo) end
+      if exists(idTimeout, "timer") == 1 then killTimer(idTimeout) end
+    end
+    idFallo = tempRegexTrigger("No tienes esa pocion\\.", function()
+      limpiar()
+      siguiente()
+    end)
+    idTimeout = tempTimer(2, function()
+      limpiar()
+      Petria.carruselUltimaOk = p
+      Petria.pocionCarruselEnCurso = false
+    end)
+  end
+  siguiente()
+end
+
 -- ================================================================
 -- Defensa PvP automatica (solo con torON): un jugador te ataca -&gt; "kk &lt;nombre&gt;"
 -- (can + ataque); HP &lt; 30% -&gt; huir (respeta el limite de 3 huidas); ya fuera del
@@ -4514,10 +4560,11 @@ Clases.buffsDeCombate = {
 }
 function Clases.reponer(nombreDope, comando)
   if not Clases.enDope(nombreDope) then return end
-  -- El druida recibe santuario a nivel 30: antes de eso lo renueva la pocion
-  -- de fabada ("traga fabada"), tambien en combate.
+  -- El druida renueva santuario con el hechizo propio (95% practicado a
+  -- nivel 20); ya no con la pocion de fabada (se quedo sin stock: "No
+  -- tienes esa pocion.").
   if nombreDope == "santuario" and clase == "druida" then
-    Petria.traga("fabada")
+    send("c santuario")
     return
   end
   -- Confirmado en juego: un Oteren peleando recibe "No alcanzas la
@@ -4556,8 +4603,8 @@ function Clases.dopar(lista, obj)
       if Clases.tieneActivo(hechizo) then
         cecho("&lt;gray&gt;Ya activo, salteado: " .. hechizo .. "\n")
       elseif hechizo == "santuario" and clase == "druida" then
-        cecho("&lt;cyan&gt;Dopando: santuario (traga fabada)\n")
-        Petria.traga("fabada")
+        cecho("&lt;cyan&gt;Dopando: santuario (c santuario)\n")
+        send("c santuario")
       else
         cecho("&lt;cyan&gt;Dopando: " .. hechizo .. "\n")
         send("cast '" .. hechizo .. "'")
@@ -5300,7 +5347,7 @@ send("curar")</script>
 				<Key isActive="yes" isFolder="no">
 					<name>MAC-SUPER</name>
 					<packageName />
-					<script>Petria.traga("super")</script>
+					<script>Petria.pocionCombate()</script>
 					<command />
 					<keyCode>125</keyCode>
 					<keyModifier>0</keyModifier>
@@ -5324,7 +5371,7 @@ send("curar")</script>
 				<Key isActive="yes" isFolder="no">
 					<name>Linux-Super</name>
 					<packageName />
-					<script>Petria.traga("super")</script>
+					<script>Petria.pocionCombate()</script>
 					<command />
 					<keyCode>42</keyCode>
 					<keyModifier>536870912</keyModifier>

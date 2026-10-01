@@ -2208,6 +2208,52 @@ function Petria.huir(cmd)
   return true
 end
 
+-- Carrusel de pociones de combate (cualquier clase): "q sana", si no hay
+-- "q batalla", si tampoco "q super". Recuerda cual funciono la ultima vez
+-- (Petria.carruselUltimaOk) y la prueba primero la proxima vez, en vez de
+-- repetir siempre desde "sana".
+Petria.carruselPociones = {{"sana", "batalla", "super"}}
+Petria.pocionCarruselEnCurso = false
+
+function Petria.pocionCombate()
+  if Petria.pocionCarruselEnCurso then return end
+  local orden = {{}}
+  if Petria.carruselUltimaOk then table.insert(orden, Petria.carruselUltimaOk) end
+  for _, p in ipairs(Petria.carruselPociones) do
+    if p ~= Petria.carruselUltimaOk then table.insert(orden, p) end
+  end
+  Petria.pocionCarruselEnCurso = true
+  local i = 0
+  local function siguiente()
+    i = i + 1
+    local p = orden[i]
+    if not p then
+      Petria.pocionCarruselEnCurso = false
+      cecho("<red>Carrusel de pociones: sin stock de sana/batalla/super.\\n")
+      return
+    end
+    if not Petria.traga(p, "q") then
+      Petria.pocionCarruselEnCurso = false
+      return
+    end
+    local idFallo, idTimeout
+    local function limpiar()
+      if exists(idFallo, "trigger") == 1 then killTrigger(idFallo) end
+      if exists(idTimeout, "timer") == 1 then killTimer(idTimeout) end
+    end
+    idFallo = tempRegexTrigger("No tienes esa pocion\\\\.", function()
+      limpiar()
+      siguiente()
+    end)
+    idTimeout = tempTimer(2, function()
+      limpiar()
+      Petria.carruselUltimaOk = p
+      Petria.pocionCarruselEnCurso = false
+    end)
+  end
+  siguiente()
+end
+
 -- ================================================================
 -- Defensa PvP automatica (solo con torON): un jugador te ataca -> "kk <nombre>"
 -- (can + ataque); HP < 30% -> huir (respeta el limite de 3 huidas); ya fuera del
@@ -2403,10 +2449,11 @@ Clases.buffsDeCombate = {
 }
 function Clases.reponer(nombreDope, comando)
   if not Clases.enDope(nombreDope) then return end
-  -- El druida recibe santuario a nivel 30: antes de eso lo renueva la pocion
-  -- de fabada ("traga fabada"), tambien en combate.
+  -- El druida renueva santuario con el hechizo propio (95% practicado a
+  -- nivel 20); ya no con la pocion de fabada (se quedo sin stock: "No
+  -- tienes esa pocion.").
   if nombreDope == "santuario" and clase == "druida" then
-    Petria.traga("fabada")
+    send("c santuario")
     return
   end
   -- Confirmado en juego: un Oteren peleando recibe "No alcanzas la
@@ -2445,8 +2492,8 @@ function Clases.dopar(lista, obj)
       if Clases.tieneActivo(hechizo) then
         cecho("<gray>Ya activo, salteado: " .. hechizo .. "\\n")
       elseif hechizo == "santuario" and clase == "druida" then
-        cecho("<cyan>Dopando: santuario (traga fabada)\\n")
-        Petria.traga("fabada")
+        cecho("<cyan>Dopando: santuario (c santuario)\\n")
+        send("c santuario")
       else
         cecho("<cyan>Dopando: " .. hechizo .. "\\n")
         send("cast '" .. hechizo .. "'")
@@ -3130,10 +3177,10 @@ make_key(teclas_key_group, "Savia verde", QT_KEY_DELETE, QT_KEYPAD_MODIFIER, 'Pe
 # capturados). Reemplazan a MAC-Sanar / MAC-SaviaVerde, que usaban estos
 # mismos codigos (123 / 125) y ya no existen en el perfil de la Mac.
 make_key(teclas_key_group, "MAC-MejoraAlquimica", QT_KEY_BRACELEFT, 0, "send(\"c 'mejora alquimica' savia\")")
-make_key(teclas_key_group, "MAC-SUPER", QT_KEY_BRACERIGHT, 0, 'Petria.traga("super")')
+make_key(teclas_key_group, "MAC-SUPER", QT_KEY_BRACERIGHT, 0, 'Petria.pocionCombate()')
 make_key(teclas_key_group, "MAC-Rayo", QT_KEY_MINUS, 0, 'if rasOBJ and rasOBJ ~= "" then send("c rayo " .. rasOBJ) end')
 make_key(teclas_key_group, "Linux-MejoraAlquimica", QT_KEY_SLASH, QT_KEYPAD_MODIFIER, "send(\"c 'mejora alquimica' savia\")")
-make_key(teclas_key_group, "Linux-Super", QT_KEY_ASTERISK, QT_KEYPAD_MODIFIER, 'Petria.traga("super")')
+make_key(teclas_key_group, "Linux-Super", QT_KEY_ASTERISK, QT_KEYPAD_MODIFIER, 'Petria.pocionCombate()')
 make_key(teclas_key_group, "Linux-Rayo", QT_KEY_MINUS, QT_KEYPAD_MODIFIER, 'if rasOBJ and rasOBJ ~= "" then send("c rayo " .. rasOBJ) end')
 make_key(teclas_key_group, "MAC-Recall", QT_KEY_QUESTIONDOWN, 0, 'send("recall")\nsend("n")\nsend("curar")')
 
