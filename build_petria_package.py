@@ -2735,7 +2735,8 @@ make_script(druida_group, "Druida", '''-- Lista de fabrica del druida normal (bu
 Clases.dopes.druida = Clases.dopes.druida or {
   "proteccion", "buen aura", "bendecir", "detectar invisibilidad",
   "antifuego", "gatovision", "piel de corteza", "volar", "fuerza colosal",
-  "proteccion divina", "acelerar", "santuario",
+  "proteccion divina", "proteccion infernal", "niebla espesa",
+  "espiritu animal", "acelerar", "santuario",
 }
 
 Clases.druida = {
