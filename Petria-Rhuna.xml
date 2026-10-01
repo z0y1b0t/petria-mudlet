@@ -3669,10 +3669,14 @@ intentar()</script>
 					<name>recu</name>
 					<script>-- Confirmado en juego: "c mana" cuesta mov y llena mana ("Tu poder
 -- magico esta al maximo!" cuando ya esta full); "c refrescar" cuesta
--- mana y llena mov ("Ya estas descansado." cuando ya esta full), mucho
--- mas barato en mana de lo que "c mana" cuesta en mov -- alternando se
--- termina llenando los dos. 2s entre pasos (va por GMCP, no por texto)
--- y tope de intentos por si la clase no tiene alguno de los dos.
+-- mana y llena mov ("Ya estas descansado." cuando ya esta full). Cada
+-- uno gasta un poco del otro recurso, asi que nunca quedan los DOS al
+-- 100% en el mismo instante -- pedir esa condicion hacia rebotar sin fin
+-- (confirmado en juego: 20 intentos sin cortar nunca). En vez de eso: se
+-- para en cuanto cada uno llego al maximo AL MENOS UNA VEZ en esta
+-- corrida (misma idea que la secuencia manual: un "c mana" y despues
+-- los "c refrescar" que hagan falta, sin volver a tocar mana de nuevo).
+local manaLleno, moveLleno = false, false
 local intentos = 0
 local function paso()
   intentos = intentos + 1
@@ -3682,17 +3686,19 @@ local function paso()
   local move = v and tonumber(v.move)
   local maxmove = v and tonumber(v.maxmove)
   if not (mana and maxmana and move and maxmove) then return end
-  if mana &gt;= maxmana and move &gt;= maxmove then
-    cecho("&lt;green&gt;Recu: mana y mov al maximo.\n")
+  if mana &gt;= maxmana then manaLleno = true end
+  if move &gt;= maxmove then moveLleno = true end
+  if manaLleno and moveLleno then
+    cecho(string.format("&lt;green&gt;Recu: listo (mana %d/%d, mov %d/%d).\n", mana, maxmana, move, maxmove))
     return
   end
-  if intentos &gt; 20 then
-    cecho(string.format("&lt;yellow&gt;Recu: me detengo tras 20 intentos (mana %d/%d, mov %d/%d).\n", mana, maxmana, move, maxmove))
+  if intentos &gt; 10 then
+    cecho(string.format("&lt;yellow&gt;Recu: me detengo tras 10 intentos (mana %d/%d, mov %d/%d).\n", mana, maxmana, move, maxmove))
     return
   end
-  if mana &lt; maxmana and move &gt;= 60 then
+  if not manaLleno and move &gt;= 60 then
     send("c mana")
-  elseif move &lt; maxmove and mana &gt;= 10 then
+  elseif not moveLleno and mana &gt;= 10 then
     send("c refrescar")
   else
     cecho(string.format("&lt;yellow&gt;Recu: sin margen para seguir convirtiendo (mana %d/%d, mov %d/%d).\n", mana, maxmana, move, maxmove))
@@ -4157,7 +4163,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1790877697
+Petria.version = 1790879891
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
