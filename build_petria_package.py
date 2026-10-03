@@ -2777,7 +2777,7 @@ Clases.dopes.druida = Clases.dopes.druida or {
   "proteccion", "buen aura", "bendecir", "detectar invisibilidad",
   "antifuego", "gatovision", "piel de corteza", "volar", "fuerza colosal",
   "proteccion divina", "proteccion infernal", "niebla espesa",
-  "espiritu animal", "acelerar", "santuario",
+  "espiritu animal", "agarre magico", "acelerar", "santuario",
 }
 
 Clases.druida = {

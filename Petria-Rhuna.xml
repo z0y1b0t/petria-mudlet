@@ -4160,7 +4160,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1790965956
+Petria.version = 1790987255
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -4957,7 +4957,7 @@ Clases.dopes.druida = Clases.dopes.druida or {
   "proteccion", "buen aura", "bendecir", "detectar invisibilidad",
   "antifuego", "gatovision", "piel de corteza", "volar", "fuerza colosal",
   "proteccion divina", "proteccion infernal", "niebla espesa",
-  "espiritu animal", "acelerar", "santuario",
+  "espiritu animal", "agarre magico", "acelerar", "santuario",
 }
 
 Clases.druida = {
