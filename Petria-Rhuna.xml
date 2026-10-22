@@ -1316,6 +1316,9 @@ end</script>
 if not cd_veneno or cd_veneno == 0 then
   cd_veneno = 1
   tempTimer(6, function() cd_veneno = 0 end)
+  -- Pelado: lo cura un curandero si hay uno en la sala (confirmado en
+  -- juego); sin curandero no hace nada y sigue el hechizo.
+  send("curar veneno")
   send('c "curar veneno"')
   local idFallo
   idFallo = tempRegexTrigger("No conoces .* hechizo con ese nombre\\.", function()
@@ -4160,7 +4163,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1792706737
+Petria.version = 1792708522
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
