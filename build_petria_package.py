@@ -908,7 +908,7 @@ make_trigger(
     '    if exists(idFallo, "trigger") == 1 then killTrigger(idFallo) end\n'
     '  end)\n'
     'end',
-    [r"Tienes retortijones y vomitas\."],
+    [r"Tienes retortijones y vomitas\.", r"^Hechizo: veneno\s*:.*Efecto: envenenado"],
 )
 make_trigger(pelea_trig_group, "Recuperado de golpetazo", 'expandAlias("skill golpeta")', [r"se recupera de los efectos del golpetazo\.$"])
 make_trigger(pelea_trig_group, "Transeunte resiste raices", 'send("c rai")', [r"pero un transeunte casual se resiste a ellas\.$"])
