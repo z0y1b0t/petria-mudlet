@@ -2284,7 +2284,12 @@ function Petria.pocionCombate()
       return
     end
   end
-  cecho("<red>Carrusel de pociones: sin stock de sana/batalla/super.\\n")
+  -- Las tres marcadas sin stock: no parar, olvidar las marcas y volver a
+  -- rotar desde el principio (puede haber stock nuevo o ser un falso aviso).
+  Petria.carruselSinStockHasta = {{}}
+  Petria.carruselUltimaOk = nil
+  cecho("<yellow>Carrusel de pociones: sin stock de sana/batalla/super, reintento la rotacion.\\n")
+  Petria.traga(Petria.carruselPociones[1])
 end
 
 -- ================================================================
