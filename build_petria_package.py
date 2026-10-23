@@ -214,7 +214,10 @@ make_trigger(
     r"""if Petria.postMuerte == false then return end
 Petria.pvpRecuperando = false
 Petria.pvpHuyo = false
-cecho("<yellow>[MUERTE] rutina: dope, recoger cuerpo, vestir, curar\n")
+cecho("<yellow>[MUERTE] rutina: pararse, dope, recoger cuerpo, vestir, curar\n")
+-- Al revivir quedas descansando: sin "st" todo lo demas da "Estas tan
+-- comodo asi... levantate" (confirmado en juego).
+send("st")
 expandAlias("dope")
 send("get todo cu")
 send("vest todo")

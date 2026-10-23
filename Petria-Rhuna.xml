@@ -320,6 +320,42 @@ Pelea.alerta("RECALL BLOQUEADO en esta zona - movete a mano")</script>
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>PK Mago: enemigo se cura, cancelar</name>
+					<script>-- Detecta hechizos de curacion/restauracion del rival.
+-- ORDENLUZ: fzzuharukaf (su hechizo de cura), gaiaf (cura simple).
+-- Patrones genericos en espanol. Con pkActivo, envia cancelacion automatica
+-- con cooldown de 2s para no spamear.
+if not pkActivo then return end
+if not rasOBJ or rasOBJ == "" then return end
+if cd_pkCan and cd_pkCan == 1 then return end
+cd_pkCan = 1
+tempTimer(2, function() cd_pkCan = 0 end)
+expandAlias("can " .. rasOBJ)
+cecho("&lt;yellow&gt;[PK] CURACION enemiga -- cancelando " .. rasOBJ .. "\n")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>fzzuharukaf</string>
+						<string>gaiaf\b</string>
+						<string>siente mejor al recibir</string>
+						<string>se cura(?: las heridas)?\.?$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+						<integer>1</integer>
+						<integer>1</integer>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Alerta: ataque de jugador (PK)</name>
 					<script>-- "Someone" aparece cuando NO podes ver/detectar a quien te ataca (no
 -- es exclusivo de PK, es "no identificado") -- pero reaccionar igual
@@ -352,6 +388,65 @@ expandAlias("k Someone")</script>
 						<string>^Someone empieza a atacarte\.$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>PK Mago: ceguera detectada</name>
+					<script>-- Blindness/Luz Divina: no se pueden ver buffos del rival, "Someone" en
+-- combate. Consejo de SAMMER: usar pocion de cura (no spells de area que
+-- puedan pegar aliados), priorizar spells sin objetivo.
+if not pkActivo then return end
+Pelea.estaCiego = true
+tempTimer(30, function() Pelea.estaCiego = false end)
+Pelea.alerta("[PK] CIEGO/A -- usa pocion, no spells de area; spells sin objetivo siguen OK")
+Petria.sanar()</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>(?i)cegado</string>
+						<string>rjk euzuia</string>
+						<string>Luz Divina te ciega</string>
+						<string>no puedes ver nada</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+						<integer>1</integer>
+						<integer>1</integer>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>PK Mago: ceguera termina</name>
+					<script>if not pkActivo then return end
+Pelea.estaCiego = false
+cecho("&lt;green&gt;[PK] Vision recuperada -- podes ver al rival de nuevo\n")</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand />
+					<packageName />
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile />
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>(?i)ya puedes ver(?: de nuevo)?</string>
+						<string>Tu vision se aclara</string>
+						<string>deja de estar cegado</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+						<integer>1</integer>
 						<integer>1</integer>
 					</regexCodePropertyList>
 				</Trigger>
@@ -1926,6 +2021,95 @@ send("skill furia")</script>
 							<integer>1</integer>
 						</regexCodePropertyList>
 					</Trigger>
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>PK Mago: rival usa cancelacion</name>
+						<script>-- Detecta cuando el rival lanza un hechizo de cancelacion/dispel.
+-- Marcamos el timestamp para que los triggers de santu/acelerar sepan
+-- si la caida fue por cancelacion (en los proximos 5s) o expiración natural.
+-- Patrones conocidos: "qaiqzraquai" (ORDENLUZ), "cancelar" (generico).
+if not pkActivo then return end
+Pelea.cancelDetectadoAt = os.time()
+cecho("&lt;red&gt;[PK] Cancelacion detectada -- proximo buff que caiga fue CANCELADO, no expirado\n")</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>qaiqzraquai</string>
+							<string>intenta cancelar tu magia</string>
+							<string>disipa tu magia</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+							<integer>1</integer>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>PK Mago ORDENLUZ: Fervor Sagrado carga</name>
+						<script>-- ORDENLUZ (Paladin/Cleric): "ayfzieaf gaqfuyuqua" = carga de Fervor Sagrado.
+-- 5 cargas acumuladas = 220 de dano plano en el proximo hit.
+-- Counter visual + alerta en carga 4/5 (ya no hay tiempo).
+if not pkActivo then return end
+Pelea.fervorCargas = (Pelea.fervorCargas or 0) + 1
+local n = Pelea.fervorCargas
+local lleno = string.rep("&lt;red&gt;|", n)
+local vacio = string.rep("&lt;gray&gt;|", 5 - n)
+cecho(string.format("&lt;yellow&gt;[ORDENLUZ] Fervor Sagrado: %s%s  %d/5\n", lleno, vacio, n))
+if n &gt;= 4 then
+  Pelea.alerta(string.format("FERVOR SAGRADO %d/5 -- INMINENTE [220]! Prepara pocion/curar!", n))
+end
+if n &gt;= 5 then
+  Pelea.fervorCargas = 0
+  cecho("&lt;red&gt;[ORDENLUZ] Fervor Sagrado liberado (220 plano) -- counter reset\n")
+end</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>ayfzieaf gaqfuyuqua</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>PK Mago ORDENLUZ: Fervor Sagrado liberado</name>
+						<script>-- El [220] plano ya fue usado. El patron exacto depende del texto del juego;
+-- este trigger resetea el counter cuando detecta el dano plano del Fervor.
+if not pkActivo then return end
+Pelea.fervorCargas = 0
+cecho("&lt;red&gt;[ORDENLUZ] Fervor Sagrado [220] IMPACTO -- counter reset a 0\n")</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>Fervor Sagrado</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
 				</TriggerGroup>
 				<TriggerGroup isActive="yes" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>WoF</name>
@@ -2417,7 +2601,10 @@ end</script>
 				<script>if Petria.postMuerte == false then return end
 Petria.pvpRecuperando = false
 Petria.pvpHuyo = false
-cecho("&lt;yellow&gt;[MUERTE] rutina: dope, recoger cuerpo, vestir, curar\n")
+cecho("&lt;yellow&gt;[MUERTE] rutina: pararse, dope, recoger cuerpo, vestir, curar\n")
+-- Al revivir quedas descansando: sin "st" todo lo demas da "Estas tan
+-- comodo asi... levantate" (confirmado en juego).
+send("st")
 expandAlias("dope")
 send("get todo cu")
 send("vest todo")
@@ -2508,7 +2695,17 @@ end</script>
 				<regexCodePropertyList />
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Santuario se despeja</name>
-					<script>Clases.reponer("santuario", "c santuario")</script>
+					<script>local era_combate = en_combate and en_combate ~= 0
+if era_combate and pkActivo then
+  local fueCancel = Pelea.cancelDetectadoAt and os.time() - Pelea.cancelDetectadoAt &lt; 5
+  if fueCancel then
+    Pelea.alerta("[PK] SANTU CANCELADO por rival -- recasteando; si predices fisico escribe: c acelerar")
+  else
+    Pelea.alerta("[PK] SANTU CAIDO -- recasteando automaticamente")
+  end
+  Pelea.santuCaidoAt = os.time()
+end
+Clases.reponer("santuario", "c santuario")</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -2648,7 +2845,17 @@ end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Acelerar termina (ritmo normal)</name>
-					<script>Clases.reponer("acelerar", "c acelerar")</script>
+					<script>local era_combate = en_combate and en_combate ~= 0
+if era_combate and pkActivo then
+  local fueCancel = Pelea.cancelDetectadoAt and os.time() - Pelea.cancelDetectadoAt &lt; 5
+  if fueCancel then
+    Pelea.alerta("[PK] ACELERAR CANCELADO -- rival uso cancelar; espinillazo/golpetazo PROBABLES!")
+  else
+    Pelea.alerta("[PK] ACELERAR CAIDO -- recasteando automaticamente")
+  end
+  Pelea.acelerarCaidoAt = os.time()
+end
+Clases.reponer("acelerar", "c acelerar")</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -3538,7 +3745,35 @@ cecho(string.format("&lt;cyan&gt;[Pelea] WoF %s.\n", wofActivo and "activado" or
 				<Alias isActive="yes" isFolder="no">
 					<name>pk</name>
 					<script>pkActivo = (matches[2] == "on")
-cecho(string.format("&lt;cyan&gt;[Pelea] PK %s.\n", pkActivo and "activado" or "desactivado"))</script>
+if pkActivo then
+  -- Reset de todo el estado PK al activar
+  Pelea.fervorCargas = 0
+  Pelea.santuCaidoAt = nil
+  Pelea.acelerarCaidoAt = nil
+  Pelea.cancelDetectadoAt = nil
+  Pelea.estaCiego = false
+  cd_pkCan = 0
+  cecho("&lt;cyan&gt;====================================\n")
+  cecho("&lt;cyan&gt;  MODO PK MAGO ACTIVADO\n")
+  cecho("&lt;cyan&gt;====================================\n")
+  cecho("&lt;yellow&gt;  ALERTAS activas:\n")
+  cecho("&lt;yellow&gt;  - Santu/Acelerar caidos en combate\n")
+  cecho("&lt;yellow&gt;  - Cancelacion del rival detectada\n")
+  cecho("&lt;yellow&gt;  COUNTERS activos:\n")
+  cecho("&lt;yellow&gt;  - Fervor Sagrado (ORDENLUZ) 5 cargas\n")
+  cecho("&lt;yellow&gt;  AUTO activo:\n")
+  cecho("&lt;yellow&gt;  - Cancel curas enemigas\n")
+  cecho("&lt;yellow&gt;  - Sanar al quedar ciego\n")
+  cecho("&lt;cyan&gt;  Recordar:\n")
+  cecho("&lt;gray&gt;  - kk rival: puede manda c santu, c acele\n")
+  cecho("&lt;gray&gt;  - Rayo: ~46%% rebota; usar con santu/defle activos\n")
+  cecho("&lt;gray&gt;  - Fervor 4/5: preparar pocion preventiva\n")
+  cecho("&lt;cyan&gt;====================================\n")
+else
+  Pelea.fervorCargas = 0
+  Pelea.estaCiego = false
+  cecho("&lt;cyan&gt;[PK] Modo PK desactivado\n")
+end</script>
 					<command />
 					<packageName />
 					<regex>^pk (on|off)$</regex>
@@ -4424,7 +4659,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1792763385
+Petria.version = 1792777463
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -5344,6 +5579,17 @@ acosado = acosado or ""
 -- zancadilla normal). Activar solo cuando realmente estes en ese modo.
 if wofActivo == nil then wofActivo = false end
 if pkActivo == nil then pkActivo = false end
+
+-- ================================================================
+-- Estado PK (Mago): timestamps y counters que los triggers de PK
+-- leen para tomar decisiones contextuales. Se limpian con "pk on".
+-- ================================================================
+Pelea.fervorCargas = Pelea.fervorCargas or 0       -- cargas de Fervor Sagrado (ORDENLUZ)
+Pelea.santuCaidoAt = Pelea.santuCaidoAt or nil     -- timestamp ultimo santuario caido
+Pelea.acelerarCaidoAt = Pelea.acelerarCaidoAt or nil -- timestamp ultimo acelerar caido
+Pelea.cancelDetectadoAt = Pelea.cancelDetectadoAt or nil -- timestamp ultima cancelacion rival detectada
+Pelea.estaCiego = Pelea.estaCiego or false         -- true si Luz Divina / ceguera activa
+cd_pkCan = cd_pkCan or 0                           -- cooldown anti-spam cancel curas
 
 -- Defensa/alertas (ver analisis de un ataque de jugador real: "Someone")
 if recallBloqueado == nil then recallBloqueado = false end
