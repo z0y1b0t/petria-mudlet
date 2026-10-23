@@ -264,14 +264,42 @@ autodope_trig_group = make_trigger_group(petria_trig_group, "Autodope")
 # mengua"). Con patrones anclados (^...$) ninguno matcheaba. Por eso van sin
 # anclas y con un fragmento corto que sobrevive al corte. Ademas solo recasteo
 # si el hechizo esta en el dope de la clase (Clases.reponer).
-make_trigger(autodope_trig_group, "Santuario se despeja", 'Clases.reponer("santuario", "c santuario")', [r"Los efectos de Santuario"])
+make_trigger(
+    autodope_trig_group, "Santuario se despeja",
+    'local era_combate = en_combate and en_combate ~= 0\n'
+    'if era_combate and pkActivo then\n'
+    '  local fueCancel = Pelea.cancelDetectadoAt and os.time() - Pelea.cancelDetectadoAt < 5\n'
+    '  if fueCancel then\n'
+    '    Pelea.alerta("[PK] SANTU CANCELADO por rival -- recasteando; si predices fisico escribe: c acelerar")\n'
+    '  else\n'
+    '    Pelea.alerta("[PK] SANTU CAIDO -- recasteando automaticamente")\n'
+    '  end\n'
+    '  Pelea.santuCaidoAt = os.time()\n'
+    'end\n'
+    'Clases.reponer("santuario", "c santuario")',
+    [r"Los efectos de Santuario"],
+)
 make_trigger(autodope_trig_group, "Inspiracion divina se va", 'Clases.reponer("inspiracion", "c inspiracion")', [r"tu inspiracion divina"])
 make_trigger(autodope_trig_group, "Fuerza colosal se va (mas debil)", 'Clases.reponer("fuerza colosal", "c \'fuerza colosal\'")', [r"Te sientes mas debil\."])
 make_trigger(autodope_trig_group, "Proteccion infernal mengua", 'Clases.reponer("proteccion infernal", "c \'proteccion infernal\'")', [r"el mal mengua"])
 make_trigger(autodope_trig_group, "Escudo de luz desaparece", 'Clases.reponer("escudo luz", "c \'escudo luz\'")', [r"El escudo de luz que te rodeaba"])
 make_trigger(autodope_trig_group, "Luz protectora desaparece", 'Clases.reponer("luz protectora", "c \'luz protectora\'")', [r"Los rayos de luz que te rodeaban"])
 make_trigger(autodope_trig_group, "Proteccion sagrada se desvanece", 'Clases.reponer("proteccion sagrada", "c \'proteccion sagrada\'")', [r"Tu proteccion sagrada se desvanece"])
-make_trigger(autodope_trig_group, "Acelerar termina (ritmo normal)", 'Clases.reponer("acelerar", "c acelerar")', [r"Ya vuelves a recuperar tu ritmo normal"])
+make_trigger(
+    autodope_trig_group, "Acelerar termina (ritmo normal)",
+    'local era_combate = en_combate and en_combate ~= 0\n'
+    'if era_combate and pkActivo then\n'
+    '  local fueCancel = Pelea.cancelDetectadoAt and os.time() - Pelea.cancelDetectadoAt < 5\n'
+    '  if fueCancel then\n'
+    '    Pelea.alerta("[PK] ACELERAR CANCELADO -- rival uso cancelar; espinillazo/golpetazo PROBABLES!")\n'
+    '  else\n'
+    '    Pelea.alerta("[PK] ACELERAR CAIDO -- recasteando automaticamente")\n'
+    '  end\n'
+    '  Pelea.acelerarCaidoAt = os.time()\n'
+    'end\n'
+    'Clases.reponer("acelerar", "c acelerar")',
+    [r"Ya vuelves a recuperar tu ritmo normal"],
+)
 make_trigger(autodope_trig_group, "Volar termina", 'Clases.reponer("volar", "c volar")', [r"Despacito dejas de"])
 # "Ya no ves ni tres en un burro en la oscuridad." salio en el mismo bloque de
 # un cancelacion rival, entre los buffs de dope; por lo de "oscuridad" lo
@@ -1015,24 +1043,51 @@ pk_group = make_trigger_group(pelea_trig_group, "PK")
 def make_pk_trigger(name, script, patterns):
     return make_trigger(pk_group, name, 'if not pkActivo then return end\n' + script, patterns)
 
-make_pk_trigger(
-    "Furia Salvaje falla: reintentar",
-    'tempTimer(4, function()\n'
-    '  if en_combate and en_combate ~= 0 and (not qcomm or qcomm <= 3) then send("skill furia") end\n'
-    'end)',
-    [r"Tu Furia Salvaje falla"],
-)
-make_pk_trigger(
-    "Furia Salvaje activa: reintentar",
-    'tempTimer(4, function()\n'
-    '  if en_combate and en_combate ~= 0 and (not qcomm or qcomm <= 3) then send("skill furia") end\n'
-    'end)',
-    [r"!Furia Salvaje!"],
-)
-make_pk_trigger("Garrotazo de oso conecta", 'send("c \'totem animal buho\'")', [r"Tu garrotazo de oso conecta la boca de tu rival! Lo golpetea\."])
+# Triggers generales PK (clases)
 make_pk_trigger("PK: objetivo esta aqui", 'if rasOBJ and rasOBJ ~= "" then expandAlias("engancha " .. rasOBJ) end', [r"^(.*) esta aqui!$"])
 make_pk_trigger("PK: objetivo huyo", 'if rasOBJ and rasOBJ ~= "" then send("ras " .. rasOBJ) end', [r"ha huido!$"])
-make_pk_trigger("Poder del oso ancestral (PK)", 'send("espinillazo")\nsend("skill furia")', [r"^Ahora, caminas con el poder y la ferocidad del oso ancestral\.$"])
+
+# Triggers PK especificos Mago
+make_pk_trigger(
+    "PK Mago: rival usa cancelacion",
+    'Pelea.cancelDetectadoAt = os.time()\n'
+    'cecho("<red>[PK] Cancelacion detectada -- proximo buff que caiga fue CANCELADO, no expirado\\n")',
+    [r"qaiqzraquai", r"intenta cancelar tu magia", r"disipa tu magia"],
+)
+make_pk_trigger(
+    "PK Mago ORDENLUZ: Fervor Sagrado carga",
+    'Pelea.fervorCargas = (Pelea.fervorCargas or 0) + 1\n'
+    'local n = Pelea.fervorCargas\n'
+    'local lleno = string.rep("<red>|", n)\n'
+    'local vacio = string.rep("<gray>|", 5 - n)\n'
+    'cecho(string.format("<yellow>[ORDENLUZ] Fervor Sagrado: %s%s  %d/5\\n", lleno, vacio, n))\n'
+    'if n >= 4 then\n'
+    '  Pelea.alerta(string.format("FERVOR SAGRADO %d/5 -- INMINENTE [220]! Prepara pocion/curar!", n))\n'
+    'end\n'
+    'if n >= 5 then\n'
+    '  Pelea.fervorCargas = 0\n'
+    '  cecho("<red>[ORDENLUZ] Fervor Sagrado liberado (220 plano) -- counter reset\\n")\n'
+    'end',
+    [r"ayfzieaf gaqfuyuqua"],
+)
+make_pk_trigger(
+    "PK Mago: enemigo se cura, cancelar",
+    'if not rasOBJ or rasOBJ == "" then return end\n'
+    'if cd_pkCan and cd_pkCan == 1 then return end\n'
+    'cd_pkCan = 1\n'
+    'tempTimer(2, function() cd_pkCan = 0 end)\n'
+    'expandAlias("can " .. rasOBJ)\n'
+    'cecho("<yellow>[PK] CURACION enemiga -- cancelando " .. rasOBJ .. "\\n")',
+    [r"fzzuharukaf", r"\bgaiaf\b", r"siente mejor al recibir", r"se cura(?: las heridas)?\.?$"],
+)
+make_pk_trigger(
+    "PK Mago: ceguera detectada",
+    'Pelea.estaCiego = true\n'
+    'tempTimer(30, function() Pelea.estaCiego = false end)\n'
+    'Pelea.alerta("[PK] CIEGO/A -- usa pocion, no spells de area; spells sin objetivo siguen OK")\n'
+    'Petria.sanar()',
+    [r"(?i)cegado", r"rjk euzuia", r"Luz Divina te ciega", r"no puedes ver nada"],
+)
 
 # --- Subcarpeta WoF ---
 # WoF (Guerra de Facciones) comparte patrones de texto con el combate PvE
@@ -1507,7 +1562,34 @@ make_alias(
 make_alias(
     pelea_alias_group, "pk", r"^pk (on|off)$",
     'pkActivo = (matches[2] == "on")\n'
-    'cecho(string.format("<cyan>[Pelea] PK %s.\\n", pkActivo and "activado" or "desactivado"))'
+    'if pkActivo then\n'
+    '  Pelea.fervorCargas = 0\n'
+    '  Pelea.santuCaidoAt = nil\n'
+    '  Pelea.acelerarCaidoAt = nil\n'
+    '  Pelea.cancelDetectadoAt = nil\n'
+    '  Pelea.estaCiego = false\n'
+    '  cd_pkCan = 0\n'
+    '  cecho("<cyan>====================================\\n")\n'
+    '  cecho("<cyan>  MODO PK MAGO ACTIVADO\\n")\n'
+    '  cecho("<cyan>====================================\\n")\n'
+    '  cecho("<yellow>  ALERTAS activas:\\n")\n'
+    '  cecho("<yellow>  - Santu/Acelerar caidos en combate\\n")\n'
+    '  cecho("<yellow>  - Cancelacion del rival detectada\\n")\n'
+    '  cecho("<yellow>  COUNTERS activos:\\n")\n'
+    '  cecho("<yellow>  - Fervor Sagrado (ORDENLUZ) 5 cargas\\n")\n'
+    '  cecho("<yellow>  AUTO activo:\\n")\n'
+    '  cecho("<yellow>  - Cancel curas enemigas\\n")\n'
+    '  cecho("<yellow>  - Sanar al quedar ciego\\n")\n'
+    '  cecho("<cyan>  Recordar:\\n")\n'
+    '  cecho("<gray>  - kk rival: puede manda c santu, c acele\\n")\n'
+    '  cecho("<gray>  - Rayo: ~46%% rebota; usar con santu/defle activos\\n")\n'
+    '  cecho("<gray>  - Fervor 4/5: preparar pocion preventiva\\n")\n'
+    '  cecho("<cyan>====================================\\n")\n'
+    'else\n'
+    '  Pelea.fervorCargas = 0\n'
+    '  Pelea.estaCiego = false\n'
+    '  cecho("<cyan>[PK] Modo PK desactivado\\n")\n'
+    'end'
 )
 
 ataques_alias_group = make_alias_group(pelea_alias_group, "ATAQUES")
@@ -2885,6 +2967,14 @@ acosado = acosado or ""
 -- zancadilla normal). Activar solo cuando realmente estes en ese modo.
 if wofActivo == nil then wofActivo = false end
 if pkActivo == nil then pkActivo = false end
+
+-- Estado PK Mago
+Pelea.fervorCargas = Pelea.fervorCargas or 0
+Pelea.santuCaidoAt = Pelea.santuCaidoAt or nil
+Pelea.acelerarCaidoAt = Pelea.acelerarCaidoAt or nil
+Pelea.cancelDetectadoAt = Pelea.cancelDetectadoAt or nil
+Pelea.estaCiego = Pelea.estaCiego or false
+cd_pkCan = cd_pkCan or 0
 
 -- Defensa/alertas (ver analisis de un ataque de jugador real: "Someone")
 if recallBloqueado == nil then recallBloqueado = false end
