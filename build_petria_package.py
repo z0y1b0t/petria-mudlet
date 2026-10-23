@@ -3091,7 +3091,7 @@ make_script(pelea_script_group, "DD", r"""-- dd <objetivo>: busca un mob con "do
 -- "c deslumbrar" + el ataque de tu clase. Comandos y mensajes tomados de logs
 -- del jugador (version CMUD "Seek_Destroy" + secuencia pasada a mano).
 Petria.dd = Petria.dd or {}
-Petria.ddEsperaRenovar = 5
+Petria.ddEsperaRenovar = 2
 
 local function trim(s) return (tostring(s):gsub("^%s+", ""):gsub("%s+$", "")) end
 
@@ -3099,6 +3099,7 @@ function Petria.ddReset(msg)
   local d = Petria.dd
   d.fase, d.objetivo, d.area, d.sala = nil, nil, nil, nil
   d.vnums, d.idx = {}, 0
+  d.siguiendo, d.renovado, d.seguidas = nil, nil, 0
   d.tok = (d.tok or 0) + 1
   if msg then cecho(msg) end
 end
@@ -3126,7 +3127,13 @@ function Petria.ddScan()
   local tok = d.tok
   send("scan")
   tempTimer(3, function()
-    if Petria.dd.tok == tok and Petria.dd.fase == "scan" then Petria.ddSiguiente() end
+    if Petria.dd.tok == tok and Petria.dd.fase == "scan" then
+      if Petria.dd.siguiendo then
+        Petria.ddReset("<yellow>DD: lo perdi de vista.\n")
+      else
+        Petria.ddSiguiente()
+      end
+    end
   end)
 end
 
@@ -3143,7 +3150,7 @@ function Petria.ddSiguiente()
   local tok = d.tok
   cecho(string.format("<cyan>DD: probando sala %s (%d/%d)\n", v, d.idx, #d.vnums))
   send("ir vnum " .. v)
-  tempTimer(4, function()
+  tempTimer(20, function()
     if Petria.dd.tok == tok and Petria.dd.fase == "ir" then Petria.ddScan() end
   end)
 end
@@ -3176,20 +3183,30 @@ function Petria.ddEncontrado()
   local d = Petria.dd
   local obj = d.objetivo
   d.fase = "ataque"
+  d.siguiendo = true
   d.tok = (d.tok or 0) + 1
+  local tok = d.tok
   cecho("<green>DD: " .. obj .. " esta aqui: cancelo y ataco.\n")
   local function atacar()
+    if Petria.dd.tok ~= tok then return end
     pcall(disableTriggerGroup, "WoF")
     pcall(enableTriggerGroup, "Pelea")
     rasOBJ = obj
     Petria.encenderRonda()
     send("c deslumbrar " .. obj)
     Clases.despacharAtaque(obj)
-    Petria.ddReset()
+    d.fase = "siguiendo"
+    d.tok = (d.tok or 0) + 1
+    local t2 = d.tok
+    tempTimer(120, function()
+      if Petria.dd.tok == t2 then Petria.ddReset("<gray>DD: fin del seguimiento.\n") end
+    end)
   end
   local cb
   cb = function(res)
-    if res == "exito" then
+    if Petria.dd.tok ~= tok then return end
+    if res == "exito" and not d.renovado then
+      d.renovado = true
       cecho("<cyan>DD: cancelacion exitosa, renuevo defensas (c can self).\n")
       send("c can self")
       tempTimer(Petria.ddEsperaRenovar, atacar)
@@ -3204,12 +3221,31 @@ function Petria.ddEncontrado()
   expandAlias("can " .. obj)
 end
 
+-- El objetivo se fue caminando ("X se va por el este."): lo sigo y lo busco
+-- con scan en la sala nueva (max 8 veces).
+function Petria.ddSeguir(dir)
+  local d = Petria.dd
+  d.seguidas = (d.seguidas or 0) + 1
+  if d.seguidas > 8 then
+    Petria.ddReset("<yellow>DD: lo segui 8 veces, me detengo.\n")
+    return
+  end
+  d.fase = "seguir"
+  d.tok = (d.tok or 0) + 1
+  local tok = d.tok
+  cecho("<cyan>DD: " .. d.objetivo .. " se fue hacia el " .. dir .. ", lo sigo.\n")
+  send(dir)
+  tempTimer(1, function()
+    if Petria.dd.tok == tok and Petria.dd.fase == "seguir" then Petria.ddScan() end
+  end)
+end
+
 function Petria.ddIniciar(obj)
   Petria.ddReset()
   local d = Petria.dd
   d.objetivo, d.fase = obj, "donde"
   local tok = d.tok
-  send("donde " .. obj)
+  send("donde " .. obj:lower())
   tempTimer(8, function()
     local f = Petria.dd.fase
     if Petria.dd.tok == tok and (f == "donde" or f == "donde_linea") then
@@ -3278,10 +3314,33 @@ make_trigger(
     [r"^\s*\d+ (?:habitaci[oó]n(?:es)?|rooms?) encontrad[ao]s?\.?$"],
 )
 make_trigger(
-    petria_trig_group, "DD: llegada a la sala",
+    petria_trig_group, "DD: llegada (vnum del prompt)",
+    'local d = Petria.dd\n'
+    'if d and d.fase == "ir" and matches[2] == tostring(d.vnums[d.idx]) then Petria.ddScan() end',
+    [r"^\|.*\((\d+)\)\s+Poc:"],
+)
+make_trigger(
+    petria_trig_group, "DD: ya estaba en la sala",
     'local d = Petria.dd\n'
     'if d and d.fase == "ir" then Petria.ddScan() end',
-    [r"^\[Salidas:", r"^Ya estas en esa room\.?$"],
+    [r"^Ya estas en esa room\.?$"],
+)
+make_trigger(
+    petria_trig_group, "DD: el objetivo se va caminando",
+    'local d = Petria.dd\n'
+    'if d and d.siguiendo and (d.fase == "ataque" or d.fase == "siguiendo")\n'
+    '   and Petria.ddCoincide(matches[2], d.objetivo) then\n'
+    '  Petria.ddSeguir(matches[3])\n'
+    'end',
+    [r"^(.+?) se va por (?:el |la )?(norte|sur|este|oeste|arriba|abajo)\.$"],
+)
+make_trigger(
+    petria_trig_group, "DD: objetivo muerto",
+    'local d = Petria.dd\n'
+    'if d and d.objetivo and Petria.ddCoincide(matches[2], d.objetivo) then\n'
+    '  Petria.ddReset("<green>DD: objetivo muerto.\\n")\n'
+    'end',
+    [r"^(.+?) ESTA MUERTO !!$"],
 )
 make_trigger(
     petria_trig_group, "DD: scan, objetivo justo aqui",
