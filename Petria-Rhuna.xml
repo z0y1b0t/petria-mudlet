@@ -2895,6 +2895,139 @@ expandAlias("eds")</script>
 					</regexCodePropertyList>
 				</Trigger>
 			</TriggerGroup>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>DD: area del donde</name>
+				<script>local d = Petria.dd
+if d and d.fase == "donde" then
+  d.area = matches[2]:match("^%s*(.-)%s*$")
+  d.fase = "donde_linea"
+end</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand />
+				<packageName />
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile />
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>^En (.+) encuentras a:$</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>DD: linea del donde (mob y sala)</name>
+				<script>local d = Petria.dd
+if d and d.fase == "donde_linea" then Petria.ddFilaDonde(matches[3]) end</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand />
+				<packageName />
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile />
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>^(?!\s*[|&lt;])(.+?)\s{2,}(.+?)(?:\s+\[[^\]]*\])?\s*$</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>DD: fila del buscarroom</name>
+				<script>local d = Petria.dd
+if d and d.fase == "buscar" then Petria.ddFilaBuscar(matches[2], matches[3], matches[4]) end</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand />
+				<packageName />
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile />
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>^\s*(\d+)\s+(.+?)\s{2,}(\S.*?)(?:\s+\[[^\]]*\])?\s*$</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>DD: fin del buscarroom</name>
+				<script>local d = Petria.dd
+if d and d.fase == "buscar" then Petria.ddFinBuscar() end</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand />
+				<packageName />
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile />
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>^\s*\d+ (?:habitaci[oó]n(?:es)?|rooms?) encontrad[ao]s?\.?$</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>DD: llegada a la sala</name>
+				<script>local d = Petria.dd
+if d and d.fase == "ir" then Petria.ddScan() end</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand />
+				<packageName />
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile />
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>^\[Salidas:</string>
+					<string>^Ya estas en esa room\.?$</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>DD: scan, objetivo justo aqui</name>
+				<script>local d = Petria.dd
+if d and d.fase == "scan" and Petria.ddCoincide(matches[2], d.objetivo) then
+  Petria.ddEncontrado()
+end</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand />
+				<packageName />
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile />
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>^\s+(.+?)\s{2,}justo aqu[ií]\.</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
 		</TriggerGroup>
 	</TriggerPackage>
 	<TimerPackage />
@@ -2929,29 +3062,9 @@ if obj ~= "" and clase and Clases.clasesConEmpalar[clase] and not (en_combate an
   Clases.intentarEmpalar(obj)
 end
 
--- Oteren: dejar encendida la ronda de hechizos (modo JEFE = rayo de
--- sinceridad, ver alias "aa"). Si ya estaba prendida con otro modo
--- elegido a mano se respeta; si un pelea anterior la bajo sola a PVP por
--- poco mana, vuelve a JEFE.
-local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
-if completa and tostring(completa):lower():find("oteren", 1, true) then
-  if Petria.rondaAutoBajada then
-    Petria.rondaAutoBajada = false
-    Petria.rondaHechizo = "rayo de sinceridad"
-  end
-  if not Petria.rondaActiva then
-    Petria.rondaActiva = true
-    Petria.rondaHechizo = "rayo de sinceridad"
-    cecho("&lt;cyan&gt;Ronda: JEFE, hechizo: rayo de sinceridad\n")
-  end
-end
-
--- Druida: dejar encendida la ronda de rayo de luna (ver alias "aa").
-if clase == "druida" and not Petria.rondaActiva then
-  Petria.rondaActiva = true
-  Petria.rondaHechizo = "rayo de luna"
-  cecho("&lt;cyan&gt;Ronda: rayo de luna\n")
-end
+-- Enciende la ronda de hechizos de la clase (Oteren: JEFE; druida: rayo
+-- de luna); definida en el script DD, la comparte con "dd".
+if Petria.encenderRonda then Petria.encenderRonda() end
 
 Clases.despacharAtaque(obj)</script>
 					<command />
@@ -3574,6 +3687,12 @@ Petria.traga("santu")</script>
 -- dio "Nada que cancelar." hace menos de 8s, no vuelve a mandar el
 -- hechizo (evita gastar mana de nuevo en lo mismo).
 Petria.canNadaHasta = Petria.canNadaHasta or {}
+-- dd (busca y destruye) pide que se le avise el resultado.
+local function fin(res)
+  local cb = Petria.canCallback
+  Petria.canCallback = nil
+  if cb then cb(res) end
+end
 local tarjet = matches[2]
 -- Confirmado en juego: "can self" se quita TODOS tus buffs, el autodope los
 -- relanza, y como el mensaje de exito sobre uno mismo ("...se van
@@ -3589,6 +3708,7 @@ local tarjetKey = tarjet:lower()
 local vencimiento = Petria.canNadaHasta[tarjetKey]
 if vencimiento and os.time() &lt; vencimiento then
   cecho(string.format("&lt;gray&gt;[can] %s ya dijo \"Nada que cancelar.\" hace poco, no reintento.\n", tarjet))
+  fin("nada")
   return
 end
 
@@ -3596,6 +3716,7 @@ end
 -- el server contesta "No conoces ningun hechizo" y antes se reintentaba 6
 -- veces. Se recuerda 10 minutos para no insistir en cada "k".
 if Petria.sinCancelacionHasta and os.time() &lt; Petria.sinCancelacionHasta then
+  fin("desc")
   return
 end
 
@@ -3629,6 +3750,7 @@ local function intentar()
     else
       terminado = true
       cecho(string.format("&lt;red&gt;Cancelacion fallida tras %d intentos.\n", intentosMax))
+      fin("fallo")
     end
   end
   -- Ademas de "se desvanece." (santuario), quitar acelerar da "X ya no va
@@ -3639,6 +3761,7 @@ local function intentar()
     terminado = true
     limpiar()
     cecho(string.format("&lt;green&gt;Cancelacion exitosa en %d intento(s).\n", intentos))
+    fin("exito")
   end)
   idNada = tempRegexTrigger("Nada que cancelar\\.", function()
     if terminado then return end
@@ -3646,6 +3769,7 @@ local function intentar()
     limpiar()
     Petria.canNadaHasta[tarjetKey] = os.time() + 8
     cecho("&lt;gray&gt;Nada que cancelar en el objetivo.\n")
+    fin("nada")
   end)
   idDesc = tempRegexTrigger("No conoces .* hechizo con ese nombre\\.", function()
     if terminado then return end
@@ -3653,6 +3777,7 @@ local function intentar()
     limpiar()
     Petria.sinCancelacionHasta = os.time() + 600
     cecho("&lt;gray&gt;[can] aun no tienes cancelacion: se omite (10 min).\n")
+    fin("desc")
   end)
   idFallo = tempRegexTrigger("Hechizo fallado\\.", function()
     if terminado then return end
@@ -4141,6 +4266,25 @@ send("ir 11866")</script>
 					<packageName />
 					<regex>^defender$</regex>
 				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>dd</name>
+					<script>local obj = matches[2]
+if not obj or obj == "" then
+  cecho("&lt;yellow&gt;Uso: dd &lt;objetivo&gt;\n")
+  return
+end
+Petria.ddIniciar(obj)</script>
+					<command />
+					<packageName />
+					<regex>^dd(?: (.+))?$</regex>
+				</Alias>
+				<Alias isActive="yes" isFolder="no">
+					<name>ddreset</name>
+					<script>Petria.ddReset("&lt;yellow&gt;DD: reset.\n")</script>
+					<command />
+					<packageName />
+					<regex>^ddreset$</regex>
+				</Alias>
 			</AliasGroup>
 		</AliasGroup>
 	</AliasPackage>
@@ -4168,7 +4312,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1792709542
+Petria.version = 1792761701
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -5288,6 +5432,177 @@ registerAnonymousEventHandler("gmcp.Char.Enemies", "PeleaActualizarEnemigoGMCP")
 -- Actualiza si ya hay datos GMCP cacheados desde antes de instalar el paquete
 PeleaActualizarVitalsGMCP()
 PeleaActualizarEnemigoGMCP()
+</script>
+					<eventHandlerList />
+				</Script>
+				<Script isActive="yes" isFolder="no">
+					<name>DD</name>
+					<packageName />
+					<script>-- dd &lt;objetivo&gt;: busca un mob con "donde", ubica sus salas con "buscarroom",
+-- va sala por sala con "ir vnum" y mira con "scan" hasta verlo "justo aqui".
+-- Ahi: can &lt;objetivo&gt;; si la cancelacion salio bien, "c can self" (el
+-- autodope relanza santuario/fuerza colosal/acelerar/volar), y despues
+-- "c deslumbrar" + el ataque de tu clase. Comandos y mensajes tomados de logs
+-- del jugador (version CMUD "Seek_Destroy" + secuencia pasada a mano).
+Petria.dd = Petria.dd or {}
+Petria.ddEsperaRenovar = 5
+
+local function trim(s) return (tostring(s):gsub("^%s+", ""):gsub("%s+$", "")) end
+
+function Petria.ddReset(msg)
+  local d = Petria.dd
+  d.fase, d.objetivo, d.area, d.sala = nil, nil, nil, nil
+  d.vnums, d.idx = {}, 0
+  d.tok = (d.tok or 0) + 1
+  if msg then cecho(msg) end
+end
+
+-- Las tablas de buscarroom cortan los nombres (sala ~40, area ~30): se
+-- acepta igualdad exacta o mismo prefijo largo.
+function Petria.ddIgual(a, b)
+  if a == b then return true end
+  local n = math.min(#a, #b)
+  return n &gt;= 29 and a:sub(1, n) == b:sub(1, n)
+end
+
+function Petria.ddCoincide(linea, objetivo)
+  local l = linea:lower()
+  for palabra in objetivo:lower():gmatch("%S+") do
+    if not l:find(palabra, 1, true) then return false end
+  end
+  return true
+end
+
+function Petria.ddScan()
+  local d = Petria.dd
+  d.fase = "scan"
+  d.tok = (d.tok or 0) + 1
+  local tok = d.tok
+  send("scan")
+  tempTimer(3, function()
+    if Petria.dd.tok == tok and Petria.dd.fase == "scan" then Petria.ddSiguiente() end
+  end)
+end
+
+function Petria.ddSiguiente()
+  local d = Petria.dd
+  d.idx = (d.idx or 0) + 1
+  local v = d.vnums[d.idx]
+  if not v then
+    Petria.ddReset("&lt;yellow&gt;DD: no quedan salas por probar.\n")
+    return
+  end
+  d.fase = "ir"
+  d.tok = (d.tok or 0) + 1
+  local tok = d.tok
+  cecho(string.format("&lt;cyan&gt;DD: probando sala %s (%d/%d)\n", v, d.idx, #d.vnums))
+  send("ir vnum " .. v)
+  tempTimer(4, function()
+    if Petria.dd.tok == tok and Petria.dd.fase == "ir" then Petria.ddScan() end
+  end)
+end
+
+-- Oteren: dejar encendida la ronda de hechizos (modo JEFE = rayo de
+-- sinceridad, ver alias "aa"). Si ya estaba prendida con otro modo elegido
+-- a mano se respeta; si una pelea anterior la bajo sola a PVP por poco mana,
+-- vuelve a JEFE. Druida: rayo de luna. Otras clases no tienen ronda.
+function Petria.encenderRonda()
+  local completa = gmcp and gmcp.Char and gmcp.Char.Base and gmcp.Char.Base.class
+  if completa and tostring(completa):lower():find("oteren", 1, true) then
+    if Petria.rondaAutoBajada then
+      Petria.rondaAutoBajada = false
+      Petria.rondaHechizo = "rayo de sinceridad"
+    end
+    if not Petria.rondaActiva then
+      Petria.rondaActiva = true
+      Petria.rondaHechizo = "rayo de sinceridad"
+      cecho("&lt;cyan&gt;Ronda: JEFE, hechizo: rayo de sinceridad\n")
+    end
+  end
+  if clase == "druida" and not Petria.rondaActiva then
+    Petria.rondaActiva = true
+    Petria.rondaHechizo = "rayo de luna"
+    cecho("&lt;cyan&gt;Ronda: rayo de luna\n")
+  end
+end
+
+function Petria.ddEncontrado()
+  local d = Petria.dd
+  local obj = d.objetivo
+  d.fase = "ataque"
+  d.tok = (d.tok or 0) + 1
+  cecho("&lt;green&gt;DD: " .. obj .. " esta aqui: cancelo y ataco.\n")
+  local function atacar()
+    pcall(disableTriggerGroup, "WoF")
+    pcall(enableTriggerGroup, "Pelea")
+    rasOBJ = obj
+    Petria.encenderRonda()
+    send("c deslumbrar " .. obj)
+    Clases.despacharAtaque(obj)
+    Petria.ddReset()
+  end
+  local cb
+  cb = function(res)
+    if res == "exito" then
+      cecho("&lt;cyan&gt;DD: cancelacion exitosa, renuevo defensas (c can self).\n")
+      send("c can self")
+      tempTimer(Petria.ddEsperaRenovar, atacar)
+    else
+      atacar()
+    end
+  end
+  Petria.canCallback = cb
+  tempTimer(40, function()
+    if Petria.canCallback == cb then Petria.canCallback = nil end
+  end)
+  expandAlias("can " .. obj)
+end
+
+function Petria.ddIniciar(obj)
+  Petria.ddReset()
+  local d = Petria.dd
+  d.objetivo, d.fase = obj, "donde"
+  local tok = d.tok
+  send("donde " .. obj)
+  tempTimer(8, function()
+    local f = Petria.dd.fase
+    if Petria.dd.tok == tok and (f == "donde" or f == "donde_linea") then
+      Petria.ddReset("&lt;yellow&gt;DD: 'donde' no encontro a " .. obj .. ".\n")
+    end
+  end)
+end
+
+function Petria.ddFilaDonde(sala)
+  local d = Petria.dd
+  d.sala = trim(sala)
+  d.fase, d.vnums, d.idx = "buscar", {}, 0
+  d.tok = (d.tok or 0) + 1
+  local tok = d.tok
+  send("buscarroom " .. d.sala)
+  tempTimer(6, function()
+    if Petria.dd.tok == tok and Petria.dd.fase == "buscar" then
+      Petria.ddReset("&lt;yellow&gt;DD: 'buscarroom' no respondio.\n")
+    end
+  end)
+end
+
+function Petria.ddFilaBuscar(vnum, nombre, area)
+  local d = Petria.dd
+  if Petria.ddIgual(trim(nombre), d.sala) and Petria.ddIgual(trim(area), d.area) then
+    for _, v in ipairs(d.vnums) do if v == vnum then return end end
+    table.insert(d.vnums, vnum)
+  end
+end
+
+function Petria.ddFinBuscar()
+  local d = Petria.dd
+  if #d.vnums &gt; 0 then
+    d.idx = 0
+    Petria.ddSiguiente()
+  else
+    Petria.ddReset("&lt;yellow&gt;DD: no encontre salas validas para ese objetivo.\n")
+  end
+end
 </script>
 					<eventHandlerList />
 				</Script>
