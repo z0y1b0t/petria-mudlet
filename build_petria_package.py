@@ -1046,6 +1046,17 @@ def make_pk_trigger(name, script, patterns):
 # Triggers generales PK (clases)
 make_pk_trigger("PK: objetivo esta aqui", 'if rasOBJ and rasOBJ ~= "" then expandAlias("engancha " .. rasOBJ) end', [r"^(.*) esta aqui!$"])
 make_pk_trigger("PK: objetivo huyo", 'if rasOBJ and rasOBJ ~= "" then send("ras " .. rasOBJ) end', [r"ha huido!$"])
+make_pk_trigger(
+    "PK: seguir objetivo por salida",
+    'local nombre, direccion = matches[2], matches[3]\n'
+    'if rasOBJ and rasOBJ ~= "" then\n'
+    '  if nombre:lower():find(rasOBJ:lower(), 1, true) or rasOBJ:lower():find(nombre:lower(), 1, true) then\n'
+    '    cecho("<yellow>[PK] " .. nombre .. " se fue por el " .. direccion .. " -- siguiendo\\n")\n'
+    '    send(direccion)\n'
+    '  end\n'
+    'end',
+    [r"^(.+) se va por el (\w+)\.$"],
+)
 
 # Triggers PK especificos Mago
 make_pk_trigger(

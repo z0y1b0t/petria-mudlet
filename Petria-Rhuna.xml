@@ -1838,6 +1838,33 @@ if rasOBJ and rasOBJ ~= "" then send("ras " .. rasOBJ) end</script>
 						</regexCodePropertyList>
 					</Trigger>
 					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+						<name>PK: seguir objetivo por salida</name>
+						<script>if not pkActivo then return end
+local nombre, direccion = matches[2], matches[3]
+if rasOBJ and rasOBJ ~= "" then
+  if nombre:lower():find(rasOBJ:lower(), 1, true) or rasOBJ:lower():find(nombre:lower(), 1, true) then
+    cecho("&lt;yellow&gt;[PK] " .. nombre .. " se fue por el " .. direccion .. " -- siguiendo\n")
+    send(direccion)
+  end
+end</script>
+						<triggerType>0</triggerType>
+						<conditonLineDelta>0</conditonLineDelta>
+						<mStayOpen>0</mStayOpen>
+						<mCommand />
+						<packageName />
+						<mFgColor>#ff0000</mFgColor>
+						<mBgColor>#ffff00</mBgColor>
+						<mSoundFile />
+						<colorTriggerFgColor>#000000</colorTriggerFgColor>
+						<colorTriggerBgColor>#000000</colorTriggerBgColor>
+						<regexCodeList>
+							<string>^(.+) se va por el (\w+)\.$</string>
+						</regexCodeList>
+						<regexCodePropertyList>
+							<integer>1</integer>
+						</regexCodePropertyList>
+					</Trigger>
+					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 						<name>PK Mago: rival usa cancelacion</name>
 						<script>if not pkActivo then return end
 Pelea.cancelDetectadoAt = os.time()
@@ -4505,7 +4532,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1792779307
+Petria.version = 1792780731
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
