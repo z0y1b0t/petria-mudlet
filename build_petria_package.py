@@ -1048,6 +1048,8 @@ make_pk_trigger("PK: objetivo esta aqui", 'if rasOBJ and rasOBJ ~= "" then expan
 make_pk_trigger("PK: objetivo huyo", 'if rasOBJ and rasOBJ ~= "" then send("ras " .. rasOBJ) end', [r"ha huido!$"])
 make_pk_trigger(
     "PK: seguir objetivo por salida",
+    '-- Si dd ya esta siguiendo activamente, ceder: dd envia la direccion y hace scan\n'
+    'if Petria.dd and Petria.dd.siguiendo then return end\n'
     'local nombre, direccion = matches[2], matches[3]\n'
     'if rasOBJ and rasOBJ ~= "" then\n'
     '  if nombre:lower():find(rasOBJ:lower(), 1, true) or rasOBJ:lower():find(nombre:lower(), 1, true) then\n'
@@ -2985,6 +2987,7 @@ Pelea.santuCaidoAt = Pelea.santuCaidoAt or nil
 Pelea.acelerarCaidoAt = Pelea.acelerarCaidoAt or nil
 Pelea.cancelDetectadoAt = Pelea.cancelDetectadoAt or nil
 Pelea.estaCiego = Pelea.estaCiego or false
+Pelea.activadoPorDD = Pelea.activadoPorDD or false
 cd_pkCan = cd_pkCan or 0
 
 -- Defensa/alertas (ver analisis de un ataque de jugador real: "Someone")
@@ -3206,6 +3209,13 @@ function Petria.ddReset(msg)
   d.siguiendo, d.renovado, d.seguidas = nil, nil, 0
   d.reintentos, d.rondas, d.pista = 0, 0, nil
   d.tok = (d.tok or 0) + 1
+  if Pelea.activadoPorDD then
+    pkActivo = false
+    Pelea.activadoPorDD = false
+    Pelea.fervorCargas = 0
+    Pelea.estaCiego = false
+    cd_pkCan = 0
+  end
   if msg then cecho(msg) end
 end
 
@@ -3309,6 +3319,16 @@ function Petria.ddEncontrado()
     pcall(disableTriggerGroup, "WoF")
     pcall(enableTriggerGroup, "Pelea")
     rasOBJ = obj
+    -- Activar modo PK Mago al iniciar el ataque real
+    pkActivo = true
+    Pelea.activadoPorDD = true
+    Pelea.fervorCargas = 0
+    Pelea.santuCaidoAt = nil
+    Pelea.acelerarCaidoAt = nil
+    Pelea.cancelDetectadoAt = nil
+    Pelea.estaCiego = false
+    cd_pkCan = 0
+    cecho("<cyan>[DD] Modo PK Mago activado automaticamente.\\n")
     Petria.encenderRonda()
     send("c deslumbrar " .. obj)
     Clases.despacharAtaque(obj)

@@ -1840,6 +1840,8 @@ if rasOBJ and rasOBJ ~= "" then send("ras " .. rasOBJ) end</script>
 					<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 						<name>PK: seguir objetivo por salida</name>
 						<script>if not pkActivo then return end
+-- Si dd ya esta siguiendo activamente, ceder: dd envia la direccion y hace scan
+if Petria.dd and Petria.dd.siguiendo then return end
 local nombre, direccion = matches[2], matches[3]
 if rasOBJ and rasOBJ ~= "" then
   if nombre:lower():find(rasOBJ:lower(), 1, true) or rasOBJ:lower():find(nombre:lower(), 1, true) then
@@ -4532,7 +4534,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1792780731
+Petria.version = 1792780962
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -5459,6 +5461,7 @@ Pelea.santuCaidoAt = Pelea.santuCaidoAt or nil
 Pelea.acelerarCaidoAt = Pelea.acelerarCaidoAt or nil
 Pelea.cancelDetectadoAt = Pelea.cancelDetectadoAt or nil
 Pelea.estaCiego = Pelea.estaCiego or false
+Pelea.activadoPorDD = Pelea.activadoPorDD or false
 cd_pkCan = cd_pkCan or 0
 
 -- Defensa/alertas (ver analisis de un ataque de jugador real: "Someone")
@@ -5684,6 +5687,13 @@ function Petria.ddReset(msg)
   d.siguiendo, d.renovado, d.seguidas = nil, nil, 0
   d.reintentos, d.rondas, d.pista = 0, 0, nil
   d.tok = (d.tok or 0) + 1
+  if Pelea.activadoPorDD then
+    pkActivo = false
+    Pelea.activadoPorDD = false
+    Pelea.fervorCargas = 0
+    Pelea.estaCiego = false
+    cd_pkCan = 0
+  end
   if msg then cecho(msg) end
 end
 
@@ -5787,6 +5797,16 @@ function Petria.ddEncontrado()
     pcall(disableTriggerGroup, "WoF")
     pcall(enableTriggerGroup, "Pelea")
     rasOBJ = obj
+    -- Activar modo PK Mago al iniciar el ataque real
+    pkActivo = true
+    Pelea.activadoPorDD = true
+    Pelea.fervorCargas = 0
+    Pelea.santuCaidoAt = nil
+    Pelea.acelerarCaidoAt = nil
+    Pelea.cancelDetectadoAt = nil
+    Pelea.estaCiego = false
+    cd_pkCan = 0
+    cecho("&lt;cyan&gt;[DD] Modo PK Mago activado automaticamente.\\n")
     Petria.encenderRonda()
     send("c deslumbrar " .. obj)
     Clases.despacharAtaque(obj)
