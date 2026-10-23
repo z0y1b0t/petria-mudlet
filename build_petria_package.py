@@ -3100,9 +3100,14 @@ function Petria.ddReset(msg)
   d.fase, d.objetivo, d.area, d.sala = nil, nil, nil, nil
   d.vnums, d.idx = {}, 0
   d.siguiendo, d.renovado, d.seguidas = nil, nil, 0
+  d.reintentos, d.rondas, d.pista = 0, 0, nil
   d.tok = (d.tok or 0) + 1
   if msg then cecho(msg) end
 end
+
+-- Direcciones: n/s/e/o (la o la usa tu alias quest-experto); arriba/abajo
+-- en palabra completa (el propio juego dice teclea 'ARRIBA').
+Petria.ddDir = {norte = "n", sur = "s", este = "e", oeste = "o", arriba = "arriba", abajo = "abajo"}
 
 -- Las tablas de buscarroom cortan los nombres (sala ~40, area ~30): se
 -- acepta igualdad exacta o mismo prefijo largo.
@@ -3123,6 +3128,7 @@ end
 function Petria.ddScan()
   local d = Petria.dd
   d.fase = "scan"
+  d.pista = nil
   d.tok = (d.tok or 0) + 1
   local tok = d.tok
   send("scan")
@@ -3142,7 +3148,14 @@ function Petria.ddSiguiente()
   d.idx = (d.idx or 0) + 1
   local v = d.vnums[d.idx]
   if not v then
-    Petria.ddReset("<yellow>DD: no quedan salas por probar.\n")
+    if (d.rondas or 1) < 5 then
+      d.rondas = (d.rondas or 1) + 1
+      d.reintentos = 0
+      cecho(string.format("<yellow>DD: no lo vi en esas salas, vuelvo a preguntar (ronda %d/5).\n", d.rondas))
+      Petria.ddDonde()
+    else
+      Petria.ddReset("<yellow>DD: no lo encontre tras 5 rondas.\n")
+    end
     return
   end
   d.fase = "ir"
@@ -3233,17 +3246,20 @@ function Petria.ddSeguir(dir)
   d.fase = "seguir"
   d.tok = (d.tok or 0) + 1
   local tok = d.tok
-  cecho("<cyan>DD: " .. d.objetivo .. " se fue hacia el " .. dir .. ", lo sigo.\n")
-  send(dir)
+  cecho("<cyan>DD: sigo a " .. d.objetivo .. " hacia el " .. dir .. ".\n")
+  send(Petria.ddDir[dir] or dir)
   tempTimer(1, function()
     if Petria.dd.tok == tok and Petria.dd.fase == "seguir" then Petria.ddScan() end
   end)
 end
 
-function Petria.ddIniciar(obj)
-  Petria.ddReset()
+-- "donde" falla al azar ("No encuentras ningun X." varias veces seguidas y
+-- despues si, confirmado en juego): se reintenta hasta 10 veces.
+function Petria.ddDonde()
   local d = Petria.dd
-  d.objetivo, d.fase = obj, "donde"
+  local obj = d.objetivo
+  d.fase = "donde"
+  d.tok = (d.tok or 0) + 1
   local tok = d.tok
   send("donde " .. obj:lower())
   tempTimer(8, function()
@@ -3252,6 +3268,27 @@ function Petria.ddIniciar(obj)
       Petria.ddReset("<yellow>DD: 'donde' no encontro a " .. obj .. ".\n")
     end
   end)
+end
+
+function Petria.ddDondeFallo()
+  local d = Petria.dd
+  d.reintentos = (d.reintentos or 0) + 1
+  if d.reintentos > 10 then
+    Petria.ddReset("<yellow>DD: 'donde' no encontro a " .. d.objetivo .. " tras 10 intentos.\n")
+    return
+  end
+  d.tok = (d.tok or 0) + 1
+  local tok = d.tok
+  tempTimer(0.8, function()
+    if Petria.dd.tok == tok and Petria.dd.fase == "donde" then Petria.ddDonde() end
+  end)
+end
+
+function Petria.ddIniciar(obj)
+  Petria.ddReset()
+  local d = Petria.dd
+  d.objetivo, d.rondas = obj, 1
+  Petria.ddDonde()
 end
 
 function Petria.ddFilaDonde(sala)
@@ -3343,12 +3380,28 @@ make_trigger(
     [r"^(.+?) ESTA MUERTO !!$"],
 )
 make_trigger(
+    petria_trig_group, "DD: scan, pista (objetivo en una sala vecina)",
+    'local d = Petria.dd\n'
+    'if d and d.fase == "scan" and Petria.ddCoincide(matches[2], d.objetivo) then\n'
+    '  Petria.ddSeguir(matches[3])\n'
+    'end',
+    [r"^\s*(?:\(\d+\)\s+)?(.+?)\s{2,}al (norte|sur|este|oeste|arriba|abajo)\."],
+)
+make_trigger(
+    petria_trig_group, "DD: donde no lo encuentra, reintentar",
+    'local d = Petria.dd\n'
+    'if d and d.fase == "donde" and d.objetivo and Petria.ddCoincide(matches[2], d.objetivo) then\n'
+    '  Petria.ddDondeFallo()\n'
+    'end',
+    [r"^No encuentras ning[uú]n (.+)\.$"],
+)
+make_trigger(
     petria_trig_group, "DD: scan, objetivo justo aqui",
     'local d = Petria.dd\n'
     'if d and d.fase == "scan" and Petria.ddCoincide(matches[2], d.objetivo) then\n'
     '  Petria.ddEncontrado()\n'
     'end',
-    [r"^\s+(.+?)\s{2,}justo aqu[ií]\."],
+    [r"^\s*(?:\(\d+\)\s+)?(.+?)\s{2,}justo aqu[ií]\."],
 )
 make_alias(
     alias_group, "dd", r"^dd(?: (.+))?$",

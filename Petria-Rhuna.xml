@@ -3072,6 +3072,52 @@ end</script>
 				</regexCodePropertyList>
 			</Trigger>
 			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>DD: scan, pista (objetivo en una sala vecina)</name>
+				<script>local d = Petria.dd
+if d and d.fase == "scan" and Petria.ddCoincide(matches[2], d.objetivo) then
+  Petria.ddSeguir(matches[3])
+end</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand />
+				<packageName />
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile />
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>^\s*(?:\(\d+\)\s+)?(.+?)\s{2,}al (norte|sur|este|oeste|arriba|abajo)\.</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>DD: donde no lo encuentra, reintentar</name>
+				<script>local d = Petria.dd
+if d and d.fase == "donde" and d.objetivo and Petria.ddCoincide(matches[2], d.objetivo) then
+  Petria.ddDondeFallo()
+end</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand />
+				<packageName />
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile />
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>^No encuentras ning[uú]n (.+)\.$</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 				<name>DD: scan, objetivo justo aqui</name>
 				<script>local d = Petria.dd
 if d and d.fase == "scan" and Petria.ddCoincide(matches[2], d.objetivo) then
@@ -3088,7 +3134,7 @@ end</script>
 				<colorTriggerFgColor>#000000</colorTriggerFgColor>
 				<colorTriggerBgColor>#000000</colorTriggerBgColor>
 				<regexCodeList>
-					<string>^\s+(.+?)\s{2,}justo aqu[ií]\.</string>
+					<string>^\s*(?:\(\d+\)\s+)?(.+?)\s{2,}justo aqu[ií]\.</string>
 				</regexCodeList>
 				<regexCodePropertyList>
 					<integer>1</integer>
@@ -4378,7 +4424,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1792762738
+Petria.version = 1792763385
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -5520,9 +5566,14 @@ function Petria.ddReset(msg)
   d.fase, d.objetivo, d.area, d.sala = nil, nil, nil, nil
   d.vnums, d.idx = {}, 0
   d.siguiendo, d.renovado, d.seguidas = nil, nil, 0
+  d.reintentos, d.rondas, d.pista = 0, 0, nil
   d.tok = (d.tok or 0) + 1
   if msg then cecho(msg) end
 end
+
+-- Direcciones: n/s/e/o (la o la usa tu alias quest-experto); arriba/abajo
+-- en palabra completa (el propio juego dice teclea 'ARRIBA').
+Petria.ddDir = {norte = "n", sur = "s", este = "e", oeste = "o", arriba = "arriba", abajo = "abajo"}
 
 -- Las tablas de buscarroom cortan los nombres (sala ~40, area ~30): se
 -- acepta igualdad exacta o mismo prefijo largo.
@@ -5543,6 +5594,7 @@ end
 function Petria.ddScan()
   local d = Petria.dd
   d.fase = "scan"
+  d.pista = nil
   d.tok = (d.tok or 0) + 1
   local tok = d.tok
   send("scan")
@@ -5562,7 +5614,14 @@ function Petria.ddSiguiente()
   d.idx = (d.idx or 0) + 1
   local v = d.vnums[d.idx]
   if not v then
-    Petria.ddReset("&lt;yellow&gt;DD: no quedan salas por probar.\n")
+    if (d.rondas or 1) &lt; 5 then
+      d.rondas = (d.rondas or 1) + 1
+      d.reintentos = 0
+      cecho(string.format("&lt;yellow&gt;DD: no lo vi en esas salas, vuelvo a preguntar (ronda %d/5).\n", d.rondas))
+      Petria.ddDonde()
+    else
+      Petria.ddReset("&lt;yellow&gt;DD: no lo encontre tras 5 rondas.\n")
+    end
     return
   end
   d.fase = "ir"
@@ -5653,17 +5712,20 @@ function Petria.ddSeguir(dir)
   d.fase = "seguir"
   d.tok = (d.tok or 0) + 1
   local tok = d.tok
-  cecho("&lt;cyan&gt;DD: " .. d.objetivo .. " se fue hacia el " .. dir .. ", lo sigo.\n")
-  send(dir)
+  cecho("&lt;cyan&gt;DD: sigo a " .. d.objetivo .. " hacia el " .. dir .. ".\n")
+  send(Petria.ddDir[dir] or dir)
   tempTimer(1, function()
     if Petria.dd.tok == tok and Petria.dd.fase == "seguir" then Petria.ddScan() end
   end)
 end
 
-function Petria.ddIniciar(obj)
-  Petria.ddReset()
+-- "donde" falla al azar ("No encuentras ningun X." varias veces seguidas y
+-- despues si, confirmado en juego): se reintenta hasta 10 veces.
+function Petria.ddDonde()
   local d = Petria.dd
-  d.objetivo, d.fase = obj, "donde"
+  local obj = d.objetivo
+  d.fase = "donde"
+  d.tok = (d.tok or 0) + 1
   local tok = d.tok
   send("donde " .. obj:lower())
   tempTimer(8, function()
@@ -5672,6 +5734,27 @@ function Petria.ddIniciar(obj)
       Petria.ddReset("&lt;yellow&gt;DD: 'donde' no encontro a " .. obj .. ".\n")
     end
   end)
+end
+
+function Petria.ddDondeFallo()
+  local d = Petria.dd
+  d.reintentos = (d.reintentos or 0) + 1
+  if d.reintentos &gt; 10 then
+    Petria.ddReset("&lt;yellow&gt;DD: 'donde' no encontro a " .. d.objetivo .. " tras 10 intentos.\n")
+    return
+  end
+  d.tok = (d.tok or 0) + 1
+  local tok = d.tok
+  tempTimer(0.8, function()
+    if Petria.dd.tok == tok and Petria.dd.fase == "donde" then Petria.ddDonde() end
+  end)
+end
+
+function Petria.ddIniciar(obj)
+  Petria.ddReset()
+  local d = Petria.dd
+  d.objetivo, d.rondas = obj, 1
+  Petria.ddDonde()
 end
 
 function Petria.ddFilaDonde(sala)
