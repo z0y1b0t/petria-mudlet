@@ -2980,6 +2980,9 @@ acosado = acosado or ""
 if wofActivo == nil then wofActivo = false end
 if pkActivo == nil then pkActivo = false end
 
+-- OJO: "Pelea" tiene que existir ANTES de cualquier Pelea.xxx.
+Pelea = Pelea or {}
+
 -- Estado PK Mago
 Pelea.fervorCargas = Pelea.fervorCargas or 0
 Pelea.santuCaidoAt = Pelea.santuCaidoAt or nil
@@ -2997,13 +3000,6 @@ if gargantaCortada == nil then gargantaCortada = false end
 -- Sin sonido: Mudlet soporta playSoundFile(ruta) si en algun momento se
 -- quiere sumar un audio, pero no hay ningun archivo de sonido en este
 -- paquete todavia.
--- OJO: "Pelea" tiene que existir ANTES de definir cualquier Pelea.algo. Estaba
--- definida mas abajo: si la tabla no existia todavia, el script se caia en la
--- primera "function Pelea.alerta" y NADA de lo que sigue quedaba definido
--- (PeleaActualizarVitalsGMCP / PeleaActualizarEnemigoGMCP eran nil: sin
--- curacion automatica por HP, sin en_combate por GMCP, sin refrescar por mv).
-Pelea = Pelea or {}
-
 function Pelea.alerta(mensaje)
   local raya = "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
   cecho(string.format(
