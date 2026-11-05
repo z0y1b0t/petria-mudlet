@@ -2359,13 +2359,12 @@ function Petria.huir(cmd)
   return true
 end
 
--- Carrusel de pociones de combate (cualquier clase): "traga sana", si no hay
--- "traga batalla", si tampoco "traga super". Recuerda cual funciono la ultima
--- vez (Petria.carruselUltimaOk) y la prueba primero la proxima vez, en vez de
--- repetir siempre desde "sana". Sin espera/bloqueo entre pulsaciones: manda
--- la pocion al toque y solo recuerda el "sin stock" cuando el juego lo dice
--- (trigger de abajo), igual que Petria.sinSanaHasta.
-Petria.carruselPociones = {{"sana", "batalla", "super"}}
+-- Carrusel de pociones de combate (cualquier clase): sana -> critica ->
+-- batalla -> super. Recuerda cual funciono la ultima vez (carruselUltimaOk)
+-- y la prueba primero la proxima vez. Sin espera/bloqueo: manda la pocion al
+-- toque y solo recuerda el "sin stock" cuando el juego lo dice (trigger de
+-- abajo). Usado tanto desde las teclas manuales como desde el auto-heal GMCP.
+Petria.carruselPociones = {{"sana", "critica", "batalla", "super"}}
 Petria.carruselSinStockHasta = Petria.carruselSinStockHasta or {{}}
 
 function Petria.pocionCombate()
@@ -2385,7 +2384,7 @@ function Petria.pocionCombate()
   -- rotar desde el principio (puede haber stock nuevo o ser un falso aviso).
   Petria.carruselSinStockHasta = {{}}
   Petria.carruselUltimaOk = nil
-  cecho("<yellow>Carrusel de pociones: sin stock de sana/batalla/super, reintento la rotacion.\\n")
+  cecho("<yellow>Carrusel de pociones: sin stock de sana/critica/batalla/super, reintento la rotacion.\\n")
   Petria.traga(Petria.carruselPociones[1])
 end
 
@@ -3154,11 +3153,10 @@ function PeleaActualizarVitalsGMCP()
     if n > 0 then
       if (Petria.enZonaSinPociones and Petria.enZonaSinPociones())
          or (Petria.sinPociones and Petria.sinPociones())
-         or (Petria.sinSanaHasta and os.time() < Petria.sinSanaHasta)
          or Petria.pocionesRestantes() <= 0 then
         Petria.sanar()
       else
-        for _ = 1, n do Petria.traga("sana") end
+        for _ = 1, n do Petria.pocionCombate() end
       end
       curando = 1
       tempTimer(3, function() curando = 0 end)

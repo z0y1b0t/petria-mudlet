@@ -4534,7 +4534,7 @@ Petria = Petria or {}
 -- build. Sirve para "updatepkg -v": confirmar de un vistazo si lo
 -- instalado esta sincronizado con el ultimo push, sin tener que comparar
 -- el contenido de los alias a mano cada vez que algo no anda.
-Petria.version = 1792780962
+Petria.version = 1793903011
 
 -- true si la raza del personaje conectado es gnomo (gmcp.Char.Base.race).
 -- Usado por MonteGnomo: esa mecanica es racial, solo para gnomos -- igual
@@ -4758,13 +4758,12 @@ function Petria.huir(cmd)
   return true
 end
 
--- Carrusel de pociones de combate (cualquier clase): "traga sana", si no hay
--- "traga batalla", si tampoco "traga super". Recuerda cual funciono la ultima
--- vez (Petria.carruselUltimaOk) y la prueba primero la proxima vez, en vez de
--- repetir siempre desde "sana". Sin espera/bloqueo entre pulsaciones: manda
--- la pocion al toque y solo recuerda el "sin stock" cuando el juego lo dice
--- (trigger de abajo), igual que Petria.sinSanaHasta.
-Petria.carruselPociones = {"sana", "batalla", "super"}
+-- Carrusel de pociones de combate (cualquier clase): sana -&gt; critica -&gt;
+-- batalla -&gt; super. Recuerda cual funciono la ultima vez (carruselUltimaOk)
+-- y la prueba primero la proxima vez. Sin espera/bloqueo: manda la pocion al
+-- toque y solo recuerda el "sin stock" cuando el juego lo dice (trigger de
+-- abajo). Usado tanto desde las teclas manuales como desde el auto-heal GMCP.
+Petria.carruselPociones = {"sana", "critica", "batalla", "super"}
 Petria.carruselSinStockHasta = Petria.carruselSinStockHasta or {}
 
 function Petria.pocionCombate()
@@ -4784,7 +4783,7 @@ function Petria.pocionCombate()
   -- rotar desde el principio (puede haber stock nuevo o ser un falso aviso).
   Petria.carruselSinStockHasta = {}
   Petria.carruselUltimaOk = nil
-  cecho("&lt;yellow&gt;Carrusel de pociones: sin stock de sana/batalla/super, reintento la rotacion.\n")
+  cecho("&lt;yellow&gt;Carrusel de pociones: sin stock de sana/critica/batalla/super, reintento la rotacion.\n")
   Petria.traga(Petria.carruselPociones[1])
 end
 
@@ -5628,11 +5627,10 @@ function PeleaActualizarVitalsGMCP()
     if n &gt; 0 then
       if (Petria.enZonaSinPociones and Petria.enZonaSinPociones())
          or (Petria.sinPociones and Petria.sinPociones())
-         or (Petria.sinSanaHasta and os.time() &lt; Petria.sinSanaHasta)
          or Petria.pocionesRestantes() &lt;= 0 then
         Petria.sanar()
       else
-        for _ = 1, n do Petria.traga("sana") end
+        for _ = 1, n do Petria.pocionCombate() end
       end
       curando = 1
       tempTimer(3, function() curando = 0 end)
