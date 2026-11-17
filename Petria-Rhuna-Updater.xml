@@ -48,6 +48,11 @@ end
 -- jsdelivr seguia atascado en el anterior. raw.githack.com (la
 -- variante pensada para contenido que cambia seguido, no la
 -- "produccion" rawcdn.githack.com) resulto mas confiable.
+if PetriaRhunaUpdating then
+  cecho("&lt;yellow&gt;[Petria-Rhuna] Ya hay una reinstalacion en curso, espera.\n")
+  return
+end
+PetriaRhunaUpdating = true
 cecho("&lt;yellow&gt;[Petria-Rhuna] Reinstalando...\n")
 uninstallPackage("Petria-Rhuna")
 
@@ -58,30 +63,47 @@ local function PetriaRhunaEstaInstalado()
   return false
 end
 
-local function PetriaRhunaVerificar(intento)
+-- Confirmado en juego (2026-11-17): la descarga desde githack (~240KB)
+-- puede tardar mas de 3s. El chequeo anterior (unico, a los 3s) daba
+-- por fallido el intento 1 y relanzaba installPackage con la descarga
+-- todavia en curso -&gt; "Package ... is already being downloaded" -&gt; FALLO.
+-- Ahora: una sola descarga, se consulta getPackages() cada 1s hasta 30s;
+-- solo si en ese plazo no aparecio se reintenta UNA vez (otros 30s).
+-- PetriaRhunaUpdating evita que dos updatepkg seguidos se pisen.
+local ESPERA_MAX = 30
+
+local function PetriaRhunaListo()
+  PetriaRhunaUpdating = false
+  -- Confirmado en juego: el "DirectionKeyGroup" del GUI oficial
+  -- (numerico para movimiento, mismo modificador de teclado numerico
+  -- que usamos para sanar/Savia verde/Linux-Rayo/etc.) puede quedar
+  -- activo y pisar nuestras teclas custom con el mismo keyCode --
+  -- confirmado que producia resultados random (ej. "u" en vez de
+  -- lanzar rayo) hasta desactivarlo. Se desactiva solo en cada
+  -- update, sin que haga falta acordarse a mano. pcall porque puede
+  -- no existir si el GUI oficial no esta instalado.
+  pcall(disableKey, "DirectionKeyGroup")
+  cecho(string.format("&lt;green&gt;[Petria-Rhuna] Reinstalado. Build: %s\n", tostring(Petria and Petria.version or "?")))
+end
+
+local function PetriaRhunaEsperar(intento, segundos)
   if PetriaRhunaEstaInstalado() then
-    -- Confirmado en juego: el "DirectionKeyGroup" del GUI oficial
-    -- (numerico para movimiento, mismo modificador de teclado numerico
-    -- que usamos para sanar/Savia verde/Linux-Rayo/etc.) puede quedar
-    -- activo y pisar nuestras teclas custom con el mismo keyCode --
-    -- confirmado que producia resultados random (ej. "u" en vez de
-    -- lanzar rayo) hasta desactivarlo. Se desactiva solo en cada
-    -- update, sin que haga falta acordarse a mano. pcall porque puede
-    -- no existir si el GUI oficial no esta instalado.
-    pcall(disableKey, "DirectionKeyGroup")
-    cecho(string.format("&lt;green&gt;[Petria-Rhuna] Reinstalado. Build: %s\n", tostring(Petria and Petria.version or "?")))
+    PetriaRhunaListo()
+  elseif segundos &lt; ESPERA_MAX then
+    tempTimer(1, function() PetriaRhunaEsperar(intento, segundos + 1) end)
   elseif intento &lt; 2 then
-    cecho(string.format("&lt;yellow&gt;[Petria-Rhuna] Intento %d fallo, reintentando...\n", intento))
+    cecho(string.format("&lt;yellow&gt;[Petria-Rhuna] Sin respuesta tras %ds, reintentando...\n", ESPERA_MAX))
     installPackage("https://raw.githack.com/z0y1b0t/petria-mudlet/main/Petria-Rhuna.xml")
-    tempTimer(3, function() PetriaRhunaVerificar(intento + 1) end)
+    tempTimer(1, function() PetriaRhunaEsperar(intento + 1, 1) end)
   else
+    PetriaRhunaUpdating = false
     cecho("&lt;red&gt;[Petria-Rhuna] FALLO el reinstall tras 2 intentos. Instalalo manual: lua installPackage(\"https://raw.githack.com/z0y1b0t/petria-mudlet/main/Petria-Rhuna.xml\")\n")
   end
 end
 
 tempTimer(2, function()
   installPackage("https://raw.githack.com/z0y1b0t/petria-mudlet/main/Petria-Rhuna.xml")
-  tempTimer(3, function() PetriaRhunaVerificar(1) end)
+  tempTimer(1, function() PetriaRhunaEsperar(1, 1) end)
 end)</script>
 				<command />
 				<packageName />

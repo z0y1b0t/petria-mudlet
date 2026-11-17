@@ -123,6 +123,14 @@ lua installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petri
 Después, `updatepkg` reinstala solo `Petria-Rhuna` — el updater no hace
 falta tocarlo de nuevo.
 
+**Espera de la descarga (2026-11-17):** la descarga desde githack puede
+tardar más de 3 s. La versión anterior revisaba una sola vez a los 3 s,
+daba el intento 1 por fallido y relanzaba `installPackage` con la descarga
+aún en curso (`Package ... is already being downloaded` → FALLO). Ahora
+`updatepkg` lanza una sola descarga, consulta `getPackages()` cada 1 s
+hasta 30 s y solo reintenta una vez si en ese plazo no apareció. Un
+`updatepkg` repetido mientras hay uno en curso se ignora con aviso.
+
 ## Seguir editando el código desde otra máquina (ej. la Mac)
 
 Todo lo necesario para que una sesión de Claude nueva, en otra máquina,
