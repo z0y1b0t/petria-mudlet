@@ -123,13 +123,19 @@ lua installPackage("https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petri
 Después, `updatepkg` reinstala solo `Petria-Rhuna` — el updater no hace
 falta tocarlo de nuevo.
 
-**Espera de la descarga (2026-11-17):** la descarga desde githack puede
-tardar más de 3 s. La versión anterior revisaba una sola vez a los 3 s,
-daba el intento 1 por fallido y relanzaba `installPackage` con la descarga
-aún en curso (`Package ... is already being downloaded` → FALLO). Ahora
-`updatepkg` lanza una sola descarga, consulta `getPackages()` cada 1 s
-hasta 30 s y solo reintenta una vez si en ese plazo no apareció. Un
-`updatepkg` repetido mientras hay uno en curso se ignora con aviso.
+**Descarga primero, desinstala después (2026-11-17):** en la red de la
+Mac githack puede tardar minutos o devolver 502/520, y el `updatepkg`
+anterior desinstalaba antes de descargar: si la descarga fallaba, el
+paquete quedaba desinstalado. Ahora `updatepkg` baja el XML con
+`downloadFile` a `<MudletHome>/petria-rhuna-descarga-N/Petria-Rhuna.xml`
+(el archivo debe llamarse así: Mudlet toma el nombre del paquete del
+nombre del archivo), valida que sea un paquete con `Petria.version` y solo
+entonces desinstala e instala desde ese archivo local. Si githack falla o
+no responde en 90 s prueba jsdelivr `@main` como respaldo (puede traer un
+build anterior). Si todo falla, el paquete instalado no se toca. Un
+`updatepkg` repetido mientras hay uno en curso se ignora (el bloqueo
+expira a los 5 minutos). `updatepkg -v` revisa `getPackages()` porque
+`Petria.version` sobrevive al uninstall.
 
 ## Seguir editando el código desde otra máquina (ej. la Mac)
 

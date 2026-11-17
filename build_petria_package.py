@@ -3715,6 +3715,130 @@ ET.SubElement(updater_root, "KeyPackage")
 updater_var_pkg = ET.SubElement(updater_root, "VariablePackage")
 ET.SubElement(updater_var_pkg, "HiddenVariables")
 
+UPDATER_FALLBACK_URL = "https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml"
+UPDATER_REINSTALL_LUA = r'''-- Confirmado en juego (2026-11-17): en la red de la Mac las descargas de
+-- githack pueden tardar minutos o devolver 502/520. El diseno anterior
+-- hacia uninstallPackage ANTES de descargar: si la descarga fallaba, el
+-- paquete quedaba desinstalado. Ademas installPackage(url) bloquea otro
+-- intento con el mismo nombre ("already being downloaded") mientras siga
+-- la descarga anterior.
+-- Ahora: 1) downloadFile a un archivo local (eventos sysDownloadDone /
+-- sysDownloadError), 2) se valida que sea un paquete Mudlet con
+-- Petria.version, 3) recien ahi uninstall + install desde el archivo
+-- local. Si la fuente principal falla o no responde en ESPERA_MAX
+-- segundos, se prueba la de respaldo (jsdelivr @main, que puede traer
+-- un build anterior -- se avisa). Si todo falla, el paquete instalado
+-- queda intacto.
+-- PetriaRhunaUpdating guarda os.time() del inicio: si una corrida quedo
+-- colgada (o la dejo marcada una version vieja del updater, que usaba
+-- true), a los 5 minutos ya no bloquea.
+if type(PetriaRhunaUpdating) == "number" and os.time() - PetriaRhunaUpdating < 300 then
+  cecho("<yellow>[Petria-Rhuna] Ya hay una actualizacion en curso, espera.\n")
+  return
+end
+PetriaRhunaUpdating = os.time()
+
+local ESPERA_MAX = 90
+local FUENTES = {
+  { nombre = "githack", url = "@@URL1@@" },
+  { nombre = "jsdelivr (respaldo, puede ser un build anterior)", url = "@@URL2@@" },
+}
+local estado = { handlers = {}, timer = nil, terminado = false }
+
+local function PetriaRhunaEstaInstalado()
+  for _, nombre in ipairs(getPackages()) do
+    if nombre == "Petria-Rhuna" then return true end
+  end
+  return false
+end
+
+local function limpiar()
+  for _, h in ipairs(estado.handlers) do killAnonymousEventHandler(h) end
+  estado.handlers = {}
+  if estado.timer then killTimer(estado.timer) estado.timer = nil end
+end
+
+local function terminar(ok, msg)
+  limpiar()
+  estado.terminado = true
+  PetriaRhunaUpdating = false
+  cecho((ok and "<green>" or "<red>") .. "[Petria-Rhuna] " .. msg .. "\n")
+end
+
+local function archivoValido(ruta)
+  local f = io.open(ruta, "r")
+  if not f then return false end
+  local txt = f:read("*a") or ""
+  f:close()
+  return txt:find("<MudletPackage", 1, true) and txt:find("Petria.version", 1, true)
+end
+
+local function instalarLocal(ruta)
+  if not archivoValido(ruta) then return false end
+  uninstallPackage("Petria-Rhuna")
+  tempTimer(1, function()
+    installPackage(ruta)
+    tempTimer(2, function()
+      if PetriaRhunaEstaInstalado() then
+        -- Confirmado en juego: el "DirectionKeyGroup" del GUI oficial
+        -- (numerico para movimiento) puede quedar activo y pisar nuestras
+        -- teclas custom con el mismo keyCode. pcall porque puede no
+        -- existir si el GUI oficial no esta instalado.
+        pcall(disableKey, "DirectionKeyGroup")
+        terminar(true, string.format("Reinstalado. Build: %s", tostring(Petria and Petria.version or "?")))
+      else
+        terminar(false, "Descargado pero no se pudo instalar. Prueba: lua installPackage(\"" .. ruta .. "\")")
+      end
+    end)
+  end)
+  return true
+end
+
+local probar
+probar = function(i)
+  limpiar()
+  if estado.terminado then return end
+  local fuente = FUENTES[i]
+  if not fuente then
+    terminar(false, "No se pudo descargar de ninguna fuente. El paquete instalado no se toco.")
+    return
+  end
+  -- Mudlet toma el nombre del paquete .xml del NOMBRE DEL ARCHIVO, asi que
+  -- tiene que llamarse Petria-Rhuna.xml; una carpeta por fuente para que
+  -- una descarga lenta que llegue tarde no pise la de la otra fuente.
+  local dir = getMudletHomeDir() .. "/petria-rhuna-descarga-" .. i
+  lfs.mkdir(dir)
+  local ruta = dir .. "/Petria-Rhuna.xml"
+  os.remove(ruta)
+  cecho(string.format("<yellow>[Petria-Rhuna] Descargando desde %s...\n", fuente.nombre))
+  local function siguiente(motivo)
+    if estado.terminado then return end
+    cecho(string.format("<yellow>[Petria-Rhuna] %s fallo (%s).\n", fuente.nombre, motivo))
+    probar(i + 1)
+  end
+  estado.handlers[#estado.handlers + 1] = registerAnonymousEventHandler("sysDownloadDone", function(_, archivo)
+    if archivo ~= ruta then return end
+    limpiar()
+    if not instalarLocal(ruta) then siguiente("archivo invalido") end
+  end)
+  estado.handlers[#estado.handlers + 1] = registerAnonymousEventHandler("sysDownloadError", function(_, ...)
+    local args = { ... }
+    local esMio, detalle = false, ""
+    for _, a in ipairs(args) do
+      if a == ruta or a == fuente.url then esMio = true
+      elseif type(a) == "string" and detalle == "" then detalle = a end
+    end
+    if esMio then siguiente(detalle ~= "" and detalle or "error de descarga") end
+  end)
+  estado.timer = tempTimer(ESPERA_MAX, function()
+    estado.timer = nil
+    siguiente(string.format("sin respuesta en %ds", ESPERA_MAX))
+  end)
+  downloadFile(ruta, fuente.url)
+end
+
+probar(1)'''
+
 make_alias(
     updater_alias_group, "updatepkg", r"^updatepkg(?:\s+(-v|version))?$",
     '-- "updatepkg -v" (o "updatepkg version"): solo muestra el build de\n'
@@ -3761,58 +3885,8 @@ make_alias(
     '-- jsdelivr seguia atascado en el anterior. raw.githack.com (la\n'
     '-- variante pensada para contenido que cambia seguido, no la\n'
     '-- "produccion" rawcdn.githack.com) resulto mas confiable.\n'
-    'if PetriaRhunaUpdating then\n'
-    '  cecho("<yellow>[Petria-Rhuna] Ya hay una reinstalacion en curso, espera.\\n")\n'
-    '  return\n'
-    'end\n'
-    'PetriaRhunaUpdating = true\n'
-    'cecho("<yellow>[Petria-Rhuna] Reinstalando...\\n")\n'
-    'uninstallPackage("Petria-Rhuna")\n\n'
-    'local function PetriaRhunaEstaInstalado()\n'
-    '  for _, nombre in ipairs(getPackages()) do\n'
-    '    if nombre == "Petria-Rhuna" then return true end\n'
-    '  end\n'
-    '  return false\n'
-    'end\n\n'
-    '-- Confirmado en juego (2026-11-17): la descarga desde githack (~240KB)\n'
-    '-- puede tardar mas de 3s. El chequeo anterior (unico, a los 3s) daba\n'
-    '-- por fallido el intento 1 y relanzaba installPackage con la descarga\n'
-    '-- todavia en curso -> "Package ... is already being downloaded" -> FALLO.\n'
-    '-- Ahora: una sola descarga, se consulta getPackages() cada 1s hasta 30s;\n'
-    '-- solo si en ese plazo no aparecio se reintenta UNA vez (otros 30s).\n'
-    '-- PetriaRhunaUpdating evita que dos updatepkg seguidos se pisen.\n'
-    'local ESPERA_MAX = 30\n\n'
-    'local function PetriaRhunaListo()\n'
-    '  PetriaRhunaUpdating = false\n'
-    '  -- Confirmado en juego: el "DirectionKeyGroup" del GUI oficial\n'
-    '  -- (numerico para movimiento, mismo modificador de teclado numerico\n'
-    '  -- que usamos para sanar/Savia verde/Linux-Rayo/etc.) puede quedar\n'
-    '  -- activo y pisar nuestras teclas custom con el mismo keyCode --\n'
-    '  -- confirmado que producia resultados random (ej. "u" en vez de\n'
-    '  -- lanzar rayo) hasta desactivarlo. Se desactiva solo en cada\n'
-    '  -- update, sin que haga falta acordarse a mano. pcall porque puede\n'
-    '  -- no existir si el GUI oficial no esta instalado.\n'
-    '  pcall(disableKey, "DirectionKeyGroup")\n'
-    '  cecho(string.format("<green>[Petria-Rhuna] Reinstalado. Build: %s\\n", tostring(Petria and Petria.version or "?")))\n'
-    'end\n\n'
-    'local function PetriaRhunaEsperar(intento, segundos)\n'
-    '  if PetriaRhunaEstaInstalado() then\n'
-    '    PetriaRhunaListo()\n'
-    '  elseif segundos < ESPERA_MAX then\n'
-    '    tempTimer(1, function() PetriaRhunaEsperar(intento, segundos + 1) end)\n'
-    '  elseif intento < 2 then\n'
-    '    cecho(string.format("<yellow>[Petria-Rhuna] Sin respuesta tras %ds, reintentando...\\n", ESPERA_MAX))\n'
-    f'    installPackage("{JSDELIVR_URL}")\n'
-    '    tempTimer(1, function() PetriaRhunaEsperar(intento + 1, 1) end)\n'
-    '  else\n'
-    '    PetriaRhunaUpdating = false\n'
-    f'    cecho("<red>[Petria-Rhuna] FALLO el reinstall tras 2 intentos. Instalalo manual: lua installPackage(\\"{JSDELIVR_URL}\\")\\n")\n'
-    '  end\n'
-    'end\n\n'
-    'tempTimer(2, function()\n'
-    f'  installPackage("{JSDELIVR_URL}")\n'
-    '  tempTimer(1, function() PetriaRhunaEsperar(1, 1) end)\n'
-    'end)'
+    + UPDATER_REINSTALL_LUA.replace('@@URL1@@', JSDELIVR_URL)
+    .replace('@@URL2@@', UPDATER_FALLBACK_URL)
 )
 
 indent(updater_root)
