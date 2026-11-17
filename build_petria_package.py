@@ -3738,7 +3738,7 @@ if type(PetriaRhunaUpdating) == "number" and os.time() - PetriaRhunaUpdating < 3
 end
 PetriaRhunaUpdating = os.time()
 
-local ESPERA_MAX = 90
+local ESPERA_MAX = 30
 local FUENTES = {
   { nombre = "githack", url = "@@URL1@@" },
   { nombre = "jsdelivr (respaldo, puede ser un build anterior)", url = "@@URL2@@" },

@@ -131,7 +131,7 @@ paquete quedaba desinstalado. Ahora `updatepkg` baja el XML con
 (el archivo debe llamarse así: Mudlet toma el nombre del paquete del
 nombre del archivo), valida que sea un paquete con `Petria.version` y solo
 entonces desinstala e instala desde ese archivo local. Si githack falla o
-no responde en 90 s prueba jsdelivr `@main` como respaldo (puede traer un
+no responde en 30 s prueba jsdelivr `@main` como respaldo (puede traer un
 build anterior). Si todo falla, el paquete instalado no se toca. Un
 `updatepkg` repetido mientras hay uno en curso se ignora (el bloqueo
 expira a los 5 minutos). `updatepkg -v` revisa `getPackages()` porque
