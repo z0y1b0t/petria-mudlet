@@ -17,8 +17,17 @@
 -- reinstalar nada. Si Petria-Rhuna no esta instalado (por eso este
 -- updater vive separado, ver nota abajo), Petria no existe todavia --
 -- se chequea con seguridad en vez de romper con un error de Lua.
+-- Confirmado en juego (2026-11-17): Petria.version es una global de Lua
+-- y sobrevive a uninstallPackage, asi que -v mostraba un build aunque el
+-- paquete NO estuviera instalado. Ahora se revisa getPackages() primero.
 if matches[2] and matches[2] ~= "" then
-  if Petria and Petria.version then
+  local instalado = false
+  for _, nombre in ipairs(getPackages()) do
+    if nombre == "Petria-Rhuna" then instalado = true end
+  end
+  if not instalado then
+    cecho("&lt;red&gt;[Petria-Rhuna] NO esta instalado. Corre updatepkg para instalarlo.\n")
+  elseif Petria and Petria.version then
     cecho(string.format("&lt;cyan&gt;[Petria-Rhuna] Build instalado: %s\n", tostring(Petria.version)))
   else
     cecho("&lt;red&gt;[Petria-Rhuna] No parece estar instalado (Petria.version no existe). Corre updatepkg para instalarlo.\n")
