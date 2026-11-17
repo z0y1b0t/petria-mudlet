@@ -124,18 +124,33 @@ Después, `updatepkg` reinstala solo `Petria-Rhuna` — el updater no hace
 falta tocarlo de nuevo.
 
 **Descarga primero, desinstala después (2026-11-17):** en la red de la
-Mac githack puede tardar minutos o devolver 502/520, y el `updatepkg`
-anterior desinstalaba antes de descargar: si la descarga fallaba, el
-paquete quedaba desinstalado. Ahora `updatepkg` baja el XML con
-`downloadFile` a `<MudletHome>/petria-rhuna-descarga-N/Petria-Rhuna.xml`
-(el archivo debe llamarse así: Mudlet toma el nombre del paquete del
-nombre del archivo), valida que sea un paquete con `Petria.version` y solo
-entonces desinstala e instala desde ese archivo local. Si githack falla o
-no responde en 30 s prueba jsdelivr `@main` como respaldo (puede traer un
-build anterior). Si todo falla, el paquete instalado no se toca. Un
-`updatepkg` repetido mientras hay uno en curso se ignora (el bloqueo
+Mac raw.githack.com tarda minutos o devuelve 502/520, mientras jsdelivr
+responde al instante. El `updatepkg` anterior desinstalaba antes de
+descargar: si la descarga fallaba, el paquete quedaba desinstalado.
+Ahora `updatepkg`:
+
+1. Baja el XML con `downloadFile` a
+   `<MudletHome>/petria-rhuna-descarga-<fuente>/Petria-Rhuna.xml` (el
+   archivo debe llamarse así: Mudlet toma el nombre del paquete del nombre
+   del archivo).
+2. Valida que sea un paquete y lee su `Petria.version` (es `time.time()`
+   del build: mayor = más nuevo).
+3. Prueba primero jsdelivr `@main` (espera 20 s) y después githack
+   (espera 30 s).
+4. Si el build bajado es más nuevo que el instalado, desinstala e instala
+   desde el archivo local. Si es el mismo o anterior (jsdelivr todavía no
+   tomó el push), no reinstala y prueba la siguiente fuente.
+5. Al final dice si ya estabas al día, si alguna fuente no respondió, o si
+   no pudo descargar nada. En ningún caso de falla toca el paquete
+   instalado.
+
+Un `updatepkg` repetido mientras hay uno en curso se ignora (el bloqueo
 expira a los 5 minutos). `updatepkg -v` revisa `getPackages()` porque
 `Petria.version` sobrevive al uninstall.
+
+Después de cada push: purgar jsdelivr
+(`curl https://purge.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml`)
+y avisar que corra `updatepkg` solo cuando jsdelivr sirva el build nuevo.
 
 ## Seguir editando el código desde otra máquina (ej. la Mac)
 

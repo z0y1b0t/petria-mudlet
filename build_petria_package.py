@@ -3716,19 +3716,22 @@ updater_var_pkg = ET.SubElement(updater_root, "VariablePackage")
 ET.SubElement(updater_var_pkg, "HiddenVariables")
 
 UPDATER_FALLBACK_URL = "https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@main/Petria-Rhuna.xml"
-UPDATER_REINSTALL_LUA = r'''-- Confirmado en juego (2026-11-17): en la red de la Mac las descargas de
--- githack pueden tardar minutos o devolver 502/520. El diseno anterior
--- hacia uninstallPackage ANTES de descargar: si la descarga fallaba, el
--- paquete quedaba desinstalado. Ademas installPackage(url) bloquea otro
--- intento con el mismo nombre ("already being downloaded") mientras siga
--- la descarga anterior.
--- Ahora: 1) downloadFile a un archivo local (eventos sysDownloadDone /
--- sysDownloadError), 2) se valida que sea un paquete Mudlet con
--- Petria.version, 3) recien ahi uninstall + install desde el archivo
--- local. Si la fuente principal falla o no responde en ESPERA_MAX
--- segundos, se prueba la de respaldo (jsdelivr @main, que puede traer
--- un build anterior -- se avisa). Si todo falla, el paquete instalado
--- queda intacto.
+UPDATER_REINSTALL_LUA = r'''-- Historia (2026-11-17, confirmado en juego): en la red de la Mac
+-- raw.githack.com tarda minutos o devuelve 502/520, y jsdelivr responde al
+-- instante. El diseno viejo desinstalaba ANTES de descargar (si la descarga
+-- fallaba quedaba sin paquete) e installPackage(url) bloquea un segundo
+-- intento con "already being downloaded".
+-- Ahora:
+-- 1) downloadFile a un archivo local (eventos sysDownloadDone/Error).
+-- 2) Se valida que sea un paquete Mudlet y se lee su Petria.version
+--    (os.time() del build, asi que mayor = mas nuevo).
+-- 3) Fuentes en orden: jsdelivr @main (rapida en la Mac, pero puede tardar
+--    en tomar un push recien hecho) y luego githack @main.
+-- 4) Si la descarga trae un build MAS NUEVO que el instalado, se instala
+--    de inmediato. Si trae el mismo o uno anterior, no se reinstala: se
+--    prueba la siguiente fuente por si ella ya tiene el push nuevo.
+-- 5) Recien con un build nuevo valido se hace uninstall + install local.
+--    Si todo falla, el paquete instalado queda intacto.
 -- PetriaRhunaUpdating guarda os.time() del inicio: si una corrida quedo
 -- colgada (o la dejo marcada una version vieja del updater, que usaba
 -- true), a los 5 minutos ya no bloquea.
@@ -3738,10 +3741,9 @@ if type(PetriaRhunaUpdating) == "number" and os.time() - PetriaRhunaUpdating < 3
 end
 PetriaRhunaUpdating = os.time()
 
-local ESPERA_MAX = 30
 local FUENTES = {
-  { nombre = "githack", url = "@@URL1@@" },
-  { nombre = "jsdelivr (respaldo, puede ser un build anterior)", url = "@@URL2@@" },
+  { nombre = "jsdelivr", url = "@@URL_JSDELIVR@@", espera = 20 },
+  { nombre = "githack", url = "@@URL_GITHACK@@", espera = 30 },
 }
 local estado = { handlers = {}, timer = nil, terminado = false }
 
@@ -3750,6 +3752,12 @@ local function PetriaRhunaEstaInstalado()
     if nombre == "Petria-Rhuna" then return true end
   end
   return false
+end
+
+-- 0 si no hay paquete instalado: cualquier build valido sirve.
+local buildInstalado = 0
+if PetriaRhunaEstaInstalado() and Petria and tonumber(Petria.version) then
+  buildInstalado = tonumber(Petria.version)
 end
 
 local function limpiar()
@@ -3765,16 +3773,17 @@ local function terminar(ok, msg)
   cecho((ok and "<green>" or "<red>") .. "[Petria-Rhuna] " .. msg .. "\n")
 end
 
-local function archivoValido(ruta)
+-- Devuelve el build (numero) si el archivo es un paquete valido, o nil.
+local function leerBuild(ruta)
   local f = io.open(ruta, "r")
-  if not f then return false end
+  if not f then return nil end
   local txt = f:read("*a") or ""
   f:close()
-  return txt:find("<MudletPackage", 1, true) and txt:find("Petria.version", 1, true)
+  if not txt:find("<MudletPackage", 1, true) then return nil end
+  return tonumber(txt:match("Petria%.version%s*=%s*(%d+)"))
 end
 
-local function instalarLocal(ruta)
-  if not archivoValido(ruta) then return false end
+local function instalarLocal(ruta, build)
   uninstallPackage("Petria-Rhuna")
   tempTimer(1, function()
     installPackage(ruta)
@@ -3785,13 +3794,12 @@ local function instalarLocal(ruta)
         -- teclas custom con el mismo keyCode. pcall porque puede no
         -- existir si el GUI oficial no esta instalado.
         pcall(disableKey, "DirectionKeyGroup")
-        terminar(true, string.format("Reinstalado. Build: %s", tostring(Petria and Petria.version or "?")))
+        terminar(true, string.format("Reinstalado. Build: %s", tostring(Petria and Petria.version or build)))
       else
         terminar(false, "Descargado pero no se pudo instalar. Prueba: lua installPackage(\"" .. ruta .. "\")")
       end
     end)
   end)
-  return true
 end
 
 local probar
@@ -3800,26 +3808,41 @@ probar = function(i)
   if estado.terminado then return end
   local fuente = FUENTES[i]
   if not fuente then
-    terminar(false, "No se pudo descargar de ninguna fuente. El paquete instalado no se toco.")
+    if estado.algunaRespondio and not estado.algunaFallo then
+      terminar(true, string.format("Ya tienes el ultimo build disponible (%s). No hizo falta reinstalar.", tostring(buildInstalado)))
+    elseif estado.algunaRespondio then
+      terminar(false, string.format("No encontre un build mas nuevo que el instalado (%s), pero una fuente no respondio. Si acabas de recibir un push, reintenta en un rato. El paquete instalado no se toco.", tostring(buildInstalado)))
+    else
+      terminar(false, "No se pudo descargar de ninguna fuente. El paquete instalado no se toco.")
+    end
     return
   end
   -- Mudlet toma el nombre del paquete .xml del NOMBRE DEL ARCHIVO, asi que
   -- tiene que llamarse Petria-Rhuna.xml; una carpeta por fuente para que
   -- una descarga lenta que llegue tarde no pise la de la otra fuente.
-  local dir = getMudletHomeDir() .. "/petria-rhuna-descarga-" .. i
+  local dir = getMudletHomeDir() .. "/petria-rhuna-descarga-" .. fuente.nombre
   lfs.mkdir(dir)
   local ruta = dir .. "/Petria-Rhuna.xml"
   os.remove(ruta)
   cecho(string.format("<yellow>[Petria-Rhuna] Descargando desde %s...\n", fuente.nombre))
-  local function siguiente(motivo)
+  local function siguiente(motivo, color)
     if estado.terminado then return end
-    cecho(string.format("<yellow>[Petria-Rhuna] %s fallo (%s).\n", fuente.nombre, motivo))
+    cecho(string.format("%s[Petria-Rhuna] %s: %s.\n", color or "<yellow>", fuente.nombre, motivo))
     probar(i + 1)
   end
   estado.handlers[#estado.handlers + 1] = registerAnonymousEventHandler("sysDownloadDone", function(_, archivo)
     if archivo ~= ruta then return end
     limpiar()
-    if not instalarLocal(ruta) then siguiente("archivo invalido") end
+    local build = leerBuild(ruta)
+    if not build then
+      estado.algunaFallo = true
+      siguiente("archivo invalido")
+    elseif build > buildInstalado then
+      instalarLocal(ruta, build)
+    else
+      estado.algunaRespondio = true
+      siguiente(string.format("trae el build %d, igual o anterior al instalado", build), "<gray>")
+    end
   end)
   estado.handlers[#estado.handlers + 1] = registerAnonymousEventHandler("sysDownloadError", function(_, ...)
     local args = { ... }
@@ -3828,11 +3851,12 @@ probar = function(i)
       if a == ruta or a == fuente.url then esMio = true
       elseif type(a) == "string" and detalle == "" then detalle = a end
     end
-    if esMio then siguiente(detalle ~= "" and detalle or "error de descarga") end
+    if esMio then estado.algunaFallo = true; siguiente("fallo (" .. (detalle ~= "" and detalle or "error de descarga") .. ")") end
   end)
-  estado.timer = tempTimer(ESPERA_MAX, function()
+  estado.timer = tempTimer(fuente.espera, function()
     estado.timer = nil
-    siguiente(string.format("sin respuesta en %ds", ESPERA_MAX))
+    estado.algunaFallo = true
+    siguiente(string.format("sin respuesta en %ds", fuente.espera))
   end)
   downloadFile(ruta, fuente.url)
 end
@@ -3885,8 +3909,8 @@ make_alias(
     '-- jsdelivr seguia atascado en el anterior. raw.githack.com (la\n'
     '-- variante pensada para contenido que cambia seguido, no la\n'
     '-- "produccion" rawcdn.githack.com) resulto mas confiable.\n'
-    + UPDATER_REINSTALL_LUA.replace('@@URL1@@', JSDELIVR_URL)
-    .replace('@@URL2@@', UPDATER_FALLBACK_URL)
+    + UPDATER_REINSTALL_LUA.replace('@@URL_GITHACK@@', JSDELIVR_URL)
+    .replace('@@URL_JSDELIVR@@', UPDATER_FALLBACK_URL)
 )
 
 indent(updater_root)
