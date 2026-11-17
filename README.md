@@ -130,13 +130,15 @@ descargar: si la descarga fallaba, el paquete quedaba desinstalado.
 Ahora `updatepkg`:
 
 1. Baja el XML con `downloadFile` a
-   `<MudletHome>/petria-rhuna-descarga-<fuente>/Petria-Rhuna.xml` (el
+   `<MudletHome>/petria-rhuna-descarga-<N>/Petria-Rhuna.xml` (el
    archivo debe llamarse así: Mudlet toma el nombre del paquete del nombre
    del archivo).
 2. Valida que sea un paquete y lee su `Petria.version` (es `time.time()`
    del build: mayor = más nuevo).
-3. Prueba primero jsdelivr `@main` (espera 20 s) y después githack
-   (espera 30 s).
+3. Pide a `api.github.com` el sha de `main` (espera 8 s) y prueba primero
+   jsdelivr `@<sha>`, que es inmutable y nunca trae un build viejo (aun
+   purgando, el nodo de jsdelivr cercano a la Mac siguió sirviendo `@main`
+   con el build anterior). Después jsdelivr `@main` (20 s) y githack (30 s).
 4. Si el build bajado es más nuevo que el instalado, desinstala e instala
    desde el archivo local. Si es el mismo o anterior (jsdelivr todavía no
    tomó el push), no reinstala y prueba la siguiente fuente.

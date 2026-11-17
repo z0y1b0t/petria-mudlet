@@ -3741,6 +3741,13 @@ if type(PetriaRhunaUpdating) == "number" and os.time() - PetriaRhunaUpdating < 3
 end
 PetriaRhunaUpdating = os.time()
 
+-- Confirmado en juego (2026-11-17): aun purgando, el nodo de jsdelivr
+-- cercano a la Mac siguio sirviendo @main con el build anterior. Por eso
+-- primero se pide a api.github.com el sha de main y se baja jsdelivr
+-- @<sha> (inmutable: nunca trae un build viejo). Si la API no responde,
+-- quedan jsdelivr @main y githack como antes.
+local API_SHA = "https://api.github.com/repos/z0y1b0t/petria-mudlet/commits/main"
+local JSDELIVR_SHA = "https://cdn.jsdelivr.net/gh/z0y1b0t/petria-mudlet@%s/Petria-Rhuna.xml"
 local FUENTES = {
   { nombre = "jsdelivr", url = "@@URL_JSDELIVR@@", espera = 20 },
   { nombre = "githack", url = "@@URL_GITHACK@@", espera = 30 },
@@ -3820,7 +3827,7 @@ probar = function(i)
   -- Mudlet toma el nombre del paquete .xml del NOMBRE DEL ARCHIVO, asi que
   -- tiene que llamarse Petria-Rhuna.xml; una carpeta por fuente para que
   -- una descarga lenta que llegue tarde no pise la de la otra fuente.
-  local dir = getMudletHomeDir() .. "/petria-rhuna-descarga-" .. fuente.nombre
+  local dir = getMudletHomeDir() .. "/petria-rhuna-descarga-" .. i
   lfs.mkdir(dir)
   local ruta = dir .. "/Petria-Rhuna.xml"
   os.remove(ruta)
@@ -3861,7 +3868,33 @@ probar = function(i)
   downloadFile(ruta, fuente.url)
 end
 
-probar(1)'''
+-- Paso previo: resolver el sha de main. Con sha, la fuente 1 pasa a ser
+-- jsdelivr @<sha>; sin sha (API caida/bloqueada) se sigue con @main.
+local shaRuta = getMudletHomeDir() .. "/petria-rhuna-descarga-sha.json"
+os.remove(shaRuta)
+local function arrancar(sha)
+  limpiar()
+  if estado.arrancado then return end
+  estado.arrancado = true
+  if sha then
+    table.insert(FUENTES, 1, { nombre = "jsdelivr @" .. sha:sub(1, 7), url = string.format(JSDELIVR_SHA, sha), espera = 20 })
+  end
+  probar(1)
+end
+estado.handlers[#estado.handlers + 1] = registerAnonymousEventHandler("sysDownloadDone", function(_, archivo)
+  if archivo ~= shaRuta then return end
+  local f = io.open(shaRuta, "r")
+  local txt = f and f:read("*a") or ""
+  if f then f:close() end
+  arrancar(txt:match('"sha"%s*:%s*"(%x+)"'))
+end)
+estado.handlers[#estado.handlers + 1] = registerAnonymousEventHandler("sysDownloadError", function(_, ...)
+  for _, a in ipairs({ ... }) do
+    if a == shaRuta or a == API_SHA then arrancar(nil) return end
+  end
+end)
+estado.timer = tempTimer(8, function() estado.timer = nil arrancar(nil) end)
+downloadFile(shaRuta, API_SHA)'''
 
 make_alias(
     updater_alias_group, "updatepkg", r"^updatepkg(?:\s+(-v|version))?$",
